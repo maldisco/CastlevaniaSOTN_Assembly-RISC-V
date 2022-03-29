@@ -15,27 +15,29 @@ TWOB_POSX:		.word 74
 TWOB_POSY:		.word 183
 CURRENT_FRAME:		.word 0
 
+SIZES:			.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
+CURRENT_SPRITE:		.word 0
+
 ##########################################################################
 # Imprime uma sprite 16x16 a partir de um endereço encontrado na memória #
 ##########################################################################
 .macro render_sprite(%sprite, %current_x, %current_y)
-# escolhe a frame aonde a sprite será desenhada
-frame_address(a1)
+frame_address(a1)	# carrega para a1 o endereço da frame atual
 la s1, %sprite
 lw a3, 4(s1)		# todos os sprites são quadrados 16x16
 lw a4, (s1)
-loadw( t1,%current_y )
-loadw( t2,%current_x )	
-li t3, 320
-mul t3,t1,t3		# aux = linhax320 (linha)
-add a1,a1,t3
-add a1,a1,t2		# endereço inicial = linha x 320 + coluna
-mv a2,a1		
-li t1,320		
-mul t1, t1, a3		# 320 x altura
-add t1, t1, a4		# + largura = quantidade de pixels pintados
-add a2,a2,t1		# endereço final = endereço inicial + 320 x altura + largura	
-addi s1,s1,8		# chega ao .text
+loadw( t1,%current_y )	# carrega posição do personagem no eixo Y
+loadw( t2,%current_x )	# carrega posição do personagem do eixo X
+li t3, 320		# usado para pular linhas no eixo Y
+mul t3,t1,t3		# t3 = linha x 320
+add a1,a1,t3		# a1 = a1 + endereço 0 + linha x 320
+add a1,a1,t2		# a1 = a1 + coluna
+mv a2,a1		# a2 = a2 (endereço inicial de impressão)
+li t1,320		# usado para calcular linhas 
+mul t1, t1, a3		# t1 = 320 * altura da sprite
+add t1, t1, a4		# t1 = t1 + largura da sprite
+add a2,a2,t1		# endereço final = endereço inicial + linhas + colunas da sprite	
+addi s1,s1,8		# chega aos pixeis da sprite
 li t1,0			# contador
 li t2, 0xffffff80
 # ==========================================================

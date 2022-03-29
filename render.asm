@@ -3,13 +3,13 @@
 #################################
 PS_LOOP: 	
 	bge a1,a2,PS_FORA			# Se for o último endereço então sai do loop
-		bne t1,a4, PS_CONTINUA		# Testa se 16 pixels foram pintados (1 linha)
+		bne t1,a4, PS_CONTINUA		# Testa se A4 pixels foram pintados (1 linha)
 			sub a1,a1,a4
 			addi a1,a1,320		
 			li t1,0			# Desce para a próxima linha
 		PS_CONTINUA:
-		lb t3, 0(s1)			# Carriga o byte da sprite
-		beq t3, t2, PS_PULA		# Testa se o byte é da cor t6
+		lb t3, 0(s1)			# Carrega o byte da sprite
+		beq t3, t2, PS_PULA		# Testa se o byte é da cor T3
 			sb t3, 0(a1)		# Pinta o byte no endereço do BitMap
 		PS_PULA:	
 		addi t1,t1,1
