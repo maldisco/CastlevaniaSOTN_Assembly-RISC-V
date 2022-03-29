@@ -1,3 +1,16 @@
+.eqv FRAME_0		0xff000000
+.eqv FRAME_1		0xff100000
+.eqv FRAME_SELECT	0xff200604
+
+.eqv UP			0x77	# 'W'
+.eqv DOWN		0x73	# 'S'
+.eqv LEFT		0x61	# 'A'
+.eqv RIGHT		0x64	# 'D'
+.eqv SELECT		0x65	# 'E'
+
+.eqv MMIO_set			0xff200000
+.eqv MMIO_add			0xff200004
+
 TWOB_POSX:		.word 74
 TWOB_POSY:		.word 183
 CURRENT_FRAME:		.word 0
