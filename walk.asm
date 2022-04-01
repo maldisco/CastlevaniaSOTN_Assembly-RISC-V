@@ -1,88 +1,80 @@
 .data
-TWOB_POSX:		.word 74
-TWOB_POSY:		.word 183
-TWOB_OLD_POSX:		.word 74
-TWOB_OLD_POSY:		.word 183
-SIZES_RIGHT:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
-SIZES_LEFT:		.word 43,39,39,42,34,44		# largura de cada sprite de corrida à direita
-ADDRESS_RIGHT:		.word 8,52,86,128,167,206
-ADDRESS_LEFT:		.word 8,51,90,129,171,205
-JUMP_RIGHT:		.word 197,207,199,202,202,198
-JUMP_LEFT:		.word 198,202,202,199,207,197
-CURRENT_SPRITE:		.word 0
+horizontal_2b:		.word 74
+vertical_2b:		.word 183
+antigo_horizontal_2b:		.word 74
+antigo_vertical_2b:		.word 183
+larguras_direita:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
+larguras_esquerda:		.word 43,39,39,42,34,44		# largura de cada sprite de corrida à direita
+endereco_direita:		.word 8,52,86,128,167,206
+endereco_esquerda:		.word 8,51,90,129,171,205
+sprite_atual:		.word 0
 
 .text
 
-TWOB_WALK:
+animacao_2b:
 	li a1, RIGHT		# carrega para a1 o código da tecla 'D'
 	li a2, LEFT		# carrega para a2 o código da tecla 'A'
 	
 	li t2, 0					# reseta animação
-	savew(t2, CURRENT_SPRITE)
+	savew(t2, sprite_atual)
 	
-	beq s0, a1, DIREITA	# se for igual ao código da tecla 'D', anda para direita
-	beq s0, a2, ESQUERDA	# se for igual ao código da tecla 'A', anda para esquerd
-	j POLL_LOOP
-DIREITA:	
-	switch_frame()					# troca de frame (só na memória, não no bitmap)
-	loadw(t2, TWOB_POSX)				# carrega para t2 a posição atual do personagem em X
-	addi t2, t2, 10					# adiciona 10 pixels (largura da sprite) -> desloca à direita
-	savew(t2, TWOB_POSX)				# salva o novo valor de posição do personagem
-	jal WALK_RIGHT
-	frame_refresh()					# troca de frame (no bitmap)
-	jal ERASE_OLD_POSITION				# apaga a posição antiga
-	loadw(t2, TWOB_OLD_POSX)			# atualiza posição antiga
-	addi t2, t2, 10		
-	savew(t2, TWOB_OLD_POSX)	
-	j D_APERTADO					# checa se a tecla ainda está apertada
-ESQUERDA:
-	switch_frame()					# troca de frame (só na memória, não no bitmap)
-	loadw(t2, TWOB_POSX)				# carrega para t2 a posição atual do personagem em X
-	addi t2, t2, -10				# subtrai 10 pixels (largura da sprite) -> desloca à direita
-	savew(t2, TWOB_POSX)				# salva o novo valor de posição do personagem
-	jal WALK_LEFT
-	frame_refresh()					# troca de frame (no bitmap)
-	jal ERASE_OLD_POSITION				# apaga a posição antiga
-	loadw(t2, TWOB_OLD_POSX)			# atualiza posição antiga
-	addi t2, t2, -10				
-	savew(t2, TWOB_OLD_POSX)	
-	j D_ESQUERDA					# volta ao loop
+	beq s0, a1, direita	# se for igual ao código da tecla 'D', anda para direita
+	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
+	j poll_loop
+direita:	
+	troca_tela()					# troca de frame (só na memória, não no bitmap)
+	soma(horizontal_2b, 10)				# adiciona 10 pixels (largura da sprite) -> desloca à direita
+	jal move_direita
+	atualiza_tela()					# troca de frame (no bitmap)
+	jal apagar_antiga_posicao			# apaga a posição antiga
+	soma(antigo_horizontal_2b, 10)			# atualiza posição antiga
+	j d_apertado					# checa se a tecla ainda está apertada
+esquerda:
+	troca_tela()					# troca de frame (só na memória, não no bitmap)
+	subtrai(horizontal_2b, 10)			# subtrai 10 pixels (largura da sprite) -> desloca à direita
+	jal move_esquerda
+	atualiza_tela()					# troca de frame (no bitmap)
+	jal apagar_antiga_posicao			# apaga a posição antiga
+	subtrai(antigo_horizontal_2b, 10)			# atualiza posição antiga
+	j a_apertado					# volta ao loop
 	
 
-D_APERTADO:
-	li s11, MMIO_set
-	lw t1, (s11)
-	beqz t1, POLL_LOOP
-	loadw(t1, CURRENT_SPRITE)
+d_apertado:
+	li t0, MMIO_add
+	lw s0, (t0)
+	li t1, RIGHT
+	bne s0, t1, animacao_2b
+	loadw(t1, sprite_atual)
 	addi t1, t1, 1
 	li t2, 7
-	bne t1, t2, DA_SALVA
+	bne t1, t2, da_salva
 	li t1, 0
-DA_SALVA:
-	savew(t1, CURRENT_SPRITE)
-	j DIREITA
+da_salva:
+	savew(t1, sprite_atual)
+	j direita
 	
-D_ESQUERDA:
-	li s11, MMIO_set
-	lw t1, (s11)
-	beqz t1, POLL_LOOP
-	loadw(t1, CURRENT_SPRITE)
+a_apertado:
+	li t0, MMIO_add
+	lw s0, (t0)
+	li t1, LEFT
+	bne s0, t1, animacao_2b
+	loadw(t1, sprite_atual)
 	addi t1, t1, 1
-	li t2, 7
-	bne t1, t2, DE_SALVA
+	li t2, 6
+	bne t1, t2, aa_salva
 	li t1, 0
-DE_SALVA:
-	savew(t1, CURRENT_SPRITE)
-	j ESQUERDA
+aa_salva:
+	savew(t1, sprite_atual)
+	j esquerda
 	
 	
 
 ########################
 # Apaga o bloco antigo #
 ########################	
-ERASE_OLD_POSITION:			
-	loadw(t3,TWOB_OLD_POSX)	# t3 = posição em x
-	loadw(t2,TWOB_OLD_POSY)	# t2 = posição em y
+apagar_antiga_posicao:			
+	loadw(t3,antigo_horizontal_2b)	# t3 = posição em x
+	loadw(t2,antigo_vertical_2b)	# t2 = posição em y
 	li t4, 320
 	other_frame_address(t5)	# endereço da frame 
 	mul t4, t4, t2		# 240 x altura
@@ -94,28 +86,28 @@ ERASE_OLD_POSITION:
 	li a3, 50		# pixels por linha
 	li t1, 0		# contador de pixels pintados
 	li t2, 0		# preto
-	ECP_LOOP:
-	bge a1,a2,ECP_FORA			# Se for o último endereço então sai do loop
-		bne t1,a3, ECP_CONTINUA		# Testa se A4 pixels foram pintados (1 linha)
+	aap_loop:
+	bge a1,a2,aap_fora			# Se for o último endereço então sai do loop
+		bne t1,a3, aap_continua		# Testa se A4 pixels foram pintados (1 linha)
 			sub a1,a1,a3
 			addi a1,a1,320		
 			li t1,0			# Desce para a próxima linha
-		ECP_CONTINUA:
+		aap_continua:
 		sb t2, 0(a1)		# Pinta o byte no endereço do BitMap	
 		addi t1,t1,1
 		addi a1,a1,1 
-		j ECP_LOOP			
-	ECP_FORA:
+		j aap_loop			
+	aap_fora:
 	ret
 
 #####################
 # Anda para direita #		 
 #####################
-WALK_RIGHT:
+move_direita:
 la s1, twob_walk_right				# s1 =  endereço da imagem
-get_size_address_right(a1, a2, twob_walk_right)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,TWOB_POSX)				# posição em X
-loadw(t2,TWOB_POSY)				# posição em Y
+get_largura_endereco(a1, a2, larguras_direita, endereco_direita)	# a1 = largura da sprite, a2 = endereço da sprite
+loadw(t1,horizontal_2b)				# posição em X
+loadw(t2,vertical_2b)				# posição em Y
 li t3, 320					
 mul t3, t3, t2
 frame_address(a3)
@@ -137,35 +129,35 @@ li a6, 0
 # a6 = contador de pixels pintados
 # s1 = endereço da sprite
 # ==========================================================
-WR_LOOP: 	
-	bge a3,a4,WR_FORA			# Se for o último endereço então sai do loop
-		bne a6,a1, WR_CONTINUA		# Testa se A1 pixels foram pintados (1 linha)
+md_loop: 	
+	bge a3,a4,md_fora			# Se for o último endereço então sai do loop
+		bne a6,a1, md_continua		# Testa se A1 pixels foram pintados (1 linha)
 			sub a3,a3,a1
 			addi a3,a3,320		
 			li a6,0			# Desce para a próxima linha
 			li t4, 241
 			sub t4, t4, a1
 			add s1, s1, t4
-		WR_CONTINUA:
+		md_continua:
 		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, WR_PULA		# Testa se o byte é da cor A5
+		beq t0, a5, md_pula		# Testa se o byte é da cor A5
 			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		WR_PULA:	
+		md_pula:	
 		addi a6,a6,1
 		addi a3,a3,1 
 		addi s1,s1,1
-		j WR_LOOP			
-	WR_FORA:
+		j md_loop			
+	md_fora:
 	ret
 
 ######################
 # Anda para esquerda #		 
 ######################
-WALK_LEFT:
+move_esquerda:
 la s1, twob_walk_left				# s1 =  endereço da imagem
-get_size_address_right(a1, a2, twob_walk_left)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,TWOB_POSX)				# posição em X
-loadw(t2,TWOB_POSY)				# posição em Y
+get_largura_endereco(a1, a2, larguras_esquerda, endereco_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
+loadw(t1,horizontal_2b)				# posição em X
+loadw(t2,vertical_2b)				# posição em Y
 li t3, 320					
 mul t3, t3, t2
 frame_address(a3)
@@ -187,23 +179,23 @@ li a6, 0
 # a6 = contador de pixels pintados
 # s1 = endereço da sprite
 # ==========================================================
-WL_LOOP: 	
-	bge a3,a4,WL_FORA			# Se for o último endereço então sai do loop
-		bne a6,a1, WL_CONTINUA		# Testa se A1 pixels foram pintados (1 linha)
+me_loop: 	
+	bge a3,a4,me_fora			# Se for o último endereço então sai do loop
+		bne a6,a1, me_continua		# Testa se A1 pixels foram pintados (1 linha)
 			sub a3,a3,a1
 			addi a3,a3,320		
 			li a6,0			# Desce para a próxima linha
 			li t4, 241
 			sub t4, t4, a1
 			add s1, s1, t4
-		WL_CONTINUA:
+		me_continua:
 		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, WL_PULA		# Testa se o byte é da cor A5
+		beq t0, a5, me_pula		# Testa se o byte é da cor A5
 			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		WL_PULA:	
+		me_pula:	
 		addi a6,a6,1
 		addi a3,a3,1 
 		addi s1,s1,1
-		j WL_LOOP			
-	WL_FORA:
+		j me_loop			
+	me_fora:
 	ret
