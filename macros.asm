@@ -51,14 +51,14 @@ jal PS_LOOP
 # Corre/anda  #
 ###############
 .macro walk(%sprite, %current_x, %current_y)
-frame_address(a1)	# carrega para a1 o endereço da frame atual
 la s1, %sprite
 lw a3, 4(s1)		# carrega para a3 a altura da sprite
-loadw( a4,CURRENT_SIZE )		# carrega para a4 a largura da sprite
+loadw( a4,CURRENT_SPRITE )		# carrega para a4 a largura da sprite
 loadw( t1,%current_y )	# carrega posição do personagem no eixo Y
 loadw( t2,%current_x )	# carrega posição do personagem do eixo X
 li t3, 320		# usado para pular linhas no eixo Y
 mul t3,t1,t3		# t3 = linha x 320
+frame_address(a1)	# carrega para a1 o endereço da frame atual
 add a1,a1,t3		# a1 = a1 + endereço 0 + linha x 320
 add a1,a1,t2		# a1 = a1 + coluna
 mv a2,a1		# a2 = a2 (endereço inicial de impressão)
@@ -77,6 +77,18 @@ li t2, 0xffffff80
 # t2 = cor a ser substituida pelo transparente
 # ==========================================================
 jal PWR
+.end_macro
+
+.macro get_size_address_right(%reg1, %reg2, %label)
+loadw(t0,CURRENT_SPRITE)
+la t1, SIZES_RIGHT
+la t2, ADDRESS_RIGHT
+li t3, 4
+mul t0, t0, t3
+add t1, t1, t0
+add t2, t2, t0
+lw %reg1, (t1)
+lw %reg2, (t2)
 .end_macro
 
 ######################################
@@ -131,11 +143,9 @@ sw %reg,(t0)
 #  Carrega um conteúdo da memória para um registrador  #	
 ########################################################
 .macro loadw(%reg, %label)
-li %reg,0
 la %reg,%label
 lw %reg,(%reg)
 .end_macro
-
 
 
 .include "./sprites/twob_stand.data"
