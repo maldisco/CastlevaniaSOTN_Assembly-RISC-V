@@ -22,6 +22,7 @@ animacao_2b:
 	
 	beq s0, a1, direita	# se for igual ao código da tecla 'D', anda para direita
 	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
+	
 	parada:
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	jal anima_parada				# animação parada
@@ -31,6 +32,7 @@ animacao_2b:
 	li a0, 32
 	ecall						# dorme por 32 milissegundos
 	j nada_apertado					# testa de não há nenhuma tecla apertada
+	
 direita:	
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	soma(horizontal_2b, 10)				# adiciona 10 pixels (largura da sprite) -> desloca à direita
