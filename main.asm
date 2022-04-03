@@ -9,6 +9,7 @@
 #	beqz t1, poll_loop	# se for igual a 0 (nada digitado), volta ao loop
 #	li s0, MMIO_add		# carrega para s0 o endereço a armazenar a tecla digitada
 #	lw s0, (s0)		# carrega para s0 a tecla digitada
+	jal att_tempo_2b
 	j animacao_2b
 				
 

@@ -10,6 +10,7 @@ endereco_direita:		.word 8,52,86,128,167,206
 endereco_esquerda:		.word 8,51,90,129,171,205
 endereco_parada:		.word 8,36,62
 sprite_atual:		.word 0
+tempo_2b:			.word 0
 
 .text
 
@@ -24,16 +25,20 @@ animacao_2b:
 	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
 	
 	parada:
+	jal checa_tempo
+	beqz a0, parada
+	jal att_tempo_2b	
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	jal anima_parada				# animação parada
 	atualiza_tela()					# troca de frame (no bitmap)
 	jal apagar_antiga_posicao			# apaga a posição antiga
-	li a7, 32
-	li a0, 32
-	ecall						# dorme por 32 milissegundos
+
 	j nada_apertado					# testa de não há nenhuma tecla apertada
 	
-direita:	
+direita:
+	jal checa_tempo
+	beqz a0, direita
+	jal att_tempo_2b	
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	soma(horizontal_2b, 10)				# adiciona 10 pixels (largura da sprite) -> desloca à direita
 	jal move_direita
@@ -42,6 +47,9 @@ direita:
 	soma(antigo_horizontal_2b, 10)			# atualiza posição antiga
 	j d_apertado					# checa se a tecla ainda está apertada
 esquerda:
+	jal checa_tempo
+	beqz a0, esquerda
+	jal att_tempo_2b
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	subtrai(horizontal_2b, 10)			# subtrai 10 pixels (largura da sprite) -> desloca à direita
 	jal move_esquerda
@@ -94,6 +102,35 @@ nada_apertado:
 na_salva:
 	savew(t1, sprite_atual)				# salva nova sprite
 	j parada
+
+
+######################################
+# Checa se o tempo necesário passou  #
+# desde a última renderização.	     #
+# Controle de FPS                    #
+######################################
+checa_tempo:
+	loadw(t1, tempo_2b)		# carrega o momento da ultima renderização
+	li a7, 30
+	ecall				# pega o tempo atual
+	sub t1, a0, t1			# tempo atual - ultima render
+	li t2, 48
+	bge t1, t2, ct_pode		# se for maior que 16 milissegundos, pode renderizar denovo
+	li a0, 0			# se não, não renderiza
+	ret
+ct_pode:
+	li a0, 1
+	ret
+
+##########################
+# Atualiza o tempo atual #
+##########################
+att_tempo_2b:
+	li a7, 30
+	ecall
+	savew(a0, tempo_2b)
+	ret
+
 
 ########################
 # Apaga o bloco antigo #
