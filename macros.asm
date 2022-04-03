@@ -15,8 +15,8 @@ tela_atual:		.word 0
 #################################################
 #  Retorna largura e endereco da próxima sprite #	
 #################################################
-.macro get_largura_endereco(%reg1, %reg2, %larguras, %enderecos)
-loadw(t0,sprite_atual)
+.macro get_largura_endereco(%reg1, %reg2, %sprite, %larguras, %enderecos)
+loadw(t0, %sprite)
 la t1, %larguras
 la t2, %enderecos
 li t3, 4

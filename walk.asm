@@ -1,6 +1,6 @@
 .data
-horizontal_2b:		.word 74
-vertical_2b:		.word 183
+horizontal_2b:			.word 74
+vertical_2b:			.word 183
 antigo_horizontal_2b:		.word 74
 antigo_vertical_2b:		.word 183
 larguras_direita:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
@@ -9,7 +9,8 @@ larguras_parada:		.word 28,26,26
 endereco_direita:		.word 8,52,86,128,167,206
 endereco_esquerda:		.word 8,51,90,129,171,205
 endereco_parada:		.word 8,36,62
-sprite_atual:		.word 0
+sprite_parada:			.word 0
+sprite_movendo:			.word 0
 tempo_2b:			.word 0
 
 .text
@@ -18,22 +19,26 @@ animacao_2b:
 	li a1, RIGHT		# carrega para a1 o código da tecla 'D'
 	li a2, LEFT		# carrega para a2 o código da tecla 'A'
 	
-	li t2, 0					# reseta animação
-	savew(t2, sprite_atual)
-	
 	beq s0, a1, direita	# se for igual ao código da tecla 'D', anda para direita
 	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
+	j poll_loop
 	
-	parada:
+parada:
 	jal checa_tempo
-	beqz a0, parada
-	jal att_tempo_2b	
+	beqz a0, parada	
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	jal anima_parada				# animação parada
 	atualiza_tela()					# troca de frame (no bitmap)
 	jal apagar_antiga_posicao			# apaga a posição antiga
-
-	j nada_apertado					# testa de não há nenhuma tecla apertada
+	jal att_tempo_2b
+	loadw(t1, sprite_parada)
+	addi t1, t1, 1					# incrementa 1 na sprite atual
+	li t2, 3
+	blt t1, t2, pnao_zera				# se sprite atual > 3(última), volta para 0
+		li t1, 0
+	pnao_zera:
+	savew(t1, sprite_parada)				# salva nova sprite
+	jalr s10
 	
 direita:
 	jal checa_tempo
@@ -45,7 +50,15 @@ direita:
 	atualiza_tela()					# troca de frame (no bitmap)
 	jal apagar_antiga_posicao			# apaga a posição antiga
 	soma(antigo_horizontal_2b, 10)			# atualiza posição antiga
-	j d_apertado					# checa se a tecla ainda está apertada
+	loadw(t1, sprite_movendo)				
+	addi t1, t1, 1					# incrementa 1 na sprite atual
+	li t2, 7	
+	blt t1, t2, dnao_zera				# se sprite atual > 6(última), volta para 0
+		li t1, 0
+	dnao_zera:
+	savew(t1, sprite_movendo)				# salva nova spri
+	j pl_recheca
+	
 esquerda:
 	jal checa_tempo
 	beqz a0, esquerda
@@ -56,53 +69,14 @@ esquerda:
 	atualiza_tela()					# troca de frame (no bitmap)
 	jal apagar_antiga_posicao			# apaga a posição antiga
 	subtrai(antigo_horizontal_2b, 10)			# atualiza posição antiga
-	j a_apertado					# volta ao loop
-	
-
-d_apertado:
-	li t0, MMIO_add					# endereço de ttecla armazenada
-	lw s0, (t0)
-	li t1, RIGHT
-	bne s0, t1, animacao_2b				# se direita (D) estiver apertada, volta para animação
-	loadw(t1, sprite_atual)				
-	addi t1, t1, 1					# incrementa 1 na sprite atual
-	li t2, 7	
-	blt t1, t2, da_salva				# se sprite atual > 6(última), volta para 0
-	li t1, 0
-da_salva:
-	savew(t1, sprite_atual)				# salva nova sprite
-	j direita
-	
-a_apertado:
-	li t0, MMIO_add					# endereço de ttecla armazenada
-	lw s0, (t0)
-	li t1, LEFT
-	bne s0, t1, animacao_2b				# se esquerda (A) estiver apertada, volta para animaçã
-	loadw(t1, sprite_atual)
+	loadw(t1, sprite_movendo)
 	addi t1, t1, 1					# incrementa 1 na sprite atual
 	li t2, 7
-	blt t1, t2, aa_salva				# se sprite atual > 6(última), volta para 0
-	li t1, 0
-aa_salva:
-	savew(t1, sprite_atual)				# salva nova sprite
-	j esquerda
-	
-nada_apertado:
-	li t0, MMIO_add					# endereço de ttecla armazenada
-	lw s0, (t0)
-	li t1, RIGHT
-	li t2, LEFT
-	beq s0, t1, animacao_2b
-	beq s0, t2, animacao_2b				# se nem esquerda (A) nem direita (D) estiver apertadas, continua animação de parada
-	loadw(t1, sprite_atual)
-	addi t1, t1, 1					# incrementa 1 na sprite atual
-	li t2, 3
-	blt t1, t2, na_salva				# se sprite atual > 3(última), volta para 0
-	li t1, 0
-na_salva:
-	savew(t1, sprite_atual)				# salva nova sprite
-	j parada
-
+	blt t1, t2, anao_zera				# se sprite atual > 6(última), volta para 0
+		li t1, 0
+	anao_zera:
+	savew(t1, sprite_movendo)				# salva nova sprite
+	j pl_recheca
 
 ######################################
 # Checa se o tempo necesário passou  #
@@ -169,7 +143,7 @@ apagar_antiga_posicao:
 #####################
 move_direita:
 la s1, twob_walk_right				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, larguras_direita, endereco_direita)	# a1 = largura da sprite, a2 = endereço da sprite
+get_largura_endereco(a1, a2, sprite_movendo, larguras_direita, endereco_direita)	# a1 = largura da sprite, a2 = endereço da sprite
 loadw(t1,horizontal_2b)				# posição em X
 loadw(t2,vertical_2b)				# posição em Y
 li t3, 320					
@@ -219,7 +193,7 @@ md_loop:
 ######################
 move_esquerda:
 la s1, twob_walk_left				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, larguras_esquerda, endereco_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
+get_largura_endereco(a1, a2, sprite_movendo, larguras_esquerda, endereco_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
 loadw(t1,horizontal_2b)				# posição em X
 loadw(t2,vertical_2b)				# posição em Y
 li t3, 320					
@@ -269,7 +243,7 @@ me_loop:
 ##############################
 anima_parada:
 la s1, twob_stand				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, larguras_parada, endereco_parada)	# a1 = largura da sprite, a2 = endereço da sprite
+get_largura_endereco(a1, a2, sprite_parada, larguras_parada, endereco_parada)	# a1 = largura da sprite, a2 = endereço da sprite
 loadw(t1,horizontal_2b)				# posição em X
 loadw(t2,vertical_2b)				# posição em Y
 addi t2, t2, -9
