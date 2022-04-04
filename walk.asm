@@ -1,16 +1,24 @@
 .data
+
 horizontal_2b:			.word 74
 vertical_2b:			.word 183
+
 antigo_horizontal_2b:		.word 74
 antigo_vertical_2b:		.word 183
+
 larguras_direita:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
 larguras_esquerda:		.word 43,39,39,42,34,44		# largura de cada sprite de corrida à direita
 larguras_parada:		.word 28,26,26
+larguras_pulando:		.word 26,35,35,35,39,52,52,52,25
 endereco_direita:		.word 8,52,86,128,167,206
 endereco_esquerda:		.word 8,51,90,129,171,205
 endereco_parada:		.word 8,36,62
+endereco_pulando:		.word 8,34,69,104,139,178,230,282,334
+
 sprite_parada:			.word 0
 sprite_movendo:			.word 0
+sprite_pulando:			.word 0
+
 tempo_2b:			.word 0
 
 .text
@@ -18,9 +26,11 @@ tempo_2b:			.word 0
 animacao_2b:
 	li a1, RIGHT		# carrega para a1 o código da tecla 'D'
 	li a2, LEFT		# carrega para a2 o código da tecla 'A'
+	li a3, UP		# carrega para a3 o código da tecla 'W'
 	
 	beq s0, a1, direita	# se for igual ao código da tecla 'D', anda para direita
 	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
+	beq s0, a3, pula
 	j poll_loop
 	
 parada:
@@ -77,6 +87,29 @@ esquerda:
 	anao_zera:
 	savew(t1, sprite_movendo)				# salva nova sprite
 	j pl_recheca
+
+pula:
+	jal checa_tempo
+	beqz a0, pula
+	jal att_tempo_2b
+	troca_tela()
+	jump_function(s9)
+	savew(s9, vertical_2b)
+	jal anima_pulo
+	atualiza_tela()
+	jal apagar_antiga_posicao
+	savew(s9, antigo_vertical_2b)
+	loadw(t1, sprite_pulando)
+	addi t1, t1, 1
+	li t2, 9
+	blt t1, t2, pnao_zera2
+		li t1, 0
+		savew(t1, sprite_pulando)
+		tail poll_loop
+	pnao_zera2:
+	savew(t1, sprite_pulando)
+	j pula
+	
 
 ######################################
 # Checa se o tempo necesário passou  #
@@ -152,7 +185,7 @@ frame_address(a3)
 add a3, a3, t3
 add a3, a3, t1					# a3 = endereço inicial
 mv a4, a3
-li t1, 15680					# 320 x 50(altura de todas as sprites)
+li t1, 15680					# 319 x 50(altura da sprite)
 add t1, t1, a1
 add a4, a4, t1					# a4 = endereço final
 add s1, s1, a2					# chega à sprite certa dentro da imagem
@@ -202,7 +235,7 @@ frame_address(a3)
 add a3, a3, t3
 add a3, a3, t1					# a3 = endereço inicial
 mv a4, a3
-li t1, 15680					# 320 x 50(altura de todas as sprites)
+li t1, 15680					# 320 x 50(altura da sprite)
 add t1, t1, a1
 add a4, a4, t1					# a4 = endereço final
 add s1, s1, a2					# chega à sprite certa dentro da imagem
@@ -253,7 +286,7 @@ frame_address(a3)
 add a3, a3, t3
 add a3, a3, t1					# a3 = endereço inicial
 mv a4, a3
-li t1, 18000					# 320 x 59(altura de todas as sprites)
+li t1, 18000					# 320 x 59(altura da sprite)
 add t1, t1, a1
 add a4, a4, t1					# a4 = endereço final
 add s1, s1, a2					# chega à sprite certa dentro da imagem
@@ -287,4 +320,55 @@ mp_loop:
 		addi s1,s1,1
 		j mp_loop			
 	mp_fora:
+	ret
+
+####################
+# Animação de pulo #		 
+####################
+anima_pulo:
+la s1, twob_jump				# s1 =  endereço da imagem
+get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando, endereco_pulando)	# a1 = largura da sprite, a2 = endereço da sprite
+loadw(t1,horizontal_2b)				# posição em X
+loadw(t2,vertical_2b)				# posição em Y
+addi t2, t2, -7
+li t3, 320					
+mul t3, t3, t2
+frame_address(a3)
+add a3, a3, t3
+add a3, a3, t1					# a3 = endereço inicial
+mv a4, a3
+li t1, 18000					# 320 x 59(altura da sprite)
+add t1, t1, a1
+add a4, a4, t1					# a4 = endereço final
+add s1, s1, a2					# chega à sprite certa dentro da imagem
+li a5, 0xffffff80
+li a6, 0
+# ==========================================================
+# a1 = largura da sprite (pixels a serem pintados)
+# a2 = endereço da sprite dentro da imagem
+# a3 = endereço inicial
+# a4 = endereço final
+# a5 = cor a ser substituida pelo transparente
+# a6 = contador de pixels pintados
+# s1 = endereço da sprite
+# ==========================================================
+ap_loop: 	
+	bge a3,a4,ap_fora			# Se for o último endereço então sai do loop
+		bne a6,a1, ap_continua		# Testa se A1 pixels foram pintados (1 linha)
+			sub a3,a3,a1
+			addi a3,a3,320		
+			li a6,0			# Desce para a próxima linha
+			li t4, 351
+			sub t4, t4, a1
+			add s1, s1, t4
+		ap_continua:
+		lb t0, 0(s1)			# Carrega o byte da sprite
+		beq t0, a5, ap_pula		# Testa se o byte é da cor A5
+			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
+		ap_pula:	
+		addi a6,a6,1
+		addi a3,a3,1 
+		addi s1,s1,1
+		j ap_loop			
+	ap_fora:
 	ret

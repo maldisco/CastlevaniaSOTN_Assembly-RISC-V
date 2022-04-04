@@ -27,6 +27,23 @@ lw %reg1, (t1)
 lw %reg2, (t2)
 .end_macro
 
+############################
+# Calcula a altura do pulo #
+############################
+.macro jump_function(%y)
+loadw(t0, sprite_pulando)	# t0 = x
+li t1, 4
+mul t2, t0, t0
+mul t1, t1, t2			# t1 =  -4 * x^2
+li t2, -32
+mul t2, t2, t0			# t2 = 32 * x
+li t3, 183
+add t3, t3, t1
+add t3, t3, t2			# t3 =  -4*x^2 + 32*x + 179
+mv %y, t3
+.end_macro
+
+
 ######################################
 #  Retorna o endereço da frame atual #	
 ######################################
@@ -107,5 +124,6 @@ sw t1, (t0)
 
 
 .include "./sprites/twob_stand.data"
+.include "./sprites/twob_jump.data"
 .include "./sprites/twob_walk_right.data"
 .include "./sprites/twob_walk_left.data"
