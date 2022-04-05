@@ -9,17 +9,21 @@ antigo_vertical_2b:		.word 183
 larguras_direita:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
 larguras_esquerda:		.word 43,39,39,42,34,44		# largura de cada sprite de corrida à direita
 larguras_parada:		.word 28,26,26
-larguras_pulando:		.word 26,35,35,35,39,52,52,52,25
+larguras_pulando_direita:	.word 26,35,35,35,39,52,52,52,25
+larguras_pulando_esquerda:	.word 25,52,52,52,39,35,35,35,26
 endereco_direita:		.word 8,52,86,128,167,206
 endereco_esquerda:		.word 8,51,90,129,171,205
 endereco_parada:		.word 8,36,62
-endereco_pulando:		.word 8,34,69,104,139,178,230,282,334
+endereco_pulando_direita:	.word 8,34,69,104,139,178,230,282,334
+endereco_pulando_esquerda:	.word 8,33,85,137,189,228,263,298,333
 
 sprite_parada:			.word 0
 sprite_movendo:			.word 0
 sprite_pulando:			.word 0
 
 tempo_2b:			.word 0
+
+ultima_inst:			.word 0
 
 .text
 
@@ -32,10 +36,17 @@ animacao_2b:
 	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
 	beq s0, a3, pula
 	j poll_loop
+
+pula:
+	loadw(t1, ultima_inst)
+	beq t1, a1, pula_direita
+	beq t1, a2, pula_esquerda
+	tail pula_parada
 	
 parada:
 	jal checa_tempo
 	beqz a0, parada	
+	savew(zero, ultima_inst)
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	jal anima_parada				# animação parada
 	atualiza_tela()					# troca de frame (no bitmap)
@@ -53,6 +64,7 @@ parada:
 direita:
 	jal checa_tempo
 	beqz a0, direita
+	savew(s0, ultima_inst)
 	jal att_tempo_2b	
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	soma(horizontal_2b, 10)				# adiciona 10 pixels (largura da sprite) -> desloca à direita
@@ -72,6 +84,7 @@ direita:
 esquerda:
 	jal checa_tempo
 	beqz a0, esquerda
+	savew(s0, ultima_inst)
 	jal att_tempo_2b
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
 	subtrai(horizontal_2b, 10)			# subtrai 10 pixels (largura da sprite) -> desloca à direita
@@ -88,27 +101,75 @@ esquerda:
 	savew(t1, sprite_movendo)				# salva nova sprite
 	j pl_recheca
 
-pula:
+pula_parada:
 	jal checa_tempo
-	beqz a0, pula
+	beqz a0, pula_parada
 	jal att_tempo_2b
 	troca_tela()
-	jump_function(s9)
+	funcao_pulo(s9)
 	savew(s9, vertical_2b)
-	jal anima_pulo
+	jal anima_pulo_direita
 	atualiza_tela()
 	jal apagar_antiga_posicao
 	savew(s9, antigo_vertical_2b)
 	loadw(t1, sprite_pulando)
 	addi t1, t1, 1
 	li t2, 9
-	blt t1, t2, pnao_zera2
+	blt t1, t2, ppnao_zera
 		li t1, 0
 		savew(t1, sprite_pulando)
 		tail poll_loop
-	pnao_zera2:
+	ppnao_zera:
 	savew(t1, sprite_pulando)
-	j pula
+	j pula_parada
+
+pula_direita:
+	jal checa_tempo
+	beqz a0, pula_direita
+	jal att_tempo_2b
+	troca_tela()
+	funcao_pulo(s9)
+	savew(s9, vertical_2b)
+	soma(horizontal_2b, 10)
+	jal anima_pulo_direita
+	atualiza_tela()
+	jal apagar_antiga_posicao
+	savew(s9, antigo_vertical_2b)
+	soma(antigo_horizontal_2b, 10)
+	loadw(t1, sprite_pulando)
+	addi t1, t1, 1
+	li t2, 9
+	blt t1, t2, pdnao_zera
+		li t1, 0
+		savew(t1, sprite_pulando)
+		tail poll_loop
+	pdnao_zera:
+	savew(t1, sprite_pulando)
+	j pula_direita
+	
+pula_esquerda:
+	jal checa_tempo
+	beqz a0, pula_esquerda
+	jal att_tempo_2b
+	troca_tela()
+	funcao_pulo(s9)
+	savew(s9, vertical_2b)
+	subtrai(horizontal_2b, 10)
+	jal anima_pulo_esquerda
+	atualiza_tela()
+	jal apagar_antiga_posicao
+	savew(s9, antigo_vertical_2b)
+	subtrai(antigo_horizontal_2b,10)
+	loadw(t1, sprite_pulando)
+	addi t1, t1, 1
+	li t2, 9
+	blt t1, t2, penao_zera
+		li t1, 0
+		savew(t1, sprite_pulando)
+		tail poll_loop
+	penao_zera:
+	savew(t1, sprite_pulando)
+	j pula_esquerda
 	
 
 ######################################
@@ -325,9 +386,9 @@ mp_loop:
 ####################
 # Animação de pulo #		 
 ####################
-anima_pulo:
-la s1, twob_jump				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando, endereco_pulando)	# a1 = largura da sprite, a2 = endereço da sprite
+anima_pulo_direita:
+la s1, twob_jump_right				# s1 =  endereço da imagem
+get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando_direita, endereco_pulando_direita)	# a1 = largura da sprite, a2 = endereço da sprite
 loadw(t1,horizontal_2b)				# posição em X
 loadw(t2,vertical_2b)				# posição em Y
 addi t2, t2, -7
@@ -371,4 +432,55 @@ ap_loop:
 		addi s1,s1,1
 		j ap_loop			
 	ap_fora:
+	ret
+
+##################################
+# Animação de pulo para esquerda #		 
+##################################
+anima_pulo_esquerda:
+la s1, twob_jump_left				# s1 =  endereço da imagem
+get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando_esquerda, endereco_pulando_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
+loadw(t1,horizontal_2b)				# posição em X
+loadw(t2,vertical_2b)				# posição em Y
+addi t2, t2, -7
+li t3, 320					
+mul t3, t3, t2
+frame_address(a3)
+add a3, a3, t3
+add a3, a3, t1					# a3 = endereço inicial
+mv a4, a3
+li t1, 18000					# 320 x 59(altura da sprite)
+add t1, t1, a1
+add a4, a4, t1					# a4 = endereço final
+add s1, s1, a2					# chega à sprite certa dentro da imagem
+li a5, 0xffffff80
+li a6, 0
+# ==========================================================
+# a1 = largura da sprite (pixels a serem pintados)
+# a2 = endereço da sprite dentro da imagem
+# a3 = endereço inicial
+# a4 = endereço final
+# a5 = cor a ser substituida pelo transparente
+# a6 = contador de pixels pintados
+# s1 = endereço da sprite
+# ==========================================================
+ape_loop: 	
+	bge a3,a4,ape_fora			# Se for o último endereço então sai do loop
+		bne a6,a1, ape_continua		# Testa se A1 pixels foram pintados (1 linha)
+			sub a3,a3,a1
+			addi a3,a3,320		
+			li a6,0			# Desce para a próxima linha
+			li t4, 351
+			sub t4, t4, a1
+			add s1, s1, t4
+		ape_continua:
+		lb t0, 0(s1)			# Carrega o byte da sprite
+		beq t0, a5, ape_pula		# Testa se o byte é da cor A5
+			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
+		ape_pula:	
+		addi a6,a6,1
+		addi a3,a3,1 
+		addi s1,s1,1
+		j ape_loop			
+	ape_fora:
 	ret

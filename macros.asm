@@ -30,7 +30,7 @@ lw %reg2, (t2)
 ############################
 # Calcula a altura do pulo #
 ############################
-.macro jump_function(%y)
+.macro funcao_pulo(%y)
 loadw(t0, sprite_pulando)	# t0 = x
 li t1, 4
 mul t2, t0, t0
@@ -124,6 +124,7 @@ sw t1, (t0)
 
 
 .include "./sprites/twob_stand.data"
-.include "./sprites/twob_jump.data"
+.include "./sprites/twob_jump_right.data"
+.include "./sprites/twob_jump_left.data"
 .include "./sprites/twob_walk_right.data"
 .include "./sprites/twob_walk_left.data"
