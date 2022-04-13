@@ -25,6 +25,8 @@ tempo_2b:			.word 0
 
 ultima_inst:			.word 0
 
+vel_2b:				.word 0
+
 .text
 
 animacao_2b:
@@ -67,11 +69,20 @@ direita:
 	savew(s0, ultima_inst)
 	jal att_tempo_2b	
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
-	soma(horizontal_2b, 10)				# adiciona 10 pixels (largura da sprite) -> desloca à direita
+				
+	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)	
+	loadw(s9, horizontal_2b)			# adiciona 10 pixels (largura da sprite) -> desloca à direita
+	addi s9, s9, 10					
+	addi a0, s9, 40					# limite a ser testado (ponto mais à direita da sprite)
+	jal checa_colisao_direita			# checa colisão (resultado em a1)
+	beqz a1, d_colidiu
+		savew(s9, horizontal_2b)
+	d_colidiu:
+	
 	jal move_direita
 	atualiza_tela()					# troca de frame (no bitmap)
 	jal apagar_antiga_posicao			# apaga a posição antiga
-	soma(antigo_horizontal_2b, 10)			# atualiza posição antiga
+	atribuir(horizontal_2b, antigo_horizontal_2b)			# atualiza posição antiga
 	loadw(t1, sprite_movendo)				
 	addi t1, t1, 1					# incrementa 1 na sprite atual
 	li t2, 7	
@@ -87,11 +98,20 @@ esquerda:
 	savew(s0, ultima_inst)
 	jal att_tempo_2b
 	troca_tela()					# troca de frame (só na memória, não no bitmap)
-	subtrai(horizontal_2b, 10)			# subtrai 10 pixels (largura da sprite) -> desloca à direita
+	
+	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)
+	loadw(s9, horizontal_2b)			
+	addi s9,s9,-10					# subtrai 10 pixels na posição atual (andar pra esquerda)
+	mv a0, s9					# limite à esquerda a ser testado
+	jal checa_colisao_esquerda			# checa colisão (resultado em a1)
+	beqz a1, e_colidiu
+		savew(s9, horizontal_2b)
+	e_colidiu:
+	
 	jal move_esquerda
 	atualiza_tela()					# troca de frame (no bitmap)
 	jal apagar_antiga_posicao			# apaga a posição antiga
-	subtrai(antigo_horizontal_2b, 10)			# atualiza posição antiga
+	atribuir(horizontal_2b, antigo_horizontal_2b)	# atualiza posição antiga
 	loadw(t1, sprite_movendo)
 	addi t1, t1, 1					# incrementa 1 na sprite atual
 	li t2, 7
@@ -111,7 +131,7 @@ pula_parada:
 	jal anima_pulo_direita
 	atualiza_tela()
 	jal apagar_antiga_posicao
-	savew(s9, antigo_vertical_2b)
+	atribuir(vertical_2b, antigo_vertical_2b)
 	loadw(t1, sprite_pulando)
 	addi t1, t1, 1
 	li t2, 9
@@ -130,12 +150,21 @@ pula_direita:
 	troca_tela()
 	funcao_pulo(s9)
 	savew(s9, vertical_2b)
-	soma(horizontal_2b, 10)
+	
+	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)	
+	loadw(s9, horizontal_2b)			# adiciona 10 pixels (largura da sprite) -> desloca à direita
+	addi s9, s9, 10					
+	addi a0, s9, 40					# limite a ser testado (ponto mais à direita da sprite)
+	jal checa_colisao_direita			# checa colisão (resultado em a1)
+	beqz a1, pd_colidiu
+		savew(s9, horizontal_2b)
+	pd_colidiu:
+	
 	jal anima_pulo_direita
 	atualiza_tela()
 	jal apagar_antiga_posicao
-	savew(s9, antigo_vertical_2b)
-	soma(antigo_horizontal_2b, 10)
+	atribuir(vertical_2b, antigo_vertical_2b)
+	atribuir(horizontal_2b, antigo_horizontal_2b)
 	loadw(t1, sprite_pulando)
 	addi t1, t1, 1
 	li t2, 9
@@ -154,12 +183,21 @@ pula_esquerda:
 	troca_tela()
 	funcao_pulo(s9)
 	savew(s9, vertical_2b)
-	subtrai(horizontal_2b, 10)
+	
+	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)
+	loadw(s9, horizontal_2b)			
+	addi s9,s9,-10					# subtrai 10 pixels na posição atual (andar pra esquerda)
+	mv a0, s9					# limite à esquerda a ser testado
+	jal checa_colisao_esquerda			# checa colisão (resultado em a1)
+	beqz a1, pe_colidiu
+		savew(s9, horizontal_2b)
+	pe_colidiu:
+	
 	jal anima_pulo_esquerda
 	atualiza_tela()
 	jal apagar_antiga_posicao
-	savew(s9, antigo_vertical_2b)
-	subtrai(antigo_horizontal_2b,10)
+	atribuir(vertical_2b, antigo_vertical_2b)
+	atribuir(horizontal_2b, antigo_horizontal_2b)
 	loadw(t1, sprite_pulando)
 	addi t1, t1, 1
 	li t2, 9
@@ -172,27 +210,44 @@ pula_esquerda:
 	j pula_esquerda
 	
 
-######################################
-# Checa se o tempo necesário passou  #
-# desde a última renderização.	     #
-# Controle de FPS                    #
-######################################
+# Checa colisão com blocos e paredes à direita
+# a0= posição do personagem em X
+# return a1= colidiu (0=sim, 1=não)
+checa_colisao_direita:
+	li t1, 320
+	li a1, 1
+	blt a0, t1, ccd_false
+	li a1, 0
+ccd_false:
+	ret
+	
+# Checa colisão com blocos e paredes à esquerda
+# a0= posição do personagem em X
+# return a1= colidiu (0=sim, 1=não)
+checa_colisao_esquerda:
+	li t1, 0
+	li a1, 1
+	bgt a0, t1, cce_false
+	li a1, 0
+cce_false:
+	ret
+
+# Checa se passou o tempo necessário desde a última atualização (controle de FPS)
+# return a0= passou (0=não, 1=sim)
 checa_tempo:
 	loadw(t1, tempo_2b)		# carrega o momento da ultima renderização
 	li a7, 30
 	ecall				# pega o tempo atual
 	sub t1, a0, t1			# tempo atual - ultima render
-	li t2, 48
-	bge t1, t2, ct_pode		# se for maior que 16 milissegundos, pode renderizar denovo
+	li t2, 64
+	bge t1, t2, ct_pode		# se for maior que 32 milissegundos, pode renderizar denovo
 	li a0, 0			# se não, não renderiza
 	ret
 ct_pode:
 	li a0, 1
 	ret
 
-##########################
-# Atualiza o tempo atual #
-##########################
+# Atualiza o tempo atual
 att_tempo_2b:
 	li a7, 30
 	ecall
@@ -200,41 +255,45 @@ att_tempo_2b:
 	ret
 
 
-########################
-# Apaga o bloco antigo #
-########################	
+# Apaga a antiga posição da personagem	
 apagar_antiga_posicao:			
 	loadw(t3,antigo_horizontal_2b)	# t3 = posição em x
 	loadw(t2,antigo_vertical_2b)	# t2 = posição em y
-	addi t2, t2, -9
+	addi t2, t2, -10
 	li t4, 320
 	other_frame_address(t5)	# endereço da frame 
 	mul t4, t4, t2		# 240 x altura
 	add t4, t4, t3		# + largura
 	add t5, t5, t4		# + endereço
 	mv a1, t5		# endereço inicial
-	li t5, 18880		# 50 + 50*320 
-	add a2, a1, t5		# endereço final = inicial + t5
-	li a3, 50		# pixels por linha
+	
+	la a2, tela_1
+	addi a2, a2, 8
+	add a2, a2, t4
+	
+	li t5, 19260		# 50 + 50*320 
+	add a3, a1, t5		# endereço final = inicial + t5
+	li a4, 50		# pixels por linha
 	li t1, 0		# contador de pixels pintados
-	li t2, 0		# preto
 	aap_loop:
-	bge a1,a2,aap_fora			# Se for o último endereço então sai do loop
-		bne t1,a3, aap_continua		# Testa se A4 pixels foram pintados (1 linha)
-			sub a1,a1,a3
-			addi a1,a1,320		
+	bge a1,a3,aap_fora			# Se for o último endereço então sai do loop
+		bne t1,a4, aap_continua		# Testa se A4 pixels foram pintados (1 linha)
+			sub a1,a1,a4
+			sub a2,a2,a4
+			addi a1,a1,320	
+			addi a2,a2,320	
 			li t1,0			# Desce para a próxima linha
 		aap_continua:
+		lb t2, 0(a2)
 		sb t2, 0(a1)		# Pinta o byte no endereço do BitMap	
 		addi t1,t1,1
 		addi a1,a1,1 
+		addi a2,a2,1
 		j aap_loop			
 	aap_fora:
 	ret
 
-#####################
-# Anda para direita #		 
-#####################
+# Move a personagem à direita
 move_direita:
 la s1, twob_walk_right				# s1 =  endereço da imagem
 get_largura_endereco(a1, a2, sprite_movendo, larguras_direita, endereco_direita)	# a1 = largura da sprite, a2 = endereço da sprite
@@ -282,9 +341,7 @@ md_loop:
 	md_fora:
 	ret
 
-######################
-# Anda para esquerda #		 
-######################
+# Move a personagem à esquerda
 move_esquerda:
 la s1, twob_walk_left				# s1 =  endereço da imagem
 get_largura_endereco(a1, a2, sprite_movendo, larguras_esquerda, endereco_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
@@ -332,9 +389,7 @@ me_loop:
 	me_fora:
 	ret
 
-##############################
-# Pequenos movimentos parada #		 
-##############################
+# Animação da personagem parada (pequenos movimentos)
 anima_parada:
 la s1, twob_stand				# s1 =  endereço da imagem
 get_largura_endereco(a1, a2, sprite_parada, larguras_parada, endereco_parada)	# a1 = largura da sprite, a2 = endereço da sprite
@@ -383,9 +438,7 @@ mp_loop:
 	mp_fora:
 	ret
 
-####################
-# Animação de pulo #		 
-####################
+# Animação de pulo à direita da personagem
 anima_pulo_direita:
 la s1, twob_jump_right				# s1 =  endereço da imagem
 get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando_direita, endereco_pulando_direita)	# a1 = largura da sprite, a2 = endereço da sprite
@@ -434,9 +487,7 @@ ap_loop:
 	ap_fora:
 	ret
 
-##################################
-# Animação de pulo para esquerda #		 
-##################################
+# Animação de pulo à esquerda da personagem
 anima_pulo_esquerda:
 la s1, twob_jump_left				# s1 =  endereço da imagem
 get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando_esquerda, endereco_pulando_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite

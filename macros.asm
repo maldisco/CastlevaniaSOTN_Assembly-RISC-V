@@ -121,10 +121,17 @@ sub t1, t1, t2
 sw t1, (t0)
 .end_macro
 
-
+#####
+# = #
+#####
+.macro atribuir(%label1, %label2)
+loadw(t1,%label1)
+savew(t1,%label2)
+.end_macro
 
 .include "./sprites/twob_stand.data"
 .include "./sprites/twob_jump_right.data"
 .include "./sprites/twob_jump_left.data"
 .include "./sprites/twob_walk_right.data"
 .include "./sprites/twob_walk_left.data"
+.include "./sprites/tela_1.data"
