@@ -2,14 +2,14 @@
 
 .include "macros.asm"
 .text
-	la s0, tela_1
-	jal IMPRIME
 	li s11, MMIO_set
-	jal att_tempo_2b	
+	jal att_tempo_2b
+	call config_tela_1
+		
 
 poll_loop:			# início do loop de polling
 	savew(zero, sprite_movendo)
-	jal s10, parada
+	tail parada
 	pl_recheca:
 	
 	# futuras ações
@@ -22,5 +22,6 @@ poll_loop:			# início do loop de polling
 				
 
 	
+.include "game.asm"	
 .include "render.asm"
 .include "walk.asm"

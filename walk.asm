@@ -1,10 +1,10 @@
 .data
 
-horizontal_2b:			.word 74
-vertical_2b:			.word 183
+horizontal_2b:			.word 20
+vertical_2b:			.word 160
 
-antigo_horizontal_2b:		.word 74
-antigo_vertical_2b:		.word 183
+antigo_horizontal_2b:		.word 20
+antigo_vertical_2b:		.word 160
 
 larguras_direita:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
 larguras_esquerda:		.word 43,39,39,42,34,44		# largura de cada sprite de corrida à direita
@@ -24,8 +24,6 @@ sprite_pulando:			.word 0
 tempo_2b:			.word 0
 
 ultima_inst:			.word 0
-
-vel_2b:				.word 0
 
 .text
 
@@ -61,7 +59,7 @@ parada:
 		li t1, 0
 	pnao_zera:
 	savew(t1, sprite_parada)				# salva nova sprite
-	jalr s10
+	tail pl_recheca
 	
 direita:
 	jal checa_tempo
@@ -90,7 +88,7 @@ direita:
 		li t1, 0
 	dnao_zera:
 	savew(t1, sprite_movendo)				# salva nova spri
-	j pl_recheca
+	tail pl_recheca
 	
 esquerda:
 	jal checa_tempo
@@ -119,7 +117,7 @@ esquerda:
 		li t1, 0
 	anao_zera:
 	savew(t1, sprite_movendo)				# salva nova sprite
-	j pl_recheca
+	tail pl_recheca
 
 pula_parada:
 	jal checa_tempo
@@ -141,7 +139,7 @@ pula_parada:
 		tail poll_loop
 	ppnao_zera:
 	savew(t1, sprite_pulando)
-	j pula_parada
+	tail pula_parada
 
 pula_direita:
 	jal checa_tempo
@@ -174,7 +172,7 @@ pula_direita:
 		tail poll_loop
 	pdnao_zera:
 	savew(t1, sprite_pulando)
-	j pula_direita
+	tail pula_direita
 	
 pula_esquerda:
 	jal checa_tempo
@@ -207,30 +205,80 @@ pula_esquerda:
 		tail poll_loop
 	penao_zera:
 	savew(t1, sprite_pulando)
-	j pula_esquerda
+	tail pula_esquerda
 	
 
 # Checa colisão com blocos e paredes à direita
 # a0= posição do personagem em X
 # return a1= colidiu (0=sim, 1=não)
 checa_colisao_direita:
-	li t1, 320
-	li a1, 1
-	blt a0, t1, ccd_false
-	li a1, 0
-ccd_false:
-	ret
+	loadw(t1, tela_atual)
 	
+	li t2, 3
+	blt t1, t2, ccd_pode_passar
+
+		li t1, 320
+		blt a0, t1, ccd_false
+			li a1, 0
+			ret
+	ccd_false:
+		li a1, 1
+		ret
+
+ccd_pode_passar:
+	li t1, 320
+	bgt a0, t1, proxima_tela	# Imprime e configura a próxima tela 
+	
+	ret
+
 # Checa colisão com blocos e paredes à esquerda
 # a0= posição do personagem em X
 # return a1= colidiu (0=sim, 1=não)
 checa_colisao_esquerda:
+	loadw(t1, tela_atual)
+	
+	li t2, 1
+	bgt t1, t2, cce_pode_passar
+
+		li t1, 0
+		bgt a0, t1, cce_false
+			li a1, 0
+			ret
+	cce_false:
+		li a1, 1
+		ret
+
+cce_pode_passar:
 	li t1, 0
-	li a1, 1
-	bgt a0, t1, cce_false
-	li a1, 0
-cce_false:
+	blt a0, t1, tela_anterior	# Imprime e configura a próxima tela 
+	
 	ret
+
+# Configurações quando o personagem passar para a proxima tela
+proxima_tela:
+	loadw(t1, tela_atual)
+	addi t1, t1, 1
+	savew(t1, tela_atual)
+	li t1, 20
+	li t2, 160
+	savew(t1, horizontal_2b)
+	savew(t2, vertical_2b)
+	savew(t1, antigo_horizontal_2b)
+	savew(t2, antigo_vertical_2b)
+	call atualiza_tela
+
+# Configurações quando o personagem volta uma tela
+tela_anterior:
+	loadw(t1, tela_atual)
+	addi t1, t1, -1
+	savew(t1, tela_atual)
+	li t1, 240
+	li t2, 160
+	savew(t1, horizontal_2b)
+	savew(t2, vertical_2b)
+	savew(t1, antigo_horizontal_2b)
+	savew(t2, antigo_vertical_2b)
+	call atualiza_tela		
 
 # Checa se passou o tempo necessário desde a última atualização (controle de FPS)
 # return a0= passou (0=não, 1=sim)
@@ -267,7 +315,7 @@ apagar_antiga_posicao:
 	add t5, t5, t4		# + endereço
 	mv a1, t5		# endereço inicial
 	
-	la a2, tela_1
+	loadw(a2, sprite_tela_atual)
 	addi a2, a2, 8
 	add a2, a2, t4
 	

@@ -11,7 +11,9 @@
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
 
-tela_atual:		.word 0
+sprite_tela_atual:	.word 0
+tela_atual:		.word 1
+frame_atual:		.word 0
 #################################################
 #  Retorna largura e endereco da próxima sprite #	
 #################################################
@@ -48,7 +50,7 @@ mv %y, t3
 #  Retorna o endereço da frame atual #	
 ######################################
 .macro frame_address(%reg)
-loadw(%reg,tela_atual)
+loadw(%reg,frame_atual)
 li t0,0xff0
 add %reg,t0,%reg
 slli %reg,%reg,20
@@ -58,7 +60,7 @@ slli %reg,%reg,20
 #  Retorna o endereço da outra frame #	
 ######################################
 .macro other_frame_address(%reg)
-loadw(%reg,tela_atual)
+loadw(%reg,frame_atual)
 xori %reg, %reg, 1
 li t0,0xff0
 add %reg,t0,%reg
@@ -70,16 +72,16 @@ slli %reg,%reg,20
 # PS: não troca a frame no bitmap		#	
 #################################################
 .macro troca_tela()
-loadw(t1,tela_atual)
+loadw(t1,frame_atual)
 xori t1,t1,0x001
-savew(t1,tela_atual)
+savew(t1,frame_atual)
 .end_macro
 
 ###############################################################
 # Troca a frame no bitmap para o estado armazenado na memória #	
 ###############################################################
 .macro atualiza_tela()
-loadw(t1,tela_atual)
+loadw(t1,frame_atual)
 li t0,FRAME_SELECT
 sw t1,(t0)
 .end_macro
@@ -100,27 +102,6 @@ la %reg,%label
 lw %reg,(%reg)
 .end_macro
 
-########
-#  +=  #	
-########
-.macro soma(%label, %valor)
-la t0,%label
-lw t1,(t0)
-addi t1, t1, %valor
-sw t1, (t0)
-.end_macro
-
-########
-#  -=  #	
-########
-.macro subtrai(%label, %valor)
-la t0, %label
-lw t1, (t0)
-li t2, %valor
-sub t1, t1, t2
-sw t1, (t0)
-.end_macro
-
 #####
 # = #
 #####
@@ -135,3 +116,5 @@ savew(t1,%label2)
 .include "./sprites/twob_walk_right.data"
 .include "./sprites/twob_walk_left.data"
 .include "./sprites/tela_1.data"
+.include "./sprites/tela_2.data"
+.include "./sprites/tela_3.data"
