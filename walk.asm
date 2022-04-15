@@ -20,12 +20,15 @@ endereco_pulando_esquerda:	.word 8,33,85,137,189,228,263,298,333
 sprite_parada:			.word 0
 sprite_movendo:			.word 0
 sprite_pulando:			.word 0
+dict_pulo:			.word -10,-30,-50,-30,0,30,50,30,10
 
 tempo_2b:			.word 0
+velocidade_2b:			.word 0
 
 ultima_inst:			.word 0
 
 .text
+
 
 animacao_2b:
 	li a1, RIGHT		# carrega para a1 o código da tecla 'D'
@@ -151,7 +154,7 @@ pula_direita:
 	
 	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)	
 	loadw(s9, horizontal_2b)			# adiciona 10 pixels (largura da sprite) -> desloca à direita
-	addi s9, s9, 10					
+	addi s9, s9, 15					
 	addi a0, s9, 40					# limite a ser testado (ponto mais à direita da sprite)
 	jal checa_colisao_direita			# checa colisão (resultado em a1)
 	beqz a1, pd_colidiu
@@ -184,7 +187,7 @@ pula_esquerda:
 	
 	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)
 	loadw(s9, horizontal_2b)			
-	addi s9,s9,-10					# subtrai 10 pixels na posição atual (andar pra esquerda)
+	addi s9,s9,-15					# subtrai 10 pixels na posição atual (andar pra esquerda)
 	mv a0, s9					# limite à esquerda a ser testado
 	jal checa_colisao_esquerda			# checa colisão (resultado em a1)
 	beqz a1, pe_colidiu

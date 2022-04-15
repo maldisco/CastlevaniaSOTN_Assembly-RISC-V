@@ -33,16 +33,18 @@ lw %reg2, (t2)
 # Calcula a altura do pulo #
 ############################
 .macro funcao_pulo(%y)
-loadw(t0, sprite_pulando)	# t0 = x
-li t1, 4
-mul t2, t0, t0
-mul t1, t1, t2			# t1 =  -4 * x^2
-li t2, -32
-mul t2, t2, t0			# t2 = 32 * x
-li t3, 183
-add t3, t3, t1
-add t3, t3, t2			# t3 =  -4*x^2 + 32*x + 179
-mv %y, t3
+loadw(t1, sprite_pulando)	# t1= x
+li t2, 4
+mul t1, t1, t2
+
+la t2, dict_pulo		# dicionario para transformar [0...9] na velocidade vertical
+add t2, t2, t1
+lw t1, (t2)
+
+loadw(t2, vertical_2b)		# posicao vertical atual
+add t2, t2, t1			# sobe/desce
+
+mv %y, t2			# registrador de retorno
 .end_macro
 
 
