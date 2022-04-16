@@ -1,215 +1,260 @@
 .data
 
+# Posiçoes atuais do personagem
 horizontal_2b:			.word 20
 vertical_2b:			.word 160
 
+# Posições antigas (a serem apagadas)
 antigo_horizontal_2b:		.word 20
 antigo_vertical_2b:		.word 160
 
-larguras_direita:		.word 44,34,42,39,39,43		# largura de cada sprite de corrida à direita
-larguras_esquerda:		.word 43,39,39,42,34,44		# largura de cada sprite de corrida à direita
-larguras_parada:		.word 28,26,26
+# Velocidades do personagem
+velocidadeX_2b:			.word 0
+velocidadeY_2b:			.word 0
+
+# Cada sprite é um conjunto de vários movimentos
+# Cada vetor abaixo representa a largura do movimento e seu endereço na sprite
+larguras_correndo_direita:	.word 44,34,42,39,39,43		
+larguras_correndo_esquerda:	.word 43,39,39,42,34,44		
+larguras_parada_direita:	.word 28,26,26
+larguras_parada_esquerda:	.word 26,26,28
 larguras_pulando_direita:	.word 26,35,35,35,39,52,52,52,25
 larguras_pulando_esquerda:	.word 25,52,52,52,39,35,35,35,26
-endereco_direita:		.word 8,52,86,128,167,206
-endereco_esquerda:		.word 8,51,90,129,171,205
-endereco_parada:		.word 8,36,62
-endereco_pulando_direita:	.word 8,34,69,104,139,178,230,282,334
-endereco_pulando_esquerda:	.word 8,33,85,137,189,228,263,298,333
+enderecos_correndo_direita:	.word 8,52,86,128,167,206
+enderecos_correndo_esquerda:	.word 8,51,90,129,171,205
+enderecos_parada_direita:	.word 8,36,62
+enderecos_parada_esquerda:	.word 8,34,60
+enderecos_pulando_direita:	.word 8,34,69,104,139,178,230,282,334
+enderecos_pulando_esquerda:	.word 8,33,85,137,189,228,263,298,333
 
-sprite_parada:			.word 0
-sprite_movendo:			.word 0
-sprite_pulando:			.word 0
-dict_pulo:			.word -10,-30,-50,-30,0,30,50,30,10
+# booleano para indicar se o personagem está em animação de pulo
+pulando:			.byte 0
 
+# Tempo desde a ultima atualização de posição
 tempo_2b:			.word 0
-velocidade_2b:			.word 0
-
-ultima_inst:			.word 0
 
 .text
-
-
-animacao_2b:
-	li a1, RIGHT		# carrega para a1 o código da tecla 'D'
-	li a2, LEFT		# carrega para a2 o código da tecla 'A'
-	li a3, UP		# carrega para a3 o código da tecla 'W'
+# Lida com o evento de apertar uma tecla do teclado
+acoes_2b:
+	li t1, RIGHT
+	beq s0, t1, direita		# checa se a tecla 'D' foi apertada
 	
-	beq s0, a1, direita	# se for igual ao código da tecla 'D', anda para direita
-	beq s0, a2, esquerda	# se for igual ao código da tecla 'A', anda para esquerd
-	beq s0, a3, pula
-	j poll_loop
-
-pula:
-	loadw(t1, ultima_inst)
-	beq t1, a1, pula_direita
-	beq t1, a2, pula_esquerda
-	tail pula_parada
+	li t1, LEFT
+	beq s0, t1, esquerda		# checa se a tecla 'A' foi apertada
 	
-parada:
-	jal checa_tempo
-	beqz a0, parada	
-	savew(zero, ultima_inst)
-	troca_tela()					# troca de frame (só na memória, não no bitmap)
-	jal anima_parada				# animação parada
-	atualiza_tela()					# troca de frame (no bitmap)
-	jal apagar_antiga_posicao			# apaga a posição antiga
-	jal att_tempo_2b
-	loadw(t1, sprite_parada)
-	addi t1, t1, 1					# incrementa 1 na sprite atual
-	li t2, 3
-	blt t1, t2, pnao_zera				# se sprite atual > 3(última), volta para 0
-		li t1, 0
-	pnao_zera:
-	savew(t1, sprite_parada)				# salva nova sprite
-	tail pl_recheca
+	li t1, UP
+	beq s0, t1, pula		# checa se a tecla 'W' foi apertada
 	
-direita:
-	jal checa_tempo
-	beqz a0, direita
-	savew(s0, ultima_inst)
-	jal att_tempo_2b	
-	troca_tela()					# troca de frame (só na memória, não no bitmap)
-				
-	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)	
-	loadw(s9, horizontal_2b)			# adiciona 10 pixels (largura da sprite) -> desloca à direita
-	addi s9, s9, 10					
-	addi a0, s9, 40					# limite a ser testado (ponto mais à direita da sprite)
-	jal checa_colisao_direita			# checa colisão (resultado em a1)
-	beqz a1, d_colidiu
-		savew(s9, horizontal_2b)
-	d_colidiu:
+	li t1, DOWN
+	beq s0, t1, para		# checa se a tecla 'S' foi apertada
 	
-	jal move_direita
-	atualiza_tela()					# troca de frame (no bitmap)
-	jal apagar_antiga_posicao			# apaga a posição antiga
-	atribuir(horizontal_2b, antigo_horizontal_2b)			# atualiza posição antiga
-	loadw(t1, sprite_movendo)				
-	addi t1, t1, 1					# incrementa 1 na sprite atual
-	li t2, 7	
-	blt t1, t2, dnao_zera				# se sprite atual > 6(última), volta para 0
-		li t1, 0
-	dnao_zera:
-	savew(t1, sprite_movendo)				# salva nova spri
-	tail pl_recheca
-	
-esquerda:
-	jal checa_tempo
-	beqz a0, esquerda
-	savew(s0, ultima_inst)
-	jal att_tempo_2b
-	troca_tela()					# troca de frame (só na memória, não no bitmap)
-	
-	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)
-	loadw(s9, horizontal_2b)			
-	addi s9,s9,-10					# subtrai 10 pixels na posição atual (andar pra esquerda)
-	mv a0, s9					# limite à esquerda a ser testado
-	jal checa_colisao_esquerda			# checa colisão (resultado em a1)
-	beqz a1, e_colidiu
-		savew(s9, horizontal_2b)
-	e_colidiu:
-	
-	jal move_esquerda
-	atualiza_tela()					# troca de frame (no bitmap)
-	jal apagar_antiga_posicao			# apaga a posição antiga
-	atribuir(horizontal_2b, antigo_horizontal_2b)	# atualiza posição antiga
-	loadw(t1, sprite_movendo)
-	addi t1, t1, 1					# incrementa 1 na sprite atual
-	li t2, 7
-	blt t1, t2, anao_zera				# se sprite atual > 6(última), volta para 0
-		li t1, 0
-	anao_zera:
-	savew(t1, sprite_movendo)				# salva nova sprite
-	tail pl_recheca
-
-pula_parada:
-	jal checa_tempo
-	beqz a0, pula_parada
-	jal att_tempo_2b
-	troca_tela()
-	funcao_pulo(s9)
-	savew(s9, vertical_2b)
-	jal anima_pulo_direita
-	atualiza_tela()
-	jal apagar_antiga_posicao
-	atribuir(vertical_2b, antigo_vertical_2b)
-	loadw(t1, sprite_pulando)
-	addi t1, t1, 1
-	li t2, 9
-	blt t1, t2, ppnao_zera
-		li t1, 0
-		savew(t1, sprite_pulando)
+	# se nenhuma tecla de ação foi apertada, volta para o loop
 		tail poll_loop
-	ppnao_zera:
-	savew(t1, sprite_pulando)
-	tail pula_parada
+	
+	direita:				# se a tecla 'D' foi apertada, velocidade = +15
+		li t1, 15
+		savew(t1, velocidadeX_2b)
+		atribuir(sprite_atual, sprite_correndo_direita)
+		la t1, larguras_correndo_direita
+		savew(t1, sprite_larguras_atual)
+		la t1, enderecos_correndo_direita
+		savew(t1, sprite_enderecos_atual)
+		tail poll_loop
+	
+	esquerda:				# se a tecla 'A' foi apertada, velocidade = -15
+		li t1, -15
+		savew(t1, velocidadeX_2b)
+		atribuir(sprite_atual, sprite_correndo_esquerda)
+		la t1, larguras_correndo_esquerda
+		savew(t1, sprite_larguras_atual)
+		la t1, enderecos_correndo_esquerda
+		savew(t1, sprite_enderecos_atual)
+		tail poll_loop
+	
+	pula:					# se a tecla 'W' foi apertada (e os dois pulos não tiverem sido feitos), velocidade vertical = -45 (subindo)
+		loadb(t1, pulando)
+		li t2, 2
+		bge t1, t2, pula_direita	# se já foram os dois pulos, não faz nada
+			addi t1, t1, 1
+			saveb(t1, pulando)
+			blt t1, t2, nao_reseta_animacao_de_pulo		# Reseta a animação de pulo durando o inicio do segundo pulo
+				li t1, 0
+				savew(t1, sprite_frame_atual)
+			nao_reseta_animacao_de_pulo:
+			li t1, -45					# Velocidade de subida
+			savew(t1, velocidadeY_2b)
+			atribuir(sprite_atual, sprite_pulando_direita)
+			la t1, larguras_pulando_direita
+			savew(t1, sprite_larguras_atual)
+			la t1, enderecos_pulando_direita
+			savew(t1, sprite_enderecos_atual)
+			loadw(t1, velocidadeX_2b)
+			bgtz t1, pula_direita
+				atribuir(sprite_atual, sprite_pulando_esquerda)
+				la t1, larguras_pulando_esquerda
+				savew(t1, sprite_larguras_atual)
+				la t1, enderecos_pulando_esquerda
+				savew(t1, sprite_enderecos_atual)
+		pula_direita:
+		tail poll_loop
 
-pula_direita:
-	jal checa_tempo
-	beqz a0, pula_direita
-	jal att_tempo_2b
-	troca_tela()
-	funcao_pulo(s9)
-	savew(s9, vertical_2b)
-	
-	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)	
-	loadw(s9, horizontal_2b)			# adiciona 10 pixels (largura da sprite) -> desloca à direita
-	addi s9, s9, 15					
-	addi a0, s9, 40					# limite a ser testado (ponto mais à direita da sprite)
-	jal checa_colisao_direita			# checa colisão (resultado em a1)
-	beqz a1, pd_colidiu
-		savew(s9, horizontal_2b)
-	pd_colidiu:
-	
-	jal anima_pulo_direita
-	atualiza_tela()
-	jal apagar_antiga_posicao
-	atribuir(vertical_2b, antigo_vertical_2b)
-	atribuir(horizontal_2b, antigo_horizontal_2b)
-	loadw(t1, sprite_pulando)
-	addi t1, t1, 1
-	li t2, 9
-	blt t1, t2, pdnao_zera
-		li t1, 0
-		savew(t1, sprite_pulando)
+	para:					# se a tecla 'S' foi apertada, velocidade = 0
+		loadw(t1, pulando)
+		bnez t1, nao_pode_parar		# Se o personagem ja está pulando, não pode parar no ar
+			atribuir(sprite_atual, sprite_parada_direita)
+			la t1, larguras_parada_direita
+			savew(t1, sprite_larguras_atual)
+			la t1, enderecos_parada_direita
+			savew(t1, sprite_enderecos_atual)
+			loadw(t1, velocidadeX_2b)
+			bgtz t1, parada_direita
+				atribuir(sprite_atual, sprite_parada_esquerda)
+				la t1, larguras_parada_esquerda
+				savew(t1, sprite_larguras_atual)
+				la t1, enderecos_parada_esquerda
+					savew(t1, sprite_enderecos_atual)
+			parada_direita:
+			li t1, 0
+			savew(t1, velocidadeX_2b)
+		nao_pode_parar:
 		tail poll_loop
-	pdnao_zera:
-	savew(t1, sprite_pulando)
-	tail pula_direita
 	
-pula_esquerda:
-	jal checa_tempo
-	beqz a0, pula_esquerda
-	jal att_tempo_2b
+atualiza_posicao_2b:
+	addi sp, sp, -4
+	sw ra, (sp)				# Guardando endereço de retorno para o loop principal
+
+	loadw(t1, velocidadeY_2b)
+	loadw(t2, vertical_2b)
+	add s1, t2, t1				# Nova posição Y = posição + velocidade
+	
+	li t2, GRAVIDADE
+	add s2, t1, t2				# Nova velocidade Y = velocidade + gravidade
+
+	li t3, 160	
+	blt s1, t3, esta_no_ar			# Se o personagem ainda está no ar, a gravidade age
+		li s1, 160
+		li s2, 0
+		savew(s2, pulando)
+		loadw(t1, velocidadeX_2b)
+		bgtz t1, caiu_correndo_direita				# Se a velocidade é positiva, o personagem está correndo para direita
+			bltz t1, caiu_correndo_esquerda			# Se a velocidae é negativa, o personagem está correndo para esquerda
+				loadw(t2, sprite_parada_direita)	# Se não, está parado
+				savew(t2, sprite_atual)
+				la t1, larguras_parada_direita
+				savew(t1, sprite_larguras_atual)
+				la t1, enderecos_parada_direita
+				savew(t1, sprite_enderecos_atual)		
+				j esta_no_ar
+		
+		caiu_correndo_esquerda: loadw(t2, sprite_correndo_esquerda)
+					savew(t2, sprite_atual)
+					la t1, larguras_correndo_esquerda
+					savew(t1, sprite_larguras_atual)
+					la t1, enderecos_correndo_esquerda
+					savew(t1, sprite_enderecos_atual)
+					j esta_no_ar
+		
+		caiu_correndo_direita:	loadw(t2, sprite_correndo_direita)
+					savew(t2, sprite_atual)
+					la t1, larguras_correndo_direita
+					savew(t1, sprite_larguras_atual)
+					la t1, enderecos_correndo_direita
+					savew(t1, sprite_enderecos_atual)
+	esta_no_ar:
+	
+	loadw(t1, teto)
+	bgt s1, t1 nao_bateu_no_teto
+		mv s1, t1
+	nao_bateu_no_teto:	
+	savew(s1, vertical_2b)
+	savew(s2, velocidadeY_2b)
+	
+	loadw(t1, velocidadeX_2b)		# Nova posição X = posição + velocidade
+	loadw(t2, horizontal_2b)
+	add s3, t2, t1
+	savew(s3, horizontal_2b)
+	
+	jal escolhe_frame_sprite_atual
+	
 	troca_tela()
-	funcao_pulo(s9)
-	savew(s9, vertical_2b)
+	# s1 = Novo vertical
+	# s2 = Nova velocidade
+	# s3 = Novo horizontal
+	jal renderiza_2b
 	
-	# ATUALIZA POSIÇÃO X DO PERSONAGEM (CHECANDO COLISÃO)
-	loadw(s9, horizontal_2b)			
-	addi s9,s9,-15					# subtrai 10 pixels na posição atual (andar pra esquerda)
-	mv a0, s9					# limite à esquerda a ser testado
-	jal checa_colisao_esquerda			# checa colisão (resultado em a1)
-	beqz a1, pe_colidiu
-		savew(s9, horizontal_2b)
-	pe_colidiu:
-	
-	jal anima_pulo_esquerda
 	atualiza_tela()
-	jal apagar_antiga_posicao
-	atribuir(vertical_2b, antigo_vertical_2b)
-	atribuir(horizontal_2b, antigo_horizontal_2b)
-	loadw(t1, sprite_pulando)
-	addi t1, t1, 1
-	li t2, 9
-	blt t1, t2, penao_zera
-		li t1, 0
-		savew(t1, sprite_pulando)
-		tail poll_loop
-	penao_zera:
-	savew(t1, sprite_pulando)
-	tail pula_esquerda
 	
+	jal apagar_antiga_posicao
+	
+	atribuir(antigo_horizontal_2b, horizontal_2b)
+	atribuir(antigo_vertical_2b, vertical_2b)
+	
+	jal att_tempo_2b
+	
+	lw ra, (sp)			# Retorna ao loop principal
+	addi sp, sp, 4
+	ret
+	
+	
+escolhe_frame_sprite_atual:
+	li a0, 0 		# limite
+	loadw(t1, sprite_atual)
+	
+	# Checa qual a sprite atual para calcular o limite e a proxima frame da sprite
+	la t2, twob_stand_right
+	beq t1, t2, efsa_parada			
+	
+	la t2, twob_stand_left
+	beq t1, t2, efsa_parada
+	
+	la t2, twob_walk_right
+	beq t1, t2, efsa_correndo
+	
+	la t2, twob_walk_left
+	beq t1, t2, efsa_correndo
+	
+	la t2, twob_jump_right
+	beq t1, t2, efsa_pulando
+	
+	la t2, twob_jump_left
+	beq t1, t2, efsa_pulando
+	
+	# Se não for nenhuma delas, algo deu errado
+	li a7, 10
+	ecall
+	
+	efsa_retorna:
+		savew(t1, sprite_frame_atual)
+		ret
+	
+	efsa_parada:
+		loadw(t1, sprite_frame_atual)
+		addi t1, t1, 1
+		li t2, 3
+		blt t1, t2, efsa_retorna
+			li t1, 0
+			j efsa_retorna
+	
+	efsa_correndo:
+		loadw(t1, sprite_frame_atual)
+		addi t1, t1, 1
+		li t2, 7
+		blt t1, t2, efsa_retorna
+			li t1, 0
+			j efsa_retorna
+	
+	efsa_pulando:
+		loadw(t1, sprite_frame_atual)
+		addi t1, t1, 1
+		li t2, 9
+		blt t1, t2, efsa_retorna
+			loadw(t3, vertical_2b)
+			li t2, 160
+			li t1, 8
+			blt t3, t4, efsa_retorna
+				li t1, 0
+				j efsa_retorna
+
 
 # Checa colisão com blocos e paredes à direita
 # a0= posição do personagem em X
@@ -290,11 +335,11 @@ checa_tempo:
 	li a7, 30
 	ecall				# pega o tempo atual
 	sub t1, a0, t1			# tempo atual - ultima render
-	li t2, 64
-	bge t1, t2, ct_pode		# se for maior que 32 milissegundos, pode renderizar denovo
-	li a0, 0			# se não, não renderiza
-	ret
-ct_pode:
+	li t2, 32
+	bgeu t1, t2, ct_pode		# se for maior que 64 milissegundos, pode renderizar denovo
+		li a0, 0			# se não, não renderiza
+		ret
+	ct_pode:
 	li a0, 1
 	ret
 
@@ -344,245 +389,65 @@ apagar_antiga_posicao:
 	aap_fora:
 	ret
 
-# Move a personagem à direita
-move_direita:
-la s1, twob_walk_right				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, sprite_movendo, larguras_direita, endereco_direita)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,horizontal_2b)				# posição em X
-loadw(t2,vertical_2b)				# posição em Y
-li t3, 320					
-mul t3, t3, t2
-frame_address(a3)
-add a3, a3, t3
-add a3, a3, t1					# a3 = endereço inicial
-mv a4, a3
-li t1, 15680					# 319 x 50(altura da sprite)
-add t1, t1, a1
-add a4, a4, t1					# a4 = endereço final
-add s1, s1, a2					# chega à sprite certa dentro da imagem
-li a5, 0xffffff80
-li a6, 0
-# ==========================================================
-# a1 = largura da sprite (pixels a serem pintados)
-# a2 = endereço da sprite dentro da imagem
-# a3 = endereço inicial
-# a4 = endereço final
-# a5 = cor a ser substituida pelo transparente
-# a6 = contador de pixels pintados
-# s1 = endereço da sprite
-# ==========================================================
-md_loop: 	
-	bge a3,a4,md_fora			# Se for o último endereço então sai do loop
-		bne a6,a1, md_continua		# Testa se A1 pixels foram pintados (1 linha)
-			sub a3,a3,a1
-			addi a3,a3,320		
-			li a6,0			# Desce para a próxima linha
-			li t4, 241
-			sub t4, t4, a1
-			add s1, s1, t4
-		md_continua:
-		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, md_pula		# Testa se o byte é da cor A5
-			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		md_pula:	
-		addi a6,a6,1
-		addi a3,a3,1 
-		addi s1,s1,1
-		j md_loop			
-	md_fora:
-	ret
 
-# Move a personagem à esquerda
-move_esquerda:
-la s1, twob_walk_left				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, sprite_movendo, larguras_esquerda, endereco_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,horizontal_2b)				# posição em X
-loadw(t2,vertical_2b)				# posição em Y
-li t3, 320					
-mul t3, t3, t2
-frame_address(a3)
-add a3, a3, t3
-add a3, a3, t1					# a3 = endereço inicial
-mv a4, a3
-li t1, 15680					# 320 x 50(altura da sprite)
-add t1, t1, a1
-add a4, a4, t1					# a4 = endereço final
-add s1, s1, a2					# chega à sprite certa dentro da imagem
-li a5, 0xffffff80
-li a6, 0
-# ==========================================================
-# a1 = largura da sprite (pixels a serem pintados)
-# a2 = endereço da sprite dentro da imagem
-# a3 = endereço inicial
-# a4 = endereço final
-# a5 = cor a ser substituida pelo transparente
-# a6 = contador de pixels pintados
-# s1 = endereço da sprite
-# ==========================================================
-me_loop: 	
-	bge a3,a4,me_fora			# Se for o último endereço então sai do loop
-		bne a6,a1, me_continua		# Testa se A1 pixels foram pintados (1 linha)
+# Param s1 = Novo vertical
+# Param s2 = Nova velocidade Y
+# Param s3 = Novo horizontal
+renderiza_2b:
+	loadw(s4, sprite_atual)		# endereço da sprite atual
+	lw t2, 4(s4)			# altura da sprite
+	li t3, 50
+	sub t3, t3, t2			# t3 =  50  - altura da sprite
+	add s1, s1, t3			# s1 (Vertical) = s1 + t3 (se a sprite for maior que o padrão, começa a imprimir mais encima)
+	
+	lw s5, (s4)			# s5 = Largura da imagem = Offset
+	
+	frame_address(a3)
+	li t4, 320
+	mul t4, t4, s1			# Altura da sprite x 320 (Altura final)
+	add a3, a3, t4
+	add a3, a3, s3			# A3 = Endereço inicial = Frame 0/1 + horizontal + 320 x vertical
+	mv a4, a3			# A4 = cópia de A3
+	
+	get_largura_endereco(a1, a2, sprite_frame_atual, sprite_larguras_atual, sprite_enderecos_atual)
+	
+	li t4, 320
+	lw t2, 4(s4)
+	addi t2, t2, -1
+	mul t4, t4, t2
+	add t4, t4, a1			# T4 = 320 x altura da sprite + largura da sprite
+	add a4, a4, t4			# A4 = Endereço final = Endereço inicial + tamanho da sprite
+	
+	add s4, s4, a2			# Chega à frame certa dentro da imagem
+	
+	
+	li a5, 0xffffff80
+	li a6, 0
+	# A1 = Largura da sprite
+	# A3 = Endereço inicial
+	# A4 = Endereço final
+	# A5 = Cor a ser substituida pelo transparente
+	# A6 = Contador de pixels pintados
+	# S4 = Endereço da sprite
+	# S5 = Offset
+	r_loop: 	
+	bge a3,a4,r_fora			# Se for o último endereço então sai do loop
+		bne a6,a1, r_continua		# Testa se A1 pixels foram pintados (1 linha)
 			sub a3,a3,a1
 			addi a3,a3,320		
 			li a6,0			# Desce para a próxima linha
-			li t4, 241
-			sub t4, t4, a1
-			add s1, s1, t4
-		me_continua:
-		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, me_pula		# Testa se o byte é da cor A5
+			sub s4, s4, a1
+			add s4, s4, s5
+		r_continua:
+			lb t0, 0(s4)			# Carrega o byte da sprite
+		beq t0, a5, r_pula		# Testa se o byte é da cor A5
 			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		me_pula:	
-		addi a6,a6,1
-		addi a3,a3,1 
-		addi s1,s1,1
-		j me_loop			
-	me_fora:
+		r_pula:	
+			addi a6,a6,1
+			addi a3,a3,1 
+			addi s4,s4,1
+		j r_loop			
+	r_fora:
 	ret
-
-# Animação da personagem parada (pequenos movimentos)
-anima_parada:
-la s1, twob_stand				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, sprite_parada, larguras_parada, endereco_parada)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,horizontal_2b)				# posição em X
-loadw(t2,vertical_2b)				# posição em Y
-addi t2, t2, -9
-li t3, 320					
-mul t3, t3, t2
-frame_address(a3)
-add a3, a3, t3
-add a3, a3, t1					# a3 = endereço inicial
-mv a4, a3
-li t1, 18000					# 320 x 59(altura da sprite)
-add t1, t1, a1
-add a4, a4, t1					# a4 = endereço final
-add s1, s1, a2					# chega à sprite certa dentro da imagem
-li a5, 0xffffff80
-li a6, 0
-# ==========================================================
-# a1 = largura da sprite (pixels a serem pintados)
-# a2 = endereço da sprite dentro da imagem
-# a3 = endereço inicial
-# a4 = endereço final
-# a5 = cor a ser substituida pelo transparente
-# a6 = contador de pixels pintados
-# s1 = endereço da sprite
-# ==========================================================
-mp_loop: 	
-	bge a3,a4,mp_fora			# Se for o último endereço então sai do loop
-		bne a6,a1, mp_continua		# Testa se A1 pixels foram pintados (1 linha)
-			sub a3,a3,a1
-			addi a3,a3,320		
-			li a6,0			# Desce para a próxima linha
-			li t4, 80
-			sub t4, t4, a1
-			add s1, s1, t4
-		mp_continua:
-		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, mp_pula		# Testa se o byte é da cor A5
-			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		mp_pula:	
-		addi a6,a6,1
-		addi a3,a3,1 
-		addi s1,s1,1
-		j mp_loop			
-	mp_fora:
-	ret
-
-# Animação de pulo à direita da personagem
-anima_pulo_direita:
-la s1, twob_jump_right				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando_direita, endereco_pulando_direita)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,horizontal_2b)				# posição em X
-loadw(t2,vertical_2b)				# posição em Y
-addi t2, t2, -7
-li t3, 320					
-mul t3, t3, t2
-frame_address(a3)
-add a3, a3, t3
-add a3, a3, t1					# a3 = endereço inicial
-mv a4, a3
-li t1, 18000					# 320 x 59(altura da sprite)
-add t1, t1, a1
-add a4, a4, t1					# a4 = endereço final
-add s1, s1, a2					# chega à sprite certa dentro da imagem
-li a5, 0xffffff80
-li a6, 0
-# ==========================================================
-# a1 = largura da sprite (pixels a serem pintados)
-# a2 = endereço da sprite dentro da imagem
-# a3 = endereço inicial
-# a4 = endereço final
-# a5 = cor a ser substituida pelo transparente
-# a6 = contador de pixels pintados
-# s1 = endereço da sprite
-# ==========================================================
-ap_loop: 	
-	bge a3,a4,ap_fora			# Se for o último endereço então sai do loop
-		bne a6,a1, ap_continua		# Testa se A1 pixels foram pintados (1 linha)
-			sub a3,a3,a1
-			addi a3,a3,320		
-			li a6,0			# Desce para a próxima linha
-			li t4, 351
-			sub t4, t4, a1
-			add s1, s1, t4
-		ap_continua:
-		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, ap_pula		# Testa se o byte é da cor A5
-			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		ap_pula:	
-		addi a6,a6,1
-		addi a3,a3,1 
-		addi s1,s1,1
-		j ap_loop			
-	ap_fora:
-	ret
-
-# Animação de pulo à esquerda da personagem
-anima_pulo_esquerda:
-la s1, twob_jump_left				# s1 =  endereço da imagem
-get_largura_endereco(a1, a2, sprite_pulando, larguras_pulando_esquerda, endereco_pulando_esquerda)	# a1 = largura da sprite, a2 = endereço da sprite
-loadw(t1,horizontal_2b)				# posição em X
-loadw(t2,vertical_2b)				# posição em Y
-addi t2, t2, -7
-li t3, 320					
-mul t3, t3, t2
-frame_address(a3)
-add a3, a3, t3
-add a3, a3, t1					# a3 = endereço inicial
-mv a4, a3
-li t1, 18000					# 320 x 59(altura da sprite)
-add t1, t1, a1
-add a4, a4, t1					# a4 = endereço final
-add s1, s1, a2					# chega à sprite certa dentro da imagem
-li a5, 0xffffff80
-li a6, 0
-# ==========================================================
-# a1 = largura da sprite (pixels a serem pintados)
-# a2 = endereço da sprite dentro da imagem
-# a3 = endereço inicial
-# a4 = endereço final
-# a5 = cor a ser substituida pelo transparente
-# a6 = contador de pixels pintados
-# s1 = endereço da sprite
-# ==========================================================
-ape_loop: 	
-	bge a3,a4,ape_fora			# Se for o último endereço então sai do loop
-		bne a6,a1, ape_continua		# Testa se A1 pixels foram pintados (1 linha)
-			sub a3,a3,a1
-			addi a3,a3,320		
-			li a6,0			# Desce para a próxima linha
-			li t4, 351
-			sub t4, t4, a1
-			add s1, s1, t4
-		ape_continua:
-		lb t0, 0(s1)			# Carrega o byte da sprite
-		beq t0, a5, ape_pula		# Testa se o byte é da cor A5
-			sb t0, 0(a3)		# Pinta o byte no endereço do BitMap
-		ape_pula:	
-		addi a6,a6,1
-		addi a3,a3,1 
-		addi s1,s1,1
-		j ape_loop			
-	ape_fora:
-	ret
+	
+	
