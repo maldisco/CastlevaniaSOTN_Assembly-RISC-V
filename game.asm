@@ -22,18 +22,35 @@ config_tela_1:
 	jal IMPRIME
 	li t1, 10
 	savew(t1, teto)
-	li t1, 160
+	li t1, 165
 	savew(t1, chao)
+	savew(zero, velocidadeX_luffy)
+	savew(zero, velocidadeY_luffy)
+	configuracoes_iniciais()
  	call poll_loop
 
 config_tela_2:
 	la s0, tela_2
 	savew(s0, sprite_tela_atual)
 	jal IMPRIME
+	li t1, 10
+	savew(t1, teto)
+	li t1, 165
+	savew(t1, chao)
+	savew(zero, velocidadeX_luffy)
+	savew(zero, velocidadeY_luffy)
+	configuracoes_iniciais()
 	call poll_loop
 
 config_tela_3:
 	la s0, tela_3
 	savew(s0, sprite_tela_atual)
 	jal IMPRIME
+	li t1, 10
+	savew(t1, teto)
+	li t1, 165
+	savew(t1, chao)
+	savew(zero, velocidadeX_luffy)
+	savew(zero, velocidadeY_luffy)
+	configuracoes_iniciais()
 	call poll_loop

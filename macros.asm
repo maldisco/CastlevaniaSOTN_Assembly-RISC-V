@@ -2,16 +2,17 @@
 .eqv FRAME_1		0xff100000
 .eqv FRAME_SELECT	0xff200604
 
-.eqv UP			0x77	# 'W'
-.eqv DOWN		0x73	# 'S'
-.eqv LEFT		0x61	# 'A'
-.eqv RIGHT		0x64	# 'D'
-.eqv SELECT		0x65	# 'E'
+.eqv W			0x77	# 'W'
+.eqv S			0x73	# 'S'
+.eqv A			0x61	# 'A'
+.eqv D			0x64	# 'D'
+.eqv E			0x65	# 'E'
+.eqv Z			0x7a	# 'Z'
 
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
 
-.eqv GRAVIDADE		15
+.eqv GRAVIDADE		25
 
 sprite_tela_atual:	.word 0
 tela_atual:		.word 1
@@ -23,10 +24,18 @@ sprite_correndo_direita:	.word 0
 sprite_correndo_esquerda:	.word 0
 sprite_pulando_direita:		.word 0
 sprite_pulando_esquerda:	.word 0
+sprite_soco_direita:		.word 0 
+sprite_soco_esquerda:		.word 0
+
 sprite_larguras_atual:		.word 0
 sprite_enderecos_atual:		.word 0
 sprite_atual:			.word 0
 sprite_frame_atual:		.word 0
+
+# Serão utilizados para retornar a uma ação
+sprite_temp:			.word 0
+larguras_temp:			.word 0
+enderecos_temp:			.word 0
 
 #################################################
 #  Retorna largura e endereco da próxima sprite #	
@@ -45,18 +54,22 @@ lw %reg2, (t2)
 
 # Carrega as sprites dos arquivos para a memória
 .macro carrega_sprites()
-la t1, twob_stand_right
+la t1, luffy_parado_direita
 savew(t1, sprite_parada_direita)
-la t1, twob_stand_left
+la t1, luffy_parado_esquerda
 savew(t1, sprite_parada_esquerda)
-la t1, twob_walk_right
+la t1, luffy_correndo_direita
 savew(t1, sprite_correndo_direita)
-la t1, twob_walk_left
+la t1, luffy_correndo_esquerda
 savew(t1, sprite_correndo_esquerda)
-la t1, twob_jump_right
+la t1, luffy_pulando_direita
 savew(t1, sprite_pulando_direita)
-la t1, twob_jump_left
+la t1, luffy_pulando_esquerda
 savew(t1, sprite_pulando_esquerda)
+la t1, luffy_soco_direita
+savew(t1, sprite_soco_direita)
+la t1, luffy_soco_esquerda
+savew(t1, sprite_soco_esquerda)
 .end_macro
 
 # Configuracoes iniciais de sprite
@@ -156,12 +169,14 @@ loadb(t1,%label2)
 saveb(t1,%label1)
 .end_macro
 
-.include "./sprites/twob_stand_right.data"
-.include "./sprites/twob_stand_left.data"
-.include "./sprites/twob_jump_right.data"
-.include "./sprites/twob_jump_left.data"
-.include "./sprites/twob_walk_right.data"
-.include "./sprites/twob_walk_left.data"
+.include "./sprites/luffy_parado_direita.data"
+.include "./sprites/luffy_parado_esquerda.data"
+.include "./sprites/luffy_correndo_direita.data"
+.include "./sprites/luffy_correndo_esquerda.data"
+.include "./sprites/luffy_pulando_direita.data"
+.include "./sprites/luffy_pulando_esquerda.data"
+.include "./sprites/luffy_soco_direita.data"
+.include "./sprites/luffy_soco_esquerda.data"
 .include "./sprites/tela_1.data"
 .include "./sprites/tela_2.data"
 .include "./sprites/tela_3.data"
