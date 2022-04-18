@@ -2,11 +2,11 @@
 
 # Posiçoes atuais do personagem
 horizontal_luffy:			.word 20
-vertical_luffy:			.word 160
+vertical_luffy:				.word 160
 
 # Posições antigas (a serem apagadas)
 antigo_horizontal_luffy:		.word 20
-antigo_vertical_luffy:		.word 160
+antigo_vertical_luffy:			.word 160
 
 # Velocidades do personagem
 velocidadeX_luffy:			.word 0
@@ -18,16 +18,16 @@ larguras_correndo_direita:	.word 34,45,36,30,34,46,38,30
 larguras_correndo_esquerda:	.word 34,45,36,30,34,46,38,30
 larguras_parada_direita:	.word 32,31,30,30,32,33,32
 larguras_parada_esquerda:	.word 32,31,30,30,32,33,32
-larguras_pulando_direita:	.word 30,30,31,30,34
-larguras_pulando_esquerda:	.word 30,30,31,30,34
+larguras_pulando_direita:	.word 30,30,30,31,30,30,34
+larguras_pulando_esquerda:	.word 30,30,30,31,30,30,34
 larguras_soco_direita:		.word 37,58,42
 larguras_soco_esquerda:		.word 37,58,42
 enderecos_correndo_direita:	.word 8,42,87,123,153,187,233,271
 enderecos_correndo_esquerda:	.word 8,42,87,123,153,187,233,271
 enderecos_parada_direita:	.word 8,40,71,101,131,163,196
 enderecos_parada_esquerda:	.word 8,40,71,101,131,163,196
-enderecos_pulando_direita:	.word 8,38,38,69,99
-enderecos_pulando_esquerda:	.word 8,38,38,69,99
+enderecos_pulando_direita:	.word 8,8,8,38,69,69,99
+enderecos_pulando_esquerda:	.word 8,8,8,38,69,69,99
 enderecos_soco_direita:		.word 8,45,103
 enderecos_soco_esquerda:	.word 8,45,103
 
@@ -40,19 +40,19 @@ tempo_luffy:			.word 0
 .text
 # Lida com o evento de apertar uma tecla do teclado
 acoes_luffy:
-	li t1, D
+	li t1, 'd'
 	beq s0, t1, direita		# checa se a tecla 'D' foi apertada
 	
-	li t1, A
+	li t1, 'a'
 	beq s0, t1, esquerda		# checa se a tecla 'A' foi apertada
 	
-	li t1, W
+	li t1, 'w'
 	beq s0, t1, pula		# checa se a tecla 'W' foi apertada
 	
-	li t1, S
+	li t1, 's'
 	beq s0, t1, para		# checa se a tecla 'S' foi apertada
 	
-	li t1, Z
+	li t1, 'z'
 	beq s0, t1, soca
 	
 	# se nenhuma tecla de ação foi apertada, volta para o loop
@@ -78,7 +78,7 @@ acoes_luffy:
 		savew(t1, sprite_enderecos_atual)
 		tail poll_loop
 	
-	pula:					# se a tecla 'W' foi apertada (e os dois pulos não tiverem sido feitos), velocidade vertical = -50 (subindo)
+	pula:					# se a tecla 'W' foi apertada (e os dois pulos não tiverem sido feitos), velocidade vertical = -48 (subindo)
 		loadb(t1, pulando)
 		li t2, 2
 		bge t1, t2, pula_direita	# se já foram os dois pulos, não faz nada
@@ -87,7 +87,7 @@ acoes_luffy:
 					
 			savew(zero, sprite_frame_atual) 	# Resetando animação
 			
-			li t1, -50					# Velocidade de subida
+			li t1, -48					# Velocidade de subida
 			savew(t1, velocidadeY_luffy)
 			atribuir(sprite_atual, sprite_pulando_direita)
 			la t1, larguras_pulando_direita
@@ -105,7 +105,7 @@ acoes_luffy:
 		tail poll_loop
 
 	para:					# se a tecla 'S' foi apertada, velocidade = 0
-		loadw(t1, pulando)
+		loadb(t1, pulando)
 		bnez t1, nao_pode_parar		# Se o personagem ja está pulando, não pode parar no ar
 			atribuir(sprite_atual, sprite_parada_direita)
 			la t1, larguras_parada_direita
@@ -125,14 +125,12 @@ acoes_luffy:
 		nao_pode_parar:
 		tail poll_loop
 		
-	soca:					# se a tecla 'Z' foi apertada, faz animação de soco	
+	soca:					# se a tecla 'Z' foi apertada, faz animação de soco		
 		loadw(t1, velocidadeX_luffy)
 		bgtz t1, soca_direita		# se a velocidade for positiva, soca para direita
-		
 		bltz t1, soca_esquerda		# se a velocidade for negativa, soca para esquerda
 						
 		loadw(t1, sprite_atual)		# senão...
-		
 		la t2, luffy_parado_direita
 		beq t1, t2, soca_direita		# se a velocidade for 0 e a sprite estiver virada para direita, soca para direita
 		
@@ -421,10 +419,9 @@ tela_anterior:
 # return a0= passou (0=não, 1=sim)
 checa_tempo:
 	loadw(t1, tempo_luffy)		# carrega o momento da ultima renderização
-	li a7, 30
-	ecall				# pega o tempo atual
-	sub t1, a0, t1			# tempo atual - ultima render
-	li t2, 32
+	csrr t2, 3073
+	sub t1, t2, t1
+	li t2, 48
 	bgeu t1, t2, ct_pode		# se for maior que 64 milissegundos, pode renderizar denovo
 		li a0, 0			# se não, não renderiza
 		ret
@@ -434,9 +431,8 @@ checa_tempo:
 
 # Atualiza o tempo atual
 att_tempo_luffy:
-	li a7, 30
-	ecall
-	savew(a0, tempo_luffy)
+	csrr t1, 3073
+	savew(t1, tempo_luffy)
 	ret
 
 

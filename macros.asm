@@ -2,17 +2,10 @@
 .eqv FRAME_1		0xff100000
 .eqv FRAME_SELECT	0xff200604
 
-.eqv W			0x77	# 'W'
-.eqv S			0x73	# 'S'
-.eqv A			0x61	# 'A'
-.eqv D			0x64	# 'D'
-.eqv E			0x65	# 'E'
-.eqv Z			0x7a	# 'Z'
-
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
 
-.eqv GRAVIDADE		25
+.eqv GRAVIDADE		16
 
 sprite_tela_atual:	.word 0
 tela_atual:		.word 1
