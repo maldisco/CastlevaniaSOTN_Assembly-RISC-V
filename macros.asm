@@ -5,74 +5,43 @@
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
 
-.eqv GRAVIDADE		16
+.eqv GRAVIDADE			8
+.eqv LUFFY.OFFSET		1572
+
+
+luffy:	.string "sprites/luffy.bin"
+
+luffy.parado.direita.offsets:		.word 102187,102224,102266,102307,102345,102386,102426
+.eqv LUFFY.PARADO.ALTURA		55
+.eqv LUFFY.PARADO.LARGURA		37
+luffy.parado.esquerda.offsets:		.word 4716,4756,4797,4835,4876,4918,4955
+
+luffy.correndo.direita.offsets:		.word 298681, 298722, 298762, 298813, 298859, 298898, 298942, 298893
+.eqv LUFFY.CORRENDO.ALTURA		55
+.eqv LUFFY.CORRENDO.LARGURA		39
+luffy.correndo.esquerda.offsets:	.word 194933, 194976, 195017, 195063, 195116, 195158, 195199, 195246
+
+luffy.pulando.direita.offsets:		.word 385191, 385239, 385284, 385331, 385372, 385414, 385858, 385898, 385935, 385979
+luffy.pulando.direita.offsets2:		.word 385144, 385191, 385239, 385284, 385372, 385414, 385463, 385507, 385564, 385605, 305689, 385732, 382628, 382669,
+					382714, 382754, 382791,385979, 385025, 386066 
+.eqv LUFFY.PULANDO.ALTURA		55
+.eqv LUFFY.PULANDO.LARGURA 		37
+luffy.pulando.esquerda.offsets:		.word 509377, 509417, 509461, 509510, 509554, 509595, 513183, 513223, 513268, 510170 
+
+luffy.socando.direita.offsets:		.word 867754, 867832, 867916, 867999, 867068, 868141, 868219, 868312, 868414, 868532, 868638, 868720, 868823, 868908, 868984, 869073
+.eqv LUFFY.SOCANDO.ALTURA		55
+.eqv LUFFY.SOCANDO.LARGURA		60
+luffy.socando.esquerda.offsets:		.word 745109,745186,745270,745352,745432,745523,745608,745708,745811,745943,746035,746114,746198,746277,746352,746436
+
+mapa:	.string "sprites/tela_1.bin"
+.eqv MAPA.ALTURA			239
+.eqv MAPA.LARGURA			320
 
 sprite_tela_atual:	.word 0
 tela_atual:		.word 1
 frame_atual:		.word 0
 
-sprite_parada_direita:		.word 0
-sprite_parada_esquerda:		.word 0
-sprite_correndo_direita:	.word 0
-sprite_correndo_esquerda:	.word 0
-sprite_pulando_direita:		.word 0
-sprite_pulando_esquerda:	.word 0
-sprite_soco_direita:		.word 0 
-sprite_soco_esquerda:		.word 0
-
-sprite_larguras_atual:		.word 0
-sprite_enderecos_atual:		.word 0
-sprite_atual:			.word 0
-sprite_frame_atual:		.word 0
-
-# Serão utilizados para retornar a uma ação
-sprite_temp:			.word 0
-larguras_temp:			.word 0
-enderecos_temp:			.word 0
-
-#################################################
-#  Retorna largura e endereco da próxima sprite #	
-#################################################
-.macro get_largura_endereco(%reg1, %reg2, %sprite, %larguras, %enderecos)
-loadb(t0, %sprite)
-loadw(t1, %larguras)
-loadw(t2, %enderecos)
-li t3, 4
-mul t0, t0, t3
-add t1, t1, t0
-add t2, t2, t0
-lw %reg1, (t1)
-lw %reg2, (t2)
-.end_macro
-
-# Carrega as sprites dos arquivos para a memória
-.macro carrega_sprites()
-la t1, luffy_parado_direita
-savew(t1, sprite_parada_direita)
-la t1, luffy_parado_esquerda
-savew(t1, sprite_parada_esquerda)
-la t1, luffy_correndo_direita
-savew(t1, sprite_correndo_direita)
-la t1, luffy_correndo_esquerda
-savew(t1, sprite_correndo_esquerda)
-la t1, luffy_pulando_direita
-savew(t1, sprite_pulando_direita)
-la t1, luffy_pulando_esquerda
-savew(t1, sprite_pulando_esquerda)
-la t1, luffy_soco_direita
-savew(t1, sprite_soco_direita)
-la t1, luffy_soco_esquerda
-savew(t1, sprite_soco_esquerda)
-.end_macro
-
-# Configuracoes iniciais de sprite
-.macro configuracoes_iniciais()
-atribuir(sprite_atual, sprite_parada_direita)
-la t1, larguras_parada_direita
-savew(t1, sprite_larguras_atual)
-la t1, enderecos_parada_direita
-savew(t1, sprite_enderecos_atual)
-.end_macro
+sprite_frame_atual:		.byte 0
 
 ######################################
 #  Retorna o endereço da frame atual #	
@@ -161,15 +130,3 @@ savew(t1,%label1)
 loadb(t1,%label2)
 saveb(t1,%label1)
 .end_macro
-
-.include "./sprites/luffy_parado_direita.data"
-.include "./sprites/luffy_parado_esquerda.data"
-.include "./sprites/luffy_correndo_direita.data"
-.include "./sprites/luffy_correndo_esquerda.data"
-.include "./sprites/luffy_pulando_direita.data"
-.include "./sprites/luffy_pulando_esquerda.data"
-.include "./sprites/luffy_soco_direita.data"
-.include "./sprites/luffy_soco_esquerda.data"
-.include "./sprites/tela_1.data"
-.include "./sprites/tela_2.data"
-.include "./sprites/tela_3.data"

@@ -1,5 +1,5 @@
 .data
-teto:		.word 0
+teto:		.byte 0
 chao:		.word 0
 
 
@@ -9,48 +9,33 @@ atualiza_tela:
 	
 	li t2, 1
 	beq t1, t2, config_tela_1
-	
-	li t2, 2
-	beq t1, t2, config_tela_2
-	
-	li t2, 3
-	beq t1, t2, config_tela_3
 
 config_tela_1:
-	la s0, tela_1
-	savew(s0, sprite_tela_atual)
-	jal IMPRIME
+	mv s9, a0
+	li a1, 0
+	li a2, 0
+	li a3, MAPA.LARGURA
+	li a4, MAPA.LARGURA
+	frame_address(a5)
+	li a6, 0
+	li a7, MAPA.ALTURA
+	call Trenderiza_luffy
+	
+	mv s9, a0
+	li a1, 0
+	li a2, 0
+	li a3, MAPA.LARGURA
+	li a4, MAPA.LARGURA
+	other_frame_address(a5)
+	li a6, 0
+	li a7, MAPA.ALTURA
+	call Trenderiza_luffy
+	
 	li t1, 10
-	savew(t1, teto)
-	li t1, 165
+	saveb(t1, teto)
+	li t1, 170
 	savew(t1, chao)
-	savew(zero, velocidadeX_luffy)
-	savew(zero, velocidadeY_luffy)
-	configuracoes_iniciais()
+	saveb(zero, velocidadeX_luffy)
+	saveb(zero, velocidadeY_luffy)
  	call poll_loop
 
-config_tela_2:
-	la s0, tela_2
-	savew(s0, sprite_tela_atual)
-	jal IMPRIME
-	li t1, 10
-	savew(t1, teto)
-	li t1, 165
-	savew(t1, chao)
-	savew(zero, velocidadeX_luffy)
-	savew(zero, velocidadeY_luffy)
-	configuracoes_iniciais()
-	call poll_loop
-
-config_tela_3:
-	la s0, tela_3
-	savew(s0, sprite_tela_atual)
-	jal IMPRIME
-	li t1, 10
-	savew(t1, teto)
-	li t1, 165
-	savew(t1, chao)
-	savew(zero, velocidadeX_luffy)
-	savew(zero, velocidadeY_luffy)
-	configuracoes_iniciais()
-	call poll_loop

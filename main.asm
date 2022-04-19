@@ -2,13 +2,29 @@
 
 .include "macros.asm"
 .text
-	carrega_sprites()
-	configuracoes_iniciais()
+	# Carrega arquivo de sprites do personagem principal 
+	la a0, luffy
+	li a1, 0
+	li a2, 0
+	li a7, 1024
+	ecall
+	mv s10, a0 # Salva em s10 
+	
+	la a0, mapa
+	li a1, 0
+	li a2, 0
+	li a7, 1024
+	ecall
+	mv s9, a0
+	
 	li s11, MMIO_set
 	jal att_tempo_luffy
 	call config_tela_1
 		
-
+	# ===================== NÃO DEVE MUDAR ===============================
+	# S11 = MMIO_set
+	# S10 = Descritor do arquivo de sprites do Luffy
+	# S9 = Descritor do arquivo do mapa	
 poll_loop:			# início do loop de polling
 	call checa_tempo
 	beqz a0, nao_atualiza
