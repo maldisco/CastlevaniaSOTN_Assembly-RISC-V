@@ -56,13 +56,13 @@ mapa.x:					.half 52
 .eqv MAPA.MIN.X				0
 
 
-mapa:	.string "sprites/map.bin"
+mapa:					.string "sprites/map.bin"
 
-sprite_tela_atual:	.word 0
-tela_atual:		.word 1
-frame_atual:		.word 0
+sprite_tela_atual:			.word 0
+tela_atual:				.word 1
+frame_atual:				.word 0
 
-sprite_frame_atual:		.byte 0
+sprite_frame_atual:			.byte 0
 
 ######################################
 #  Retorna o endereço da frame atual #	

@@ -18,7 +18,7 @@ tempo_luffy:			.word 0
 
 .text
 # Lida com o evento de apertar uma tecla do teclado
-LUFFY.ACOES:
+LUFFY.INPUT:
 	li t1, 'd'
 	beq s0, t1, DIREITA		# checa se a tecla 'D' foi apertada
 	
@@ -34,7 +34,30 @@ LUFFY.ACOES:
 	li t1, 'z'
 	beq s0, t1, SOCA
 	
-	# Se nenhuma tecla de ação foi apertada, volta para o loop
+	
+	ret
+	
+	# Se a tecla 'S' foi apertada
+	# - Se pulando > 0
+	# - - nada
+	# - Senão
+	# - - Se moveX > 0
+	# - - - sentido = 1 (direita)
+	# - - Senão
+	# - - - sentido = -1 (esquerda)
+	# - - moveX = 0
+	PARA:					
+		loadb(t1, pulando)
+		bnez t1, nao_pode_parar		
+			loadb(t1, moveX)
+			li t2, 1
+			bgtz t1, PARA.SENTIDO.DIREITA
+				li t2, -1
+			PARA.SENTIDO.DIREITA:
+			li t1, 0
+			saveb(t1, moveX)
+			saveb(t2, sentido)
+		nao_pode_parar:
 		ret
 	
 	
@@ -75,29 +98,6 @@ LUFFY.ACOES:
 		pula_direita:
 		ret
 	
-	# Se a tecla S foi apertada
-	# - Se pulando > 0
-	# - - nada
-	# - Senão
-	# - - Se moveX > 0
-	# - - - sentido = 1 (direita)
-	# - - Senão
-	# - - - sentido = -1 (esquerda)
-	# - - moveX = 0
-	PARA:					
-		loadb(t1, pulando)
-		bnez t1, nao_pode_parar		
-			loadb(t1, moveX)
-			li t2, 1
-			bgtz t1, PARA.SENTIDO.DIREITA
-				li t2, -1
-			PARA.SENTIDO.DIREITA:
-			li t1, 0
-			saveb(t1, moveX)
-			saveb(t2, sentido)
-		nao_pode_parar:
-		ret
-	
 	# Se a tecla Z foi apertada
 	# - Se socando > 0
 	# - - nada
@@ -111,6 +111,25 @@ LUFFY.ACOES:
 			saveb(t1, socando)
 		ja_esta_socando:
 		ret
+
+# Renderiza novamente o mapa
+MAPA.ATUALIZA:
+	addi sp, sp, -4
+	sw ra, (sp)			# Guardando endereço de retorno para o loop principal
+
+	mv a0, s9
+	li a1, 0		
+	li a2, 0
+	li a3, MAPA.IMAGEM.LARGURA
+	li a4, MAPA.LARGURA		
+	frame_address(a5)
+	offset_mapa(a6)
+	li a7, MAPA.ALTURA
+	call RENDER
+	
+	lw ra, (sp)			# Retorna ao loop principal
+	addi sp, sp, 4
+	ret
 
 # Atualiza a posição da personagem 	
 LUFFY.ATUALIZA:
@@ -150,19 +169,6 @@ LUFFY.ATUALIZA:
 			call MIN
 			sh a0, 0(t1)
 		LP.COLIDIU.BAIXO:
-		
-		troca_tela()				# Troca a frame (0->1/1->0)
-		
-		# Renderiza novamente o mapa
-		mv a0, s9
-		li a1, 0
-		li a2, 0
-		li a3, MAPA.IMAGEM.LARGURA
-		li a4, MAPA.LARGURA
-		frame_address(a5)
-		offset_mapa(a6)
-		li a7, MAPA.ALTURA
-		call RENDER
 						
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
@@ -302,18 +308,6 @@ LUFFY.ATUALIZA:
 						sw t2, 0(t1)
 		LUFFY.PULANDO.PARADO:
 		
-		troca_tela()				# Troca a frame (0->1/1->0)
-		# Renderiza novamente o mapa
-		mv a0, s9
-		li a1, 0
-		li a2, 0
-		li a3, MAPA.IMAGEM.LARGURA
-		li a4, MAPA.LARGURA
-		frame_address(a5)
-		offset_mapa(a6)
-		li a7, MAPA.ALTURA
-		call RENDER
-		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
@@ -424,19 +418,6 @@ LUFFY.ATUALIZA:
 			sh a0, 0(t1)
 		LCD.COLIDIU.BAIXO:
 		
-		troca_tela()				# Troca a frame (0->1/1->0)
-		
-		# Renderiza novamente o mapa
-		mv a0, s9
-		li a1, 0
-		li a2, 0
-		li a3, MAPA.IMAGEM.LARGURA
-		li a4, MAPA.LARGURA
-		frame_address(a5)
-		offset_mapa(a6)
-		li a7, MAPA.ALTURA
-		call RENDER
-		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
@@ -487,11 +468,7 @@ LUFFY.ATUALIZA:
 				la t1, horizontal_luffy
 				lw t2, 0(t1)
 				addi t2, t2, 145	# Coloca o personagem no meio da tela
-				sw t2, 0(t1)
-				la t1, mapa.y
-				lhu t2, 0(t1)
-				addi t2, t2, -50	# Reposiciona a tela verticalmente
-				sh t2, 0(t1)	
+				sw t2, 0(t1)	
 		LCE.NAOTRAVADA:
 	
 		# Checa se deve travar a camera horizontalmente
@@ -545,20 +522,6 @@ LUFFY.ATUALIZA:
 			call MIN
 			sh a0, 0(t1)
 		LCE.COLIDIU.BAIXO:
-
-		
-		troca_tela()				# Troca a frame (0->1/1->0)
-		
-		# Renderiza novamente o mapa
-		mv a0, s9
-		li a1, 0
-		li a2, 0
-		li a3, MAPA.IMAGEM.LARGURA
-		li a4, MAPA.LARGURA
-		frame_address(a5)
-		offset_mapa(a6)
-		li a7, MAPA.ALTURA
-		call RENDER
 		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
@@ -593,19 +556,6 @@ LUFFY.ATUALIZA:
 		ret	
 	
 	LUFFY.SOCANDO:
-		troca_tela()				# Troca a frame (0->1/1->0)
-		
-		# Renderiza novamente o mapa
-		mv s9, a0
-		li a1, 0
-		li a2, 0
-		li a3, MAPA.IMAGEM.LARGURA
-		li a4, MAPA.LARGURA
-		frame_address(a5)
-		offset_mapa(a6)
-		li a7, MAPA.ALTURA
-		call RENDER
-		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
