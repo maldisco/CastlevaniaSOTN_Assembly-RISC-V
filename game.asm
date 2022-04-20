@@ -1,9 +1,3 @@
-.data
-teto:		.byte 0
-chao:		.word 0
-
-
-.text
 atualiza_tela:
 	loadw(t1, tela_atual)
 	
@@ -19,7 +13,7 @@ config_tela_1:
 	frame_address(a5)
 	offset_mapa(a6)
 	li a7, MAPA.ALTURA
-	call Trenderiza_luffy
+	call RENDER
 	
 	mv s9, a0
 	li a1, 0
@@ -29,13 +23,8 @@ config_tela_1:
 	other_frame_address(a5)
 	offset_mapa(a6)
 	li a7, MAPA.ALTURA
-	call Trenderiza_luffy
-	
-	li t1, 10
-	saveb(t1, teto)
-	li t1, 145
-	savew(t1, chao)
-	saveb(zero, velocidadeX_luffy)
+	call RENDER
+
 	saveb(zero, velocidadeY_luffy)
- 	call poll_loop
+ 	tail poll_loop
 
