@@ -144,14 +144,17 @@ LUFFY.ATUALIZA:
 			# Movimenta o mapa em Y
 			la t1, mapa.y
 			lhu t2, (t1)
-			addi t2, t2, 8		# S2 =  Velocidade Y do personagem
-			sh t2, (t1)
+			add t2, t2, s2			# S2 =  Velocidade Y do personagem
+			mv a1, t2
+			li a2, MAPA.MAX.Y
+			call MIN
+			sh a0, 0(t1)
 		LP.COLIDIU.BAIXO:
 		
 		troca_tela()				# Troca a frame (0->1/1->0)
 		
 		# Renderiza novamente o mapa
-		mv s9, a0
+		mv a0, s9
 		li a1, 0
 		li a2, 0
 		li a3, MAPA.IMAGEM.LARGURA
@@ -198,7 +201,6 @@ LUFFY.ATUALIZA:
 		ret
 	
 	LUFFY.PULANDO:
-		
 		# Atualiza a posição Y
 		LUFFY.PULANDO.ATUALIZAY:
 		la t1, velocidadeY_luffy
@@ -225,28 +227,21 @@ LUFFY.ATUALIZA:
 				j LUFFY.PULANDO.ATUALIZAX	
 		
 		LUFFY.PULANDO.MOVE:
-		la t1, mapa.lock.y
-		lb t1, 0(t1)
-		bgtz t1, LPM.MOVE.CHAR
-		
-		LPM.MOVE.MAPA:
-			# Movimenta o mapa em Y
-			la t1, mapa.y
-			lhu t2, 0(t1)
-			loadb(t3, velocidadeY_luffy)
-			add t2, t2, t3		
-			# MIN entre a nova posição e a maior posição possível
-			mv a1, t2			
-			li a2, MAPA.MAX.Y
-			call MIN
-			# MAX entre a nova posição e a menor posição possível
-			mv a1, a0
-			li a2, MAPA.MIN.Y
-			call MAX				
-			sh a0, 0(t1)	
-			j LUFFY.PULANDO.ATUALIZAX		
-		LPM.MOVE.CHAR:
-			savew(s1, vertical_luffy)
+		# Movimenta o mapa em Y
+		la t1, mapa.y
+		lhu t2, 0(t1)
+		loadb(t3, velocidadeY_luffy)
+		add t2, t2, t3		
+		# MIN entre a nova posição e a maior posição possível
+		mv a1, t2			
+		li a2, MAPA.MAX.Y
+		call MIN
+		# MAX entre a nova posição e a menor posição possível
+		mv a1, a0
+		li a2, MAPA.MIN.Y
+		call MAX				
+		sh a0, 0(t1)		
+		saveb(s2, velocidadeY_luffy)
 				
 		# Atualiza a posição X
 		LUFFY.PULANDO.ATUALIZAX:
@@ -363,18 +358,15 @@ LUFFY.ATUALIZA:
 		beqz t2, LCD.NAOTRAVADA
 			la t2, horizontal_luffy
 			lw t2, 0(t2)
-			addi a1, a1, 2
-			bgtz t2, LCD.NAOTRAVADA
+			addi t2, t2 , 2
+			li t3, 280
+			blt t2, t3, LCD.NAOTRAVADA
 				li t2, 0		# Se a camera estiver travada, e o personagem chegar no limite esquerdo da tela
 				sb t2, (t1)		# Destrava a camera
-				la t1, mapa.lock.y
-				li t2, 1
-				sb t2, (t1)
 				la t1, mapa.x
 				la t2, horizontal_luffy
 				lhu t3, 0(t1)
-				lw t4, 0(t2)
-				addi t4, t4, 145	# Coloca o personagem no meio da tela
+				li t4, 145		# Coloca o personagem no meio da tela
 				addi t3, t3, 145	# Arrasta a tela para esquerda
 				sh t3, 0(t1)
 				sw t4, 0(t2)
@@ -387,9 +379,6 @@ LUFFY.ATUALIZA:
 		blt t2, t3, LCD.NAOTRAVA
 			la t1, mapa.lock.x
 			li t2, 1
-			sb t2, 0(t1)
-			la t1, mapa.lock.y
-			li t2, 0
 			sb t2, 0(t1)
 		LCD.NAOTRAVA:		
 		
@@ -487,13 +476,10 @@ LUFFY.ATUALIZA:
 		beqz t2, LCE.NAOTRAVADA
 			la t2, horizontal_luffy
 			lw t2, 0(t2)
-			addi a1, a1, -2
+			addi t2, t2, -2
 			bgtz t2, LCE.NAOTRAVADA
 				li t2, 0		# Se a camera estiver travada, e o personagem chegar no limite esquerdo da tela
 				sb t2, (t1)		# Destrava a camera
-				la t1, mapa.lock.y
-				li t2, 1
-				sb t2, (t1)
 				la t1, mapa.x
 				lhu t2, 0(t1)
 				addi t2, t2, -145	# Arrasta a tela para esquerda
@@ -505,7 +491,7 @@ LUFFY.ATUALIZA:
 				la t1, mapa.y
 				lhu t2, 0(t1)
 				addi t2, t2, -50	# Reposiciona a tela verticalmente
-				sh t2, 0(t1)				
+				sh t2, 0(t1)	
 		LCE.NAOTRAVADA:
 	
 		# Checa se deve travar a camera horizontalmente
@@ -515,9 +501,6 @@ LUFFY.ATUALIZA:
 		bgt t2, t3, LCE.NAOTRAVA
 			la t1, mapa.lock.x
 			li t2, 1
-			sb t2, 0(t1)
-			la t1, mapa.lock.y
-			li t2, 0
 			sb t2, 0(t1)
 		LCE.NAOTRAVA:
 		
@@ -552,12 +535,11 @@ LUFFY.ATUALIZA:
 		la t1, vertical_luffy
 		lw a1, 0(t1)
 		call COLISAO.BAIXO
-		
 		bnez a0, LCE.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
 			la t1, mapa.y
 			lhu t2, (t1)
-			addi t2, t2, 8
+			add t2, t2, s2			# S2 =  Velocidade Y do personagem
 			mv a1, t2
 			li a2, MAPA.MAX.Y
 			call MIN
@@ -568,7 +550,7 @@ LUFFY.ATUALIZA:
 		troca_tela()				# Troca a frame (0->1/1->0)
 		
 		# Renderiza novamente o mapa
-		mv s9, a0
+		mv a0, s9
 		li a1, 0
 		li a2, 0
 		li a3, MAPA.IMAGEM.LARGURA
