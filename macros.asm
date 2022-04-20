@@ -33,9 +33,18 @@ luffy.socando.direita.offsets:		.word 867754, 867832, 867916, 867999, 867068, 86
 .eqv LUFFY.SOCANDO.LARGURA		60
 luffy.socando.esquerda.offsets:		.word 745109,745186,745270,745352,745432,745523,745608,745708,745811,745943,746035,746114,746198,746277,746352,746436
 
-mapa:	.string "sprites/tela_1.bin"
-.eqv MAPA.ALTURA			239
+mapa.y:					.half 587
+mapa.x:					.half 52
 .eqv MAPA.LARGURA			320
+.eqv MAPA.ALTURA			239
+.eqv MAPA.IMAGEM.LARGURA		1628
+.eqv MAPA.HITBOX.LARGURA		1628
+.eqv MAPA.MAX.Y				587
+.eqv MAPA.MAX.X				1308
+.eqv MAPA.MIN.X				0
+
+
+mapa:	.string "sprites/map.bin"
 
 sprite_tela_atual:	.word 0
 tela_atual:		.word 1
@@ -130,3 +139,31 @@ savew(t1,%label1)
 loadb(t1,%label2)
 saveb(t1,%label1)
 .end_macro
+
+# Calcula offset do mapa
+.macro offset_mapa(%reg)
+li t1, MAPA.IMAGEM.LARGURA
+la t2, mapa.y
+lhu t2, 0(t2)
+la t3, mapa.x
+lhu t3, 0(t3)
+mul t1, t1, t2
+add t1, t1, t3
+mv %reg, t1
+.end_macro
+
+# Calcula posicoes do personagem relativas ao mapa
+.macro calc_pos()
+la t1, horizontal luffy
+lw t1, 0(t1)
+la t2, vertical_luffy
+lw t2, 0(t2)
+la t3, mapa.x
+lh t3, 0(t3)
+la t4, mapa.y
+lh t4, 0(t4)
+add t5, t3, t1			# t5 = X da esquerda do personagem no mapa
+add t6, t6, t2			# t6 = Y de cima do personagem no mapa
+.end_macro
+
+.include "sprites/map_hitbox.s"

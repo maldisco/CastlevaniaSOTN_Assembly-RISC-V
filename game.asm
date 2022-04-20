@@ -14,26 +14,26 @@ config_tela_1:
 	mv s9, a0
 	li a1, 0
 	li a2, 0
-	li a3, MAPA.LARGURA
+	li a3, MAPA.IMAGEM.LARGURA
 	li a4, MAPA.LARGURA
 	frame_address(a5)
-	li a6, 0
+	offset_mapa(a6)
 	li a7, MAPA.ALTURA
 	call Trenderiza_luffy
 	
 	mv s9, a0
 	li a1, 0
 	li a2, 0
-	li a3, MAPA.LARGURA
+	li a3, MAPA.IMAGEM.LARGURA
 	li a4, MAPA.LARGURA
 	other_frame_address(a5)
-	li a6, 0
+	offset_mapa(a6)
 	li a7, MAPA.ALTURA
 	call Trenderiza_luffy
 	
 	li t1, 10
 	saveb(t1, teto)
-	li t1, 170
+	li t1, 145
 	savew(t1, chao)
 	saveb(zero, velocidadeX_luffy)
 	saveb(zero, velocidadeY_luffy)

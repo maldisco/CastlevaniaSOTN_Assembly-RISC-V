@@ -1,8 +1,8 @@
 .data
 
 # Posiçoes atuais do personagem
-horizontal_luffy:			.word 20
-vertical_luffy:				.word 170
+horizontal_luffy:			.word 160
+vertical_luffy:				.word 145
 
 # Velocidades do personagem
 velocidadeX_luffy:			.byte 0
@@ -113,16 +113,28 @@ atualiza_posicao_luffy:
 	bltz t1, LUFFY.CORRENDO.ESQUERDA
 	
 	LUFFY.PARADO:
+		# Checa se colidiu com o chão
+		la t1, vertical_luffy
+		lw a1, 0(t1)
+		call COLISAO.BAIXO
+		bnez a0, LP.COLIDIU.BAIXO
+			# Movimenta o mapa em Y
+			la t1, mapa.y
+			lhu t2, (t1)
+			addi t2, t2, 8		# S2 =  Velocidade Y do personagem
+			sh t2, (t1)
+		LP.COLIDIU.BAIXO:
+		
 		troca_tela()				# Troca a frame (0->1/1->0)
 		
 		# Renderiza novamente o mapa
 		mv s9, a0
 		li a1, 0
 		li a2, 0
-		li a3, MAPA.LARGURA
+		li a3, MAPA.IMAGEM.LARGURA
 		li a4, MAPA.LARGURA
 		frame_address(a5)
-		li a6, 0
+		offset_mapa(a6)
 		li a7, MAPA.ALTURA
 		call Trenderiza_luffy
 						
@@ -130,10 +142,6 @@ atualiza_posicao_luffy:
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
-		loadw(t1, chao)
-		bge a2, t1, LUFFY.PARADO.CHAO
-			mv a2, s1			
-		LUFFY.PARADO.CHAO: 
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.PARADO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
@@ -169,54 +177,91 @@ atualiza_posicao_luffy:
 	LUFFY.PULANDO:
 		loadb(t1, moveX)
 		beqz t1, LUFFY.PULANDO.PARADO
-			# Movimenta
-			loadw(t2,horizontal_luffy)
-			addi t2, t2, 5
 			bgtz t1, LUFFY.PULANDO.DIREITA
 			# Se estiver indo para esquerda, movimenta para o outro lado
-				addi t2, t2, -10
+				la t1, horizontal_luffy
+				lw a1, (t1)
+				addi a1, a1, -5
+				call COLISAO.ESQUERDA
+				bnez a0, LUFFY.PULANDO.PARADO	 
+				# Movimenta o mapa em X
+				la t2, mapa.x
+				lhu t3, 0(t2)
+				addi t3, t3, -5			
+				mv a1, t3
+				li a2, MAPA.MIN.X
+				call MAX
+				sh a0, (t2)
+				j LUFFY.PULANDO.PARADO
 			LUFFY.PULANDO.DIREITA:
-			savew(t2, horizontal_luffy)
+				la t1, horizontal_luffy
+				lw a1, (t1)
+				addi a1, a1, 5
+				call COLISAO.DIREITA
+				bnez a0, LUFFY.PULANDO.PARADO	# Se bateu em algo, não move	
+				# Movimentao mapa em X
+				la t2, mapa.x
+				lhu t3, 0(t2)
+				addi t3, t3, 5			
+				mv a1, t3
+				li a2, MAPA.MAX.X
+				call MIN
+				sh a0, (t2)
 		LUFFY.PULANDO.PARADO:
 	
-		# Checa se já caiu no chão
-		loadw(t1, chao)
-		blt s1, t1, LUFFY.PULANDO.SIM
-			saveb(zero, pulando)
-			mv s1, t1
-		LUFFY.PULANDO.SIM:
+	
+		la t1, velocidadeY_luffy
+		lb t2, 0(t1)
+		bltz t2, LUFFY.PULANDO.SUBINDO
 		
-		# Checa se bateu no teto
-		loadb(t1, teto)
-		bgt s1, t1 LUFFY.PULANDO.TETO.NAO
-			mv s1, t1
-		LUFFY.PULANDO.TETO.NAO:
+		LUFFY.PULANDO.DESCENDO:	
+			# Checa se já caiu no chão
+			la t1, vertical_luffy
+			lw a1, 0(t1)
+			call COLISAO.BAIXO
+			beqz a0, LUFFY.PULANDO.MOVE
+				saveb(zero, pulando)
+				saveb(s2, velocidadeY_luffy)
+				j LUFFY.PULANDO.RENDER
 		
-		# Salva novas posição Y e velocidade Y
-		savew(s1, vertical_luffy)
+		LUFFY.PULANDO.SUBINDO:
+			# Checa se bateu no teto
+			la t1, vertical_luffy
+			lw a1, 0(t1)
+			call COLISAO.CIMA
+			beqz a0, LUFFY.PULANDO.MOVE
+				saveb(s2, velocidadeY_luffy)
+				j LUFFY.PULANDO.RENDER		
+		
+		LUFFY.PULANDO.MOVE:
+		# Movimenta o mapa em Y
+		la t1, mapa.y
+		lhu t2, 0(t1)
+		loadb(t3, velocidadeY_luffy)
+		add t2, t2, t3			
+		mv a1, t2
+		li a2, MAPA.MAX.Y
+		call MIN
+		sh a0, 0(t1)		
 		saveb(s2, velocidadeY_luffy)
 		
+		LUFFY.PULANDO.RENDER:
 		troca_tela()				# Troca a frame (0->1/1->0)
-		
 		# Renderiza novamente o mapa
-		mv s9, a0
+		mv a0, s9
 		li a1, 0
 		li a2, 0
-		li a3, MAPA.LARGURA
+		li a3, MAPA.IMAGEM.LARGURA
 		li a4, MAPA.LARGURA
 		frame_address(a5)
-		li a6, 0
+		offset_mapa(a6)
 		li a7, MAPA.ALTURA
 		call Trenderiza_luffy
 		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
-		loadw(a2, vertical_luffy)		# Y na tela
-		loadb(t1, chao)
-		bge a2, t1, LUFFY.PULANDO.CHAO
-			mv a2, s1			
-		LUFFY.PULANDO.CHAO: 
+		loadw(a2, vertical_luffy)		# Y na tela 
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.PULANDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
@@ -251,21 +296,48 @@ atualiza_posicao_luffy:
 		
 	
 	LUFFY.CORRENDO.DIREITA:
-		# Movimenta
-		loadw(t1,horizontal_luffy)
-		addi t1, t1, 5
-		savew(t1,horizontal_luffy)
+		# Calcula colisões
+		la t1, horizontal_luffy
+		lw a1, (t1)
+		addi a1, a1, 5
+		call COLISAO.DIREITA
+		
+		bnez a0, LCD.COLIDIU
+			# Movimenta o mapa em X			
+			la t1, mapa.x
+			lhu t2, (t1)
+			addi t2, t2, 5
+			mv a1, t2
+			li a2, MAPA.MAX.X
+			call MIN
+			sh a0, (t1)
+		LCD.COLIDIU:
+		
+		la t1, vertical_luffy
+		lw a1, 0(t1)
+		call COLISAO.BAIXO
+		
+		bnez a0, LCD.COLIDIU.BAIXO
+			# Movimenta o mapa em Y
+			la t1, mapa.y
+			lhu t2, (t1)
+			add t2, t2, s2			# S2 =  Velocidade Y do personagem
+			mv a1, t2
+			li a2, MAPA.MAX.Y
+			call MIN
+			sh a0, 0(t1)
+		LCD.COLIDIU.BAIXO:
 		
 		troca_tela()				# Troca a frame (0->1/1->0)
 		
 		# Renderiza novamente o mapa
-		mv s9, a0
+		mv a0, s9
 		li a1, 0
 		li a2, 0
-		li a3, MAPA.LARGURA
+		li a3, MAPA.IMAGEM.LARGURA
 		li a4, MAPA.LARGURA
 		frame_address(a5)
-		li a6, 0
+		offset_mapa(a6)
 		li a7, MAPA.ALTURA
 		call Trenderiza_luffy
 		
@@ -273,10 +345,6 @@ atualiza_posicao_luffy:
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
-		loadw(t1, chao)
-		bge a2, t1, LUFFY.CORRENDO.DIREITA.CHAO
-			mv a2, s1			
-		LUFFY.CORRENDO.DIREITA.CHAO: 
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.CORRENDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
@@ -306,10 +374,37 @@ atualiza_posicao_luffy:
 		ret
 	
 	LUFFY.CORRENDO.ESQUERDA:
-		# Movimenta
-		loadw(t1,horizontal_luffy)
-		addi t1, t1, -5
-		savew(t1,horizontal_luffy)
+		la t1, horizontal_luffy
+		lw a1, (t1)
+		addi a1, a1, -5
+		call COLISAO.ESQUERDA
+		
+		bnez a0, LCE.COLIDIU
+			# Movimenta o mapa em X			
+			la t1, mapa.x
+			lhu t2, (t1)
+			addi t2, t2, -5
+			mv a1, t2
+			li a2, MAPA.MIN.X
+			call MAX
+			sh a0, (t1)
+		LCE.COLIDIU:
+		
+		la t1, vertical_luffy
+		lw a1, 0(t1)
+		call COLISAO.BAIXO
+		
+		bnez a0, LCE.COLIDIU.BAIXO
+			# Movimenta o mapa em Y
+			la t1, mapa.y
+			lhu t2, (t1)
+			addi t2, t2, 8
+			mv a1, t2
+			li a2, MAPA.MAX.Y
+			call MIN
+			sh a0, 0(t1)
+		LCE.COLIDIU.BAIXO:
+
 		
 		troca_tela()				# Troca a frame (0->1/1->0)
 		
@@ -317,10 +412,10 @@ atualiza_posicao_luffy:
 		mv s9, a0
 		li a1, 0
 		li a2, 0
-		li a3, MAPA.LARGURA
+		li a3, MAPA.IMAGEM.LARGURA
 		li a4, MAPA.LARGURA
 		frame_address(a5)
-		li a6, 0
+		offset_mapa(a6)
 		li a7, MAPA.ALTURA
 		call Trenderiza_luffy
 		
@@ -328,10 +423,6 @@ atualiza_posicao_luffy:
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
-		loadw(t1, chao)
-		bge a2, t1, LUFFY.CORRENDO.ESQUERDA.CHAO
-			mv a2, s1			
-		LUFFY.CORRENDO.ESQUERDA.CHAO: 
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.CORRENDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
@@ -367,10 +458,10 @@ atualiza_posicao_luffy:
 		mv s9, a0
 		li a1, 0
 		li a2, 0
-		li a3, MAPA.LARGURA
+		li a3, MAPA.IMAGEM.LARGURA
 		li a4, MAPA.LARGURA
 		frame_address(a5)
-		li a6, 0
+		offset_mapa(a6)
 		li a7, MAPA.ALTURA
 		call Trenderiza_luffy
 		
@@ -412,6 +503,153 @@ atualiza_posicao_luffy:
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
 		ret
+
+# Checa colisão à direita do personagem
+# Param a1 = Nova posição X do personagem
+# Return a0, 1 = Colidiu
+COLISAO.DIREITA:
+	la t1, mapa.x
+	lh t1, (t1)
+	la t2, mapa.y
+	lh t2, (t2)
+	mv t3, a1
+	la t4, vertical_luffy
+	lw t4, (t4)
+	
+	add t1, t1, t3			 # X do personagem relativo ao mapa
+	add t2, t2, t4			 # Y do personagem relativo ao mapa
+	
+	la t3, map_hitbox
+	addi t3, t3, 8
+	 
+	li t4, MAPA.HITBOX.LARGURA
+	mul t4, t4, t2
+	add t4, t4, t1			# t4 = Primeiro pixel do personagem no mapa de hitboxes
+	li t5, LUFFY.CORRENDO.LARGURA
+	add t4, t4, t5			# t4 = Primeiro pixel a direita do personagem
+	li t5, LUFFY.CORRENDO.ALTURA
+	addi t5, t5, -20
+	li t6, 0
+	CD.LOOP:
+		add t1, t4, t3
+		lb t2, 0(t1)
+		bnez t2, CD.NEGATIVO
+	 		li a0, 1
+	 		ret
+	 	CD.NEGATIVO:
+	 	addi t6, t6, 1
+	 	li t1, MAPA.HITBOX.LARGURA
+	 	add t4, t4, t1
+	 	blt t6, t5, CD.LOOP
+	 CD.FIM:
+	 li a0, 0
+	 ret
+
+# Checa colisão à esquerda do personagem
+# Param a1 = Nova posição X do personagem
+# Return a0, 1 = Colidiu
+COLISAO.ESQUERDA:
+	la t1, mapa.x
+	lh t1, (t1)
+	la t2, mapa.y
+	lh t2, (t2)
+	mv t3, a1
+	la t4, vertical_luffy
+	lw t4, (t4)
+	
+	add t1, t1, t3			 # X do personagem relativo ao mapa
+	add t2, t2, t4			 # Y do personagem relativo ao mapa
+	
+	la t3, map_hitbox
+	addi t3, t3, 8
+	 
+	li t4, MAPA.HITBOX.LARGURA
+	mul t4, t4, t2
+	add t4, t4, t1			# t4 = Endereço do primeiro pixel do personagem 
+	addi t1, t1, -1			# Checa ao primeiro pixel antes do personagem0
+	li t6, 0
+	CE.LOOP:
+		add t1, t4, t3
+		lb t2, 0(t1)
+		bnez t2, CE.NEGATIVO
+	 		li a0, 1
+	 		ret
+	 	CE.NEGATIVO:
+	 	addi t6, t6, 1
+	 	li t1, MAPA.HITBOX.LARGURA
+	 	add t4, t4, t1
+	 	blt t6, t5, CE.LOOP
+	 CE.FIM:
+	 li a0, 0
+	 ret
+
+# Checa colisão abaixo do personagem
+# Param a1 = Posição do personagem em Y após gravidade
+# Return a0, 1 = Colidiu
+COLISAO.BAIXO:
+	la t1, mapa.x
+	lh t1, (t1)
+	la t2, mapa.y
+	lh t2, (t2)
+	la t3, horizontal_luffy
+	lw t3, (t3)
+	mv t4, a1
+	
+	add t1, t1, t3			 # X do personagem relativo ao mapa
+	add t2, t2, t4			 # Y do personagem relativo ao mapa
+	
+	la t3, map_hitbox
+	addi t3, t3, 8
+	 
+	li t4, MAPA.HITBOX.LARGURA
+	addi t2, t2, 47			# Desce até o pé do personagem
+	mul t4, t4, t2
+	add t4, t4, t1			# t4 = Endereço do primeiro pixel abaixo do personagem
+	
+	add t3, t3, t4			# Pixel no endereço de hitboxes
+	lw t2, (t3)
+	
+	bnez t2, CB.NEGATIVO
+		li a0, 1
+		ret
+	CB.NEGATIVO:
+	li a0, 0
+	ret
+
+# Checa colisão acima do personagem
+# Param a1 = Nova posição Y do personagem
+# Return a0, 1 = Colidiu
+COLISAO.CIMA:
+	la t1, mapa.x
+	lh t1, (t1)
+	la t2, mapa.y
+	lh t2, (t2)
+	la t3, horizontal_luffy
+	lw t3, (t3)
+	mv t4, a1
+	
+	add t1, t1, t3			 # X do personagem relativo ao mapa
+	addi t1, t1, 37			# Chega ao limite direito da box do personagem
+	add t2, t2, t4			 # Y do personagem relativo ao mapa
+	addi t2, t2, -1			# Sobe 1 pixel acima do personagem
+	
+	la t3, map_hitbox
+	addi t3, t3, 8
+	 
+	li t4, MAPA.HITBOX.LARGURA
+	mul t4, t4, t2
+	add t4, t4, t1			# t4 = Endereço do primeiro pixel acima do personagem
+	
+	add t3, t3, t4			# t3 = Pixel no endereço de hitboxes
+	lw t2, (t3)			# Carrega uma word 
+	
+	bnez t2, CC.NEGATIVO		# Checa se a word é um bloco colidível
+		li a0, 1
+		ret
+	CC.NEGATIVO:
+	li a0, 0
+	ret
+	
 
 # Configurações quando o personagem passar para a proxima tela
 proxima_tela:

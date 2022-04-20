@@ -42,3 +42,4 @@ poll_loop:			# início do loop de polling
 .include "game.asm"	
 .include "render.asm"
 .include "walk.asm"
+.include "common.s"
