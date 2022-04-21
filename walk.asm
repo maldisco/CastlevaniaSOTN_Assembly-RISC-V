@@ -19,6 +19,11 @@ tempo_luffy:			.word 0
 .text
 # Lida com o evento de apertar uma tecla do teclado
 LUFFY.INPUT:
+	lw t1, (s11)			# carrega para t1 o estado do teclado
+	beqz t1, LUFFY.INPUT.RET	# se for igual a 0 (nada digitado), volta ao loop
+	li s0, MMIO_add			# carrega para s0 o endereço a armazenar a tecla digitada
+	lw s0, (s0)			# carrega para s0 a tecla digitada
+
 	li t1, 'd'
 	beq s0, t1, DIREITA		# checa se a tecla 'D' foi apertada
 	
@@ -34,7 +39,7 @@ LUFFY.INPUT:
 	li t1, 'z'
 	beq s0, t1, SOCA
 	
-	
+	LUFFY.INPUT.RET:
 	ret
 	
 	# Se a tecla 'S' foi apertada
@@ -68,7 +73,7 @@ LUFFY.INPUT:
 		li t1, 1
 		saveb(t1, moveX)
 		saveb(t1, sentido)
-		saveb(t2, sprite_frame_atual) 
+		saveb(zero, sprite_frame_atual) 
 		ret
 	
 	# Se a tecla A foi apertada,
@@ -78,13 +83,13 @@ LUFFY.INPUT:
 		li t1, -1
 		saveb(t1, moveX)
 		saveb(t1, sentido)
-		saveb(t2, sprite_frame_atual) 
+		saveb(zero, sprite_frame_atual) 
 		ret
 	
 	# Se a tecla W foi apertada
 	# - Se pulando < 2
 	# - - pulando += 1
-	# - - velocidadeY = -12 (subindo)
+	# - - velocidadeY = -11 (subindo)
 	# - Senão
 	# - - nada
 	PULA:					
@@ -94,7 +99,7 @@ LUFFY.INPUT:
 			addi t1, t1, 1
 			saveb(t1, pulando)
 			saveb(zero, sprite_frame_atual) 	
-			li t1, -12					
+			li t1, -11					
 			saveb(t1, velocidadeY_luffy)
 			
 		pula_direita:
@@ -160,6 +165,7 @@ LUFFY.ATUALIZA:
 		# Checa se colidiu com o chão
 		la t1, vertical_luffy
 		lw a1, 0(t1)
+		li a2 LUFFY.PARADO.ALTURA
 		call COLISAO.BAIXO
 		bnez a0, LP.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
@@ -181,7 +187,7 @@ LUFFY.ATUALIZA:
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 21
+		li t2, 28
 		blt t1, t2,LUFFY.PARADO.NAORESETA
 			li t1, 0
 			saveb(t1, sprite_frame_atual)
@@ -202,8 +208,6 @@ LUFFY.ATUALIZA:
 		
 		atualiza_tela()
 	
-		jal att_tempo_luffy
-	
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
 		ret
@@ -219,6 +223,7 @@ LUFFY.ATUALIZA:
 			# Checa se já caiu no chão
 			la t1, vertical_luffy
 			lw a1, 0(t1)
+			li a2, LUFFY.PULANDO.ALTURA
 			call COLISAO.BAIXO
 			beqz a0, LUFFY.PULANDO.MOVE
 				saveb(zero, pulando)
@@ -287,6 +292,7 @@ LUFFY.ATUALIZA:
 				la t1, horizontal_luffy
 				lw a1, (t1)
 				addi a1, a1, 3
+				li a2, LUFFY.PULANDO.ALTURA
 				call COLISAO.DIREITA
 				bnez a0, LUFFY.PULANDO.PARADO	# Se bateu em algo, não move	
 					la t1, mapa.lock.x
@@ -319,7 +325,7 @@ LUFFY.ATUALIZA:
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 24
+		li t2, 22
 		blt t1, t2,LUFFY.PULANDO.NAORESETA
 			li t1, 0
 			saveb(t1, sprite_frame_atual)
@@ -339,8 +345,6 @@ LUFFY.ATUALIZA:
 		call RENDER
 		
 		atualiza_tela()
-	
-		jal att_tempo_luffy
 
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
@@ -382,6 +386,7 @@ LUFFY.ATUALIZA:
 		la t1, horizontal_luffy
 		lw a1, (t1)
 		addi a1, a1, 3
+		li a2, LUFFY.CORRENDO.ALTURA
 		call COLISAO.DIREITA
 		
 		bnez a0, LCD.COLIDIU
@@ -408,6 +413,7 @@ LUFFY.ATUALIZA:
 		
 		la t1, vertical_luffy
 		lw a1, 0(t1)
+		li a2, LUFFY.CORRENDO.ALTURA
 		call COLISAO.BAIXO
 		bnez a0, LCD.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
@@ -424,14 +430,15 @@ LUFFY.ATUALIZA:
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
+		addi a2, a2, -2
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.CORRENDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 52
+		li t2, 31
 		blt t1, t2,LUFFY.CORRENDO.DIREITA.NAORESETA
-			li t1, 21
+			li t1, 16
 			saveb(t1, sprite_frame_atual)
 		LUFFY.CORRENDO.DIREITA.NAORESETA:
 		addi t3, t1, 1				# Avança um movimento na animação
@@ -445,9 +452,7 @@ LUFFY.ATUALIZA:
 		call RENDER
 		
 		atualiza_tela()
-	
-		jal att_tempo_luffy
-	
+		
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
 		ret
@@ -513,6 +518,7 @@ LUFFY.ATUALIZA:
 		
 		la t1, vertical_luffy
 		lw a1, 0(t1)
+		li a2, LUFFY.CORRENDO.ALTURA
 		call COLISAO.BAIXO
 		bnez a0, LCE.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
@@ -529,14 +535,15 @@ LUFFY.ATUALIZA:
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
+		addi a2, a2, -2
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.CORRENDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 52
+		li t2, 31
 		blt t1, t2,LUFFY.CORRENDO.ESQUERDA.NAORESETA
-			li t1, 21
+			li t1, 16
 			saveb(t1, sprite_frame_atual)
 		LUFFY.CORRENDO.ESQUERDA.NAORESETA:
 		addi t3, t1, 1				# Avança um movimento na animação
@@ -550,77 +557,16 @@ LUFFY.ATUALIZA:
 		call RENDER
 		
 		atualiza_tela()
-	
-		jal att_tempo_luffy
-	
+			
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
 		ret	
 	
-	LUFFY.SOCANDO:
-		# Atualiza a posição X
-		LUFFY.SOCANDO.ATUALIZAX:
-		saveb(s2, velocidadeY_luffy)
-		loadb(t1, moveX)
-		beqz t1, LUFFY.SOCANDO.PARADO
-			bgtz t1, LUFFY.SOCANDO.DIREITA
-				# Se estiver indo para esquerda
-				la t1, horizontal_luffy
-				lw a1, (t1)
-				addi a1, a1, -3
-				call COLISAO.ESQUERDA
-				bnez a0, LUFFY.SOCANDO.PARADO	 
-					la t1, mapa.lock.x
-					lb t1, 0(t1)
-					bgtz t1, LSE.MOVE.CHAR
-					
-					LSE.MOVE.MAPA:
-						# Movimenta o mapa em X			
-						la t1, mapa.x
-						lhu t2, (t1)
-						addi t2, t2, -3
-						mv a1, t2
-						li a2, MAPA.MIN.X
-						call MAX
-						sh a0, (t1)
-						j LUFFY.SOCANDO.PARADO
-					LSE.MOVE.CHAR:
-						la t1, horizontal_luffy
-						lw t2, 0(t1)
-						addi t2, t2, -3
-						sw t2, 0(t1)
-						j LUFFY.SOCANDO.PARADO
-			LUFFY.SOCANDO.DIREITA:
-				la t1, horizontal_luffy
-				lw a1, (t1)
-				addi a1, a1, 3
-				call COLISAO.DIREITA
-				bnez a0, LUFFY.SOCANDO.PARADO	# Se bateu em algo, não move	
-					la t1, mapa.lock.x
-					lb t1, 0(t1)
-					bgtz t1, LSD.MOVE.CHAR
-					
-					LSD.MOVE.MAPA:
-						# Movimenta o mapa em X			
-						la t1, mapa.x
-						lhu t2, (t1)
-						addi t2, t2, 3
-						mv a1, t2
-						li a2, MAPA.MAX.X
-						call MIN
-						sh a0, (t1)
-						j LUFFY.SOCANDO.PARADO
-					LSD.MOVE.CHAR:
-						la t1, horizontal_luffy
-						lw t2, 0(t1)
-						addi t2, t2, 3
-						sw t2, 0(t1)
-		LUFFY.SOCANDO.PARADO:
-	
-	
+	LUFFY.SOCANDO:	
 		# Testa colisões verticais
 		la t1, vertical_luffy
 		lw a1, 0(t1)
+		li a2, LUFFY.SOCANDO.ALTURA
 		call COLISAO.BAIXO
 		bnez a0, LS.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
@@ -644,13 +590,13 @@ LUFFY.ATUALIZA:
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
-		addi a2, a2, -2
+		addi a2, a2, -8
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.SOCANDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 24
+		li t2, 17
 		blt t1, t2,LUFFY.SOCANDO.DIREITA.NAORESETA
 			li t1, 0
 			saveb(t1, sprite_frame_atual)
@@ -673,14 +619,13 @@ LUFFY.ATUALIZA:
 		
 		atualiza_tela()
 	
-		jal att_tempo_luffy
-	
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
 		ret
 
 # Checa colisão à direita do personagem
 # Param a1 = Nova posição X do personagem
+# Param a2 = Altura da sprite
 # Return a0, 1 = Colidiu
 COLISAO.DIREITA:
 	la t1, mapa.x
@@ -702,8 +647,8 @@ COLISAO.DIREITA:
 	add t4, t4, t1			# t4 = Primeiro pixel do personagem no mapa de hitboxes
 	li t5, LUFFY.CORRENDO.LARGURA
 	add t4, t4, t5			# t4 = Primeiro pixel a direita do personagem
-	li t5, LUFFY.CORRENDO.ALTURA
-	addi t5, t5, -20
+	mv t5, a2
+	addi t5, t5, -5
 	li t6, 0
 	CD.LOOP:
 		add t1, t4, t3
@@ -742,7 +687,7 @@ COLISAO.ESQUERDA:
 	mul t4, t4, t2
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel do personagem 
 	li t5, LUFFY.CORRENDO.ALTURA
-	addi t5, t5, -20
+	addi t5, t5, -5
 	li t6, 0
 	CE.LOOP:
 		add t1, t4, t3
@@ -761,6 +706,7 @@ COLISAO.ESQUERDA:
 
 # Checa colisão abaixo do personagem
 # Param a1 = Posição do personagem em Y após gravidade
+# Param a2 = Altura da sprite
 # Return a0, 1 = Colidiu
 COLISAO.BAIXO:
 	la t1, mapa.x
@@ -778,7 +724,7 @@ COLISAO.BAIXO:
 	addi t3, t3, 8
 	 
 	li t4, MAPA.HITBOX.LARGURA
-	addi t2, t2, 47			# Desce até o pé do personagem
+	add t2, t2, a2			# Desce até o pé do personagem
 	mul t4, t4, t2
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel abaixo do personagem
 	
@@ -811,9 +757,7 @@ COLISAO.CIMA:
 	mv t4, a1
 	
 	add t1, t1, t3			 # X do personagem relativo ao mapa
-	addi t1, t1, 41			# Chega ao limite direito da box do personagem
 	add t2, t2, t4			 # Y do personagem relativo ao mapa
-	addi t2, t2, -1			# Sobe 1 pixel acima do personagem
 	
 	la t3, map_hitbox
 	addi t3, t3, 8
@@ -822,15 +766,21 @@ COLISAO.CIMA:
 	mul t4, t4, t2
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel acima do personagem
 	
-	add t3, t3, t4			# t3 = Pixel no endereço de hitboxes
-	lw t2, (t3)			# Carrega uma word 
-	
-	bnez t2, CC.NEGATIVO		# Checa se a word é um bloco colidível
-		li a0, 1
-		ret
-	CC.NEGATIVO:
+	add t3, t3, t4			# t3 = Pixel no endereço de hitboxes	
+	li t5, 41
+	li t6, 0
+	CC.LOOP:
+		lb t2, 0(t3)
+		bnez t2, CC.NEGATIVO
+	 		li a0, 1
+	 		ret
+	 	CC.NEGATIVO:
+	 	addi t6, t6, 1
+	 	addi t3, t3, 1
+	 	blt t6, t5, CB.LOOP
+	CC.FIM:
 	li a0, 0
-	ret		
+	ret	
 
 # Checa se passou o tempo necessário desde a última atualização (controle de FPS)
 # return a0= passou (0=não, 1=sim)
