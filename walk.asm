@@ -67,23 +67,31 @@ LUFFY.INPUT:
 	
 	
 	# Se a tecla D foi apertada,
-	# - moveX = 1 (direita)
+	# - moveX = 6 (armazena 6 atualizações de movimentação a direita)
 	# - sentido = 1 (direita)
 	DIREITA:
-		li t1, 1
+		loadb(t1, moveX)
+		bgtz t1, DIREITA.TURN
+			saveb(zero, sprite_frame_atual)
+		DIREITA.TURN:
+		li t1, 9
 		saveb(t1, moveX)
-		saveb(t1, sentido)
-		saveb(zero, sprite_frame_atual) 
+		li t1, 1
+		saveb(t1, sentido) 
 		ret
 	
 	# Se a tecla A foi apertada,
-	# - moveX = -1 (esquerda)
+	# - moveX = -6 (esquerda)
 	# - sentido = -1 (esquerda)
-	ESQUERDA:			
-		li t1, -1
+	ESQUERDA:	
+		loadb(t1, moveX)
+		bltz t1, ESQUERDA.TURN
+			saveb(zero, sprite_frame_atual)
+		ESQUERDA.TURN:		
+		li t1, -9
 		saveb(t1, moveX)
+		li t1, -1
 		saveb(t1, sentido)
-		saveb(zero, sprite_frame_atual) 
 		ret
 	
 	# Se a tecla W foi apertada
@@ -163,15 +171,18 @@ LUFFY.ATUALIZA:
 	
 	LUFFY.PARADO:
 		# Checa se colidiu com o chão
+		la t1, horizontal_luffy
+		lw a1, 0(t1)			
+		li t1, LUFFY.PARADO.HITBOX_OFFSET.X
+		add a1, a1, t1				# Posição X do inicio da hitbox do personagem
 		la t1, vertical_luffy
-		lw a1, 0(t1)
-		li a2 LUFFY.PARADO.ALTURA
+		lw a2, (t1)				# Posição Y do inicio da hitbox do personagem
 		call COLISAO.BAIXO
 		bnez a0, LP.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
 			la t1, mapa.y
 			lhu t2, (t1)
-			add t2, t2, s2			# S2 =  Velocidade Y do personagem
+			addi t2, t2, 2			# S2 =  Velocidade Y do personagem
 			mv a1, t2
 			li a2, MAPA.MAX.Y
 			call MIN
@@ -221,9 +232,14 @@ LUFFY.ATUALIZA:
 		
 		LUFFY.PULANDO.DESCENDO:	
 			# Checa se já caiu no chão
+			la t1, horizontal_luffy
+			lw a1, 0(t1)			
+			li t1, LUFFY.PULANDO.HITBOX_OFFSET.X
+			add a1, a1, t1			# Posição X do inicio da hitbox do personagem
 			la t1, vertical_luffy
-			lw a1, 0(t1)
-			li a2, LUFFY.PULANDO.ALTURA
+			lw a2, (t1)
+			li t1, LUFFY.PULANDO.HITBOX_OFFSET.Y
+			add a2, a2, t1			# Posição Y do inicio da hitbox do personagem
 			call COLISAO.BAIXO
 			beqz a0, LUFFY.PULANDO.MOVE
 				saveb(zero, pulando)
@@ -232,8 +248,14 @@ LUFFY.ATUALIZA:
 		
 		LUFFY.PULANDO.SUBINDO:
 			# Checa se bateu no teto
+			la t1, horizontal_luffy
+			lw a1, 0(t1)			
+			li t1, LUFFY.PULANDO.HITBOX_OFFSET.X
+			add a1, a1, t1			# Posição X do inicio da hitbox do personagem
 			la t1, vertical_luffy
-			lw a1, 0(t1)
+			lw a2, (t1)
+			li t1, LUFFY.PULANDO.HITBOX_OFFSET.Y
+			add a2, a2, t1			# Posição Y do inicio da hitbox do personagem
 			call COLISAO.CIMA
 			beqz a0, LUFFY.PULANDO.MOVE
 				saveb(s2, velocidadeY_luffy)
@@ -262,10 +284,16 @@ LUFFY.ATUALIZA:
 		loadb(t1, moveX)
 		beqz t1, LUFFY.PULANDO.PARADO
 			bgtz t1, LUFFY.PULANDO.DIREITA
-			# Se estiver indo para esquerda, movimenta para o outro lado
+				# Se estiver indo para esquerda
 				la t1, horizontal_luffy
-				lw a1, (t1)
-				addi a1, a1, -3
+				lw a1, 0(t1)			
+				li t1, LUFFY.PULANDO.HITBOX_OFFSET.X
+				add a1, a1, t1			# Posição X do inicio da hitbox do personagem
+				addi a1, a1, -3			# Anda 3 pixels para esquerda (testar nova posição)
+				la t1, vertical_luffy
+				lw a2, (t1)
+				li t1, LUFFY.PULANDO.HITBOX_OFFSET.Y
+				add a2, a2, t1			# Posição Y do inicio da hitbox do personagem
 				call COLISAO.ESQUERDA
 				bnez a0, LUFFY.PULANDO.PARADO	 
 					la t1, mapa.lock.x
@@ -290,9 +318,14 @@ LUFFY.ATUALIZA:
 						j LUFFY.PULANDO.PARADO
 			LUFFY.PULANDO.DIREITA:
 				la t1, horizontal_luffy
-				lw a1, (t1)
-				addi a1, a1, 3
-				li a2, LUFFY.PULANDO.ALTURA
+				lw a1, 0(t1)			
+				li t1, LUFFY.PULANDO.HITBOX_OFFSET.X
+				add a1, a1, t1			# Posição X do inicio da hitbox do personagem
+				addi a1, a1, 3			# Anda 3 pixels para direita (testar nova posição)
+				la t1, vertical_luffy
+				lw a2, (t1)
+				li t1, LUFFY.PULANDO.HITBOX_OFFSET.Y
+				add a2, a2, t1			# Posição Y do inicio da hitbox do personagem
 				call COLISAO.DIREITA
 				bnez a0, LUFFY.PULANDO.PARADO	# Se bateu em algo, não move	
 					la t1, mapa.lock.x
@@ -384,9 +417,12 @@ LUFFY.ATUALIZA:
 		
 		# Calcula colisões
 		la t1, horizontal_luffy
-		lw a1, (t1)
-		addi a1, a1, 3
-		li a2, LUFFY.CORRENDO.ALTURA
+		lw a1, 0(t1)			
+		li t1, LUFFY.CORRENDO.HITBOX_OFFSET.X
+		add a1, a1, t1			# Posição X do inicio da hitbox do personagem
+		addi a1, a1, 3			# Anda 3 pixels para direita (testar nova posição)
+		la t1, vertical_luffy
+		lw a2, (t1)
 		call COLISAO.DIREITA
 		
 		bnez a0, LCD.COLIDIU
@@ -411,20 +447,29 @@ LUFFY.ATUALIZA:
 				sw t2, 0(t1)
 		LCD.COLIDIU:
 		
+		la t1, horizontal_luffy
+		lw a1, 0(t1)			
+		li t1, LUFFY.PULANDO.HITBOX_OFFSET.X
+		add a1, a1, t1			# Posição X do inicio da hitbox do personagem
 		la t1, vertical_luffy
-		lw a1, 0(t1)
-		li a2, LUFFY.CORRENDO.ALTURA
+		lw a2, (t1)
 		call COLISAO.BAIXO
 		bnez a0, LCD.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
 			la t1, mapa.y
 			lhu t2, (t1)
-			add t2, t2, s2			# S2 =  Velocidade Y do personagem
+			addi t2, t2, 2			# S2 =  Velocidade Y do personagem
 			mv a1, t2
 			li a2, MAPA.MAX.Y
 			call MIN
 			sh a0, 0(t1)
 		LCD.COLIDIU.BAIXO:
+		
+		# Decrementa uma movimentação a direita
+		la t1, moveX
+		lb t2, (t1)
+		addi t2, t2, -1
+		sb t2, (t1)
 		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
@@ -490,8 +535,12 @@ LUFFY.ATUALIZA:
 		
 	
 		la t1, horizontal_luffy
-		lw a1, (t1)
-		addi a1, a1, -3
+		lw a1, 0(t1)			
+		li t1, LUFFY.CORRENDO.HITBOX_OFFSET.X
+		add a1, a1, t1			# Posição X do inicio da hitbox do personagem
+		addi a1, a1, -3			# Anda 3 pixels para esquerda (testar nova posição)
+		la t1, vertical_luffy
+		lw a2, (t1)
 		call COLISAO.ESQUERDA
 		
 		bnez a0, LCE.COLIDIU
@@ -516,20 +565,29 @@ LUFFY.ATUALIZA:
 				sw t2, 0(t1)
 		LCE.COLIDIU:
 		
+		la t1, horizontal_luffy
+		lw a1, 0(t1)			
+		li t1, LUFFY.PULANDO.HITBOX_OFFSET.X
+		add a1, a1, t1			# Posição X do inicio da hitbox do personagem
 		la t1, vertical_luffy
-		lw a1, 0(t1)
-		li a2, LUFFY.CORRENDO.ALTURA
+		lw a2, (t1)
 		call COLISAO.BAIXO
 		bnez a0, LCE.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
 			la t1, mapa.y
 			lhu t2, (t1)
-			add t2, t2, s2			# S2 =  Velocidade Y do personagem
+			addi t2, t2, 2			# S2 =  Velocidade Y do personagem
 			mv a1, t2
 			li a2, MAPA.MAX.Y
 			call MIN
 			sh a0, 0(t1)
 		LCE.COLIDIU.BAIXO:
+		
+		# Decrementa uma movimentação a esquerda
+		la t1, moveX
+		lb t2, (t1)
+		addi t2, t2, 1
+		sb t2, (t1)
 		
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
@@ -564,9 +622,14 @@ LUFFY.ATUALIZA:
 	
 	LUFFY.SOCANDO:	
 		# Testa colisões verticais
+		la t1, horizontal_luffy
+		lw a1, 0(t1)			
+		li t1, LUFFY.SOCANDO.HITBOX_OFFSET.X
+		add a1, a1, t1			# Posição X do inicio da hitbox do personagem
 		la t1, vertical_luffy
-		lw a1, 0(t1)
-		li a2, LUFFY.SOCANDO.ALTURA
+		lw a2, (t1)
+		li t1, LUFFY.SOCANDO.HITBOX_OFFSET.Y
+		add a2, a2, t1			# Posição Y do inicio da hitbox do personagem
 		call COLISAO.BAIXO
 		bnez a0, LS.COLIDIU.BAIXO
 			# Movimenta o mapa em Y
@@ -622,10 +685,11 @@ LUFFY.ATUALIZA:
 		lw ra, (sp)			# Retorna ao loop principal
 		addi sp, sp, 4
 		ret
+# ====================================================== REFATORAR COLISÕES LEMBRE =========================================================================
 
 # Checa colisão à direita do personagem
-# Param a1 = Nova posição X do personagem
-# Param a2 = Altura da sprite
+# Param a1 = Posição X do personagem
+# Param a2 = Posição Y do personagem
 # Return a0, 1 = Colidiu
 COLISAO.DIREITA:
 	la t1, mapa.x
@@ -633,8 +697,7 @@ COLISAO.DIREITA:
 	la t2, mapa.y
 	lh t2, (t2)
 	mv t3, a1
-	la t4, vertical_luffy
-	lw t4, (t4)
+	mv t4, a2
 	
 	add t1, t1, t3			 # X do personagem relativo ao mapa
 	add t2, t2, t4			 # Y do personagem relativo ao mapa
@@ -645,9 +708,9 @@ COLISAO.DIREITA:
 	li t4, MAPA.HITBOX.LARGURA
 	mul t4, t4, t2
 	add t4, t4, t1			# t4 = Primeiro pixel do personagem no mapa de hitboxes
-	li t5, LUFFY.CORRENDO.LARGURA
+	li t5, LUFFY.HITBOX.LARGURA
 	add t4, t4, t5			# t4 = Primeiro pixel a direita do personagem
-	mv t5, a2
+	li t5, LUFFY.HITBOX.ALTURA
 	addi t5, t5, -5
 	li t6, 0
 	CD.LOOP:
@@ -666,7 +729,8 @@ COLISAO.DIREITA:
 	 ret
 
 # Checa colisão à esquerda do personagem
-# Param a1 = Nova posição X do personagem
+# Param a1 = posição X do personagem
+# Param a2 = Posição Y do personagem
 # Return a0, 1 = Colidiu
 COLISAO.ESQUERDA:
 	la t1, mapa.x
@@ -674,8 +738,7 @@ COLISAO.ESQUERDA:
 	la t2, mapa.y
 	lh t2, (t2)
 	mv t3, a1
-	la t4, vertical_luffy
-	lw t4, (t4)
+	mv t4, a2
 	
 	add t1, t1, t3			 # X do personagem relativo ao mapa
 	add t2, t2, t4			 # Y do personagem relativo ao mapa
@@ -686,7 +749,7 @@ COLISAO.ESQUERDA:
 	li t4, MAPA.HITBOX.LARGURA
 	mul t4, t4, t2
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel do personagem 
-	li t5, LUFFY.CORRENDO.ALTURA
+	li t5, LUFFY.HITBOX.ALTURA
 	addi t5, t5, -5
 	li t6, 0
 	CE.LOOP:
@@ -705,17 +768,16 @@ COLISAO.ESQUERDA:
 	 ret
 
 # Checa colisão abaixo do personagem
-# Param a1 = Posição do personagem em Y após gravidade
-# Param a2 = Altura da sprite
+# Param a1 = Posição X do personagem
+# Param a2 = Posição Y do personagem
 # Return a0, 1 = Colidiu
 COLISAO.BAIXO:
 	la t1, mapa.x
 	lh t1, (t1)
 	la t2, mapa.y
 	lh t2, (t2)
-	la t3, horizontal_luffy
-	lw t3, (t3)
-	mv t4, a1
+	mv t3, a1
+	mv t4, a2
 	
 	add t1, t1, t3			 # X do personagem relativo ao mapa
 	add t2, t2, t4			 # Y do personagem relativo ao mapa
@@ -724,12 +786,13 @@ COLISAO.BAIXO:
 	addi t3, t3, 8
 	 
 	li t4, MAPA.HITBOX.LARGURA
-	add t2, t2, a2			# Desce até o pé do personagem
+	li t5, LUFFY.HITBOX.ALTURA
+	add t2, t2, t5			# Desce até o pé do personagem
 	mul t4, t4, t2
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel abaixo do personagem
 	
 	add t3, t3, t4			# Pixel no endereço de hitboxes
-	li t5, 41
+	li t5, LUFFY.HITBOX.LARGURA
 	li t6, 0
 	CB.LOOP:
 		lb t2, 0(t3)
@@ -745,16 +808,16 @@ COLISAO.BAIXO:
 	ret
 
 # Checa colisão acima do personagem
-# Param a1 = Nova posição Y do personagem
+# Param a1 = Posição X do personagem
+# Param a2 = Posição Y do personagem
 # Return a0, 1 = Colidiu
 COLISAO.CIMA:
 	la t1, mapa.x
 	lh t1, (t1)
 	la t2, mapa.y
 	lh t2, (t2)
-	la t3, horizontal_luffy
-	lw t3, (t3)
-	mv t4, a1
+	mv t3, a1
+	mv t4, a2
 	
 	add t1, t1, t3			 # X do personagem relativo ao mapa
 	add t2, t2, t4			 # Y do personagem relativo ao mapa
@@ -767,7 +830,7 @@ COLISAO.CIMA:
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel acima do personagem
 	
 	add t3, t3, t4			# t3 = Pixel no endereço de hitboxes	
-	li t5, 41
+	li t5, LUFFY.HITBOX.ALTURA
 	li t6, 0
 	CC.LOOP:
 		lb t2, 0(t3)
