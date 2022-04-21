@@ -20,8 +20,8 @@
 	li s11, MMIO_set
 	jal att_tempo_luffy
 	call OST.SETUP
-	call config_tela_1
-		
+	call config_tela_1	
+			
 	# ===================== NÃO DEVE MUDAR ===============================
 	# SYMPHONY OF THE KNIGHT
 	# S11 = MMIO_set
@@ -30,7 +30,7 @@
 poll_loop:			# início do loop de polling
 	call checa_tempo
 	beqz a0, nao_atualiza
-		call OST.TOCA
+		#call OST.TOCA
 		troca_tela()
 		call MAPA.ATUALIZA
 		call LUFFY.ATUALIZA

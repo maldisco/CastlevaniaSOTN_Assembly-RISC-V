@@ -64,19 +64,21 @@ LUFFY.INPUT:
 	# Se a tecla D foi apertada,
 	# - moveX = 1 (direita)
 	# - sentido = 1 (direita)
-	DIREITA:				
+	DIREITA:
 		li t1, 1
 		saveb(t1, moveX)
 		saveb(t1, sentido)
+		saveb(t2, sprite_frame_atual) 
 		ret
 	
 	# Se a tecla A foi apertada,
 	# - moveX = -1 (esquerda)
 	# - sentido = -1 (esquerda)
-	ESQUERDA:				
+	ESQUERDA:			
 		li t1, -1
 		saveb(t1, moveX)
 		saveb(t1, sentido)
+		saveb(t2, sprite_frame_atual) 
 		ret
 	
 	# Se a tecla W foi apertada
@@ -106,7 +108,7 @@ LUFFY.INPUT:
 	SOCA:					# se a tecla 'Z' foi apertada, faz animação de soco		
 		loadb(t1, socando)
 		bnez t1, ja_esta_socando
-			saveb(zero, moveX)
+			saveb(zero, sprite_frame_atual) 
 			li t1, 1
 			saveb(t1, socando)
 		ja_esta_socando:
@@ -179,7 +181,7 @@ LUFFY.ATUALIZA:
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 18
+		li t2, 21
 		blt t1, t2,LUFFY.PARADO.NAORESETA
 			li t1, 0
 			saveb(t1, sprite_frame_atual)
@@ -258,7 +260,7 @@ LUFFY.ATUALIZA:
 			# Se estiver indo para esquerda, movimenta para o outro lado
 				la t1, horizontal_luffy
 				lw a1, (t1)
-				addi a1, a1, -2
+				addi a1, a1, -3
 				call COLISAO.ESQUERDA
 				bnez a0, LUFFY.PULANDO.PARADO	 
 					la t1, mapa.lock.x
@@ -269,7 +271,7 @@ LUFFY.ATUALIZA:
 						# Movimenta o mapa em X			
 						la t1, mapa.x
 						lhu t2, (t1)
-						addi t2, t2, -2
+						addi t2, t2, -3
 						mv a1, t2
 						li a2, MAPA.MIN.X
 						call MAX
@@ -278,13 +280,13 @@ LUFFY.ATUALIZA:
 					LPE.MOVE.CHAR:
 						la t1, horizontal_luffy
 						lw t2, 0(t1)
-						addi t2, t2, -2
+						addi t2, t2, -3
 						sw t2, 0(t1)
 						j LUFFY.PULANDO.PARADO
 			LUFFY.PULANDO.DIREITA:
 				la t1, horizontal_luffy
 				lw a1, (t1)
-				addi a1, a1, 2
+				addi a1, a1, 3
 				call COLISAO.DIREITA
 				bnez a0, LUFFY.PULANDO.PARADO	# Se bateu em algo, não move	
 					la t1, mapa.lock.x
@@ -295,7 +297,7 @@ LUFFY.ATUALIZA:
 						# Movimenta o mapa em X			
 						la t1, mapa.x
 						lhu t2, (t1)
-						addi t2, t2, 2
+						addi t2, t2, 3
 						mv a1, t2
 						li a2, MAPA.MAX.X
 						call MIN
@@ -304,7 +306,7 @@ LUFFY.ATUALIZA:
 					LPD.MOVE.CHAR:
 						la t1, horizontal_luffy
 						lw t2, 0(t1)
-						addi t2, t2, 2
+						addi t2, t2, 3
 						sw t2, 0(t1)
 		LUFFY.PULANDO.PARADO:
 		
@@ -317,7 +319,7 @@ LUFFY.ATUALIZA:
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 30
+		li t2, 24
 		blt t1, t2,LUFFY.PULANDO.NAORESETA
 			li t1, 0
 			saveb(t1, sprite_frame_atual)
@@ -352,7 +354,7 @@ LUFFY.ATUALIZA:
 		beqz t2, LCD.NAOTRAVADA
 			la t2, horizontal_luffy
 			lw t2, 0(t2)
-			addi t2, t2 , 2
+			addi t2, t2 , 3
 			li t3, 280
 			blt t2, t3, LCD.NAOTRAVADA
 				li t2, 0		# Se a camera estiver travada, e o personagem chegar no limite esquerdo da tela
@@ -379,7 +381,7 @@ LUFFY.ATUALIZA:
 		# Calcula colisões
 		la t1, horizontal_luffy
 		lw a1, (t1)
-		addi a1, a1, 2
+		addi a1, a1, 3
 		call COLISAO.DIREITA
 		
 		bnez a0, LCD.COLIDIU
@@ -391,7 +393,7 @@ LUFFY.ATUALIZA:
 				# Movimenta o mapa em X			
 				la t1, mapa.x
 				lhu t2, (t1)
-				addi t2, t2, 2
+				addi t2, t2, 3
 				mv a1, t2
 				li a2, MAPA.MAX.X
 				call MIN
@@ -400,7 +402,7 @@ LUFFY.ATUALIZA:
 			LCD.MOVE.CHAR:
 				la t1, horizontal_luffy
 				lw t2, 0(t1)
-				addi t2, t2, 2
+				addi t2, t2, 3
 				sw t2, 0(t1)
 		LCD.COLIDIU:
 		
@@ -427,9 +429,9 @@ LUFFY.ATUALIZA:
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 24
+		li t2, 52
 		blt t1, t2,LUFFY.CORRENDO.DIREITA.NAORESETA
-			li t1, 0
+			li t1, 21
 			saveb(t1, sprite_frame_atual)
 		LUFFY.CORRENDO.DIREITA.NAORESETA:
 		addi t3, t1, 1				# Avança um movimento na animação
@@ -457,7 +459,7 @@ LUFFY.ATUALIZA:
 		beqz t2, LCE.NAOTRAVADA
 			la t2, horizontal_luffy
 			lw t2, 0(t2)
-			addi t2, t2, -2
+			addi t2, t2, -3
 			bgtz t2, LCE.NAOTRAVADA
 				li t2, 0		# Se a camera estiver travada, e o personagem chegar no limite esquerdo da tela
 				sb t2, (t1)		# Destrava a camera
@@ -484,7 +486,7 @@ LUFFY.ATUALIZA:
 	
 		la t1, horizontal_luffy
 		lw a1, (t1)
-		addi a1, a1, -2
+		addi a1, a1, -3
 		call COLISAO.ESQUERDA
 		
 		bnez a0, LCE.COLIDIU
@@ -496,7 +498,7 @@ LUFFY.ATUALIZA:
 				# Movimenta o mapa em X			
 				la t1, mapa.x
 				lhu t2, (t1)
-				addi t2, t2, -2
+				addi t2, t2, -3
 				mv a1, t2
 				li a2, MAPA.MIN.X
 				call MAX
@@ -505,7 +507,7 @@ LUFFY.ATUALIZA:
 			LCE.MOVE.CHAR:
 				la t1, horizontal_luffy
 				lw t2, 0(t1)
-				addi t2, t2, -2
+				addi t2, t2, -3
 				sw t2, 0(t1)
 		LCE.COLIDIU:
 		
@@ -532,9 +534,9 @@ LUFFY.ATUALIZA:
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 24
+		li t2, 52
 		blt t1, t2,LUFFY.CORRENDO.ESQUERDA.NAORESETA
-			li t1, 0
+			li t1, 21
 			saveb(t1, sprite_frame_atual)
 		LUFFY.CORRENDO.ESQUERDA.NAORESETA:
 		addi t3, t1, 1				# Avança um movimento na animação
@@ -556,17 +558,99 @@ LUFFY.ATUALIZA:
 		ret	
 	
 	LUFFY.SOCANDO:
+		# Atualiza a posição X
+		LUFFY.SOCANDO.ATUALIZAX:
+		saveb(s2, velocidadeY_luffy)
+		loadb(t1, moveX)
+		beqz t1, LUFFY.SOCANDO.PARADO
+			bgtz t1, LUFFY.SOCANDO.DIREITA
+				# Se estiver indo para esquerda
+				la t1, horizontal_luffy
+				lw a1, (t1)
+				addi a1, a1, -3
+				call COLISAO.ESQUERDA
+				bnez a0, LUFFY.SOCANDO.PARADO	 
+					la t1, mapa.lock.x
+					lb t1, 0(t1)
+					bgtz t1, LSE.MOVE.CHAR
+					
+					LSE.MOVE.MAPA:
+						# Movimenta o mapa em X			
+						la t1, mapa.x
+						lhu t2, (t1)
+						addi t2, t2, -3
+						mv a1, t2
+						li a2, MAPA.MIN.X
+						call MAX
+						sh a0, (t1)
+						j LUFFY.SOCANDO.PARADO
+					LSE.MOVE.CHAR:
+						la t1, horizontal_luffy
+						lw t2, 0(t1)
+						addi t2, t2, -3
+						sw t2, 0(t1)
+						j LUFFY.SOCANDO.PARADO
+			LUFFY.SOCANDO.DIREITA:
+				la t1, horizontal_luffy
+				lw a1, (t1)
+				addi a1, a1, 3
+				call COLISAO.DIREITA
+				bnez a0, LUFFY.SOCANDO.PARADO	# Se bateu em algo, não move	
+					la t1, mapa.lock.x
+					lb t1, 0(t1)
+					bgtz t1, LSD.MOVE.CHAR
+					
+					LSD.MOVE.MAPA:
+						# Movimenta o mapa em X			
+						la t1, mapa.x
+						lhu t2, (t1)
+						addi t2, t2, 3
+						mv a1, t2
+						li a2, MAPA.MAX.X
+						call MIN
+						sh a0, (t1)
+						j LUFFY.SOCANDO.PARADO
+					LSD.MOVE.CHAR:
+						la t1, horizontal_luffy
+						lw t2, 0(t1)
+						addi t2, t2, 3
+						sw t2, 0(t1)
+		LUFFY.SOCANDO.PARADO:
+	
+	
+		# Testa colisões verticais
+		la t1, vertical_luffy
+		lw a1, 0(t1)
+		call COLISAO.BAIXO
+		bnez a0, LS.COLIDIU.BAIXO
+			# Movimenta o mapa em Y
+			la t1, mapa.y	
+			lhu t2, 0(t1)
+			loadb(t3, velocidadeY_luffy)
+			add t2, t2, t3		
+			# MIN entre a nova posição e a maior posição possível
+			mv a1, t2			
+			li a2, MAPA.MAX.Y
+			call MIN
+			# MAX entre a nova posição e a menor posição possível
+			mv a1, a0
+			li a2, MAPA.MIN.Y
+			call MAX				
+			sh a0, 0(t1)		
+			saveb(s2, velocidadeY_luffy)
+		LS.COLIDIU.BAIXO:
+	
 		# Gera os valores para renderizar
 		mv a0, s10				# Descritor
 		loadw(a1, horizontal_luffy)		# X na tela
 		loadw(a2, vertical_luffy)		# Y na tela
-		addi a2, a2, -8
+		addi a2, a2, -2
 		li a3, LUFFY.OFFSET			# Largura da imagem
 		li a4, LUFFY.SOCANDO.LARGURA		# Largura da sprite
 		frame_address(a5)			# Endereço da frame
 		
 		loadb(t1, sprite_frame_atual)
-		li t2, 48
+		li t2, 24
 		blt t1, t2,LUFFY.SOCANDO.DIREITA.NAORESETA
 			li t1, 0
 			saveb(t1, sprite_frame_atual)
@@ -699,7 +783,7 @@ COLISAO.BAIXO:
 	add t4, t4, t1			# t4 = Endereço do primeiro pixel abaixo do personagem
 	
 	add t3, t3, t4			# Pixel no endereço de hitboxes
-	li t5, 37
+	li t5, 41
 	li t6, 0
 	CB.LOOP:
 		lb t2, 0(t3)
@@ -727,7 +811,7 @@ COLISAO.CIMA:
 	mv t4, a1
 	
 	add t1, t1, t3			 # X do personagem relativo ao mapa
-	addi t1, t1, 37			# Chega ao limite direito da box do personagem
+	addi t1, t1, 41			# Chega ao limite direito da box do personagem
 	add t2, t2, t4			 # Y do personagem relativo ao mapa
 	addi t2, t2, -1			# Sobe 1 pixel acima do personagem
 	
@@ -754,7 +838,7 @@ checa_tempo:
 	loadw(t1, tempo_luffy)		# carrega o momento da ultima renderização
 	csrr t2, 3073
 	sub t1, t2, t1
-	li t2, 16
+	li t2, 32
 	bgeu t1, t2, ct_pode		# se for maior que 64 milissegundos, pode renderizar denovo
 		li a0, 0			# se não, não renderiza
 		ret
