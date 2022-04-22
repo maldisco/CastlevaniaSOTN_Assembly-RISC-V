@@ -1,7 +1,7 @@
 .data
 
 # Posiçoes atuais do personagem
-horizontal_luffy:			.word 160
+horizontal_luffy:			.word 120
 vertical_luffy:				.word 130
 
 
@@ -54,7 +54,7 @@ LUFFY.ATUALIZA:		addi 		sp, sp, -4
 			loadb(t1, socando)
 			bnez 		t1, LUFFY.SOCANDO
 			loadb(t1, pulando)
-			bnez 		t1 LUFFY.PULANDO
+			bnez 		t1, LUFFY.PULANDO
 			loadb(t1, moveX)
 			bgtz 		t1, LUFFY.CORRENDO.DIREITA
 			bltz 		t1, LUFFY.CORRENDO.ESQUERDA
@@ -79,7 +79,7 @@ LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			li 		a4, LUFFY.LARGURA		# Largura da sprite
 			frame_address(a5)				# Endereço da frame
 			loadb(t1, sprite_frame_atual)
-			li 		t2, 30
+			li 		t2, 24
 			blt 		t1, t2,LUFFY.PARADO.NAORESETA
 			
 			li		t1, 0
@@ -105,36 +105,35 @@ LUFFY.PARADO.SENTIDO.DIREITA:
 			lw 		ra, (sp)			# Retorna ao loop principal
 			addi 		sp, sp, 4
 			ret
-	
+# LPU	
 LUFFY.PULANDO:		# Atualiza a posição Y
-			LUFFY.PULANDO.ATUALIZAY:
 			fcvt.s.w 	ft0, zero
 			la 		t1, velocidadeY_luffy
 			flw 		ft1, 0(t1)
 			flt.s		t1, ft1, ft0			# t1 = 1 if ft1 < ft0 else 0
 					
-			bnez		t1, LUFFY.PULANDO.SUBINDO
+			bnez		t1, LPU.SUBINDO
 			
-LUFFY.PULANDO.DESCENDO:	# Checa se já caiu no chão
+LPU.DESCENDO:		# Checa se já caiu no chão
 			jal 		COLISAO.BAIXO
-			beqz 		a0, LUFFY.PULANDO.MOVE
+			beqz 		a0, LPU.MOVE_Y
 			
 			saveb(zero, pulando)
 			# Salva nova velocidade Y
 			la 		t1, velocidadeY_luffy
 			fsw		fs2, (t1)
-			j 		LUFFY.PULANDO.ATUALIZAX	
+			j 		LPU.ATUALIZA_X	
 				
-LUFFY.PULANDO.SUBINDO:	# Checa se bateu no teto
+LPU.SUBINDO:		#Checa se bateu no teto
 			jal 	COLISAO.CIMA
-			beqz 	a0, LUFFY.PULANDO.MOVE
+			beqz 	a0, LPU.MOVE_Y
 			
 			# Salva nova velocidade Y
 			la 		t1, velocidadeY_luffy
 			fsw		fs2, (t1)
-			j 		LUFFY.PULANDO.ATUALIZAX	
+			j 		LPU.ATUALIZA_X	
 				
-LUFFY.PULANDO.MOVE:	# Movimenta o mapa em Y
+LPU.MOVE_Y:		# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, 0(t1)
 			la 		t3, velocidadeY_luffy
@@ -151,21 +150,21 @@ LUFFY.PULANDO.MOVE:	# Movimenta o mapa em Y
 			jal 		MAX				
 			sh 		a0, 0(t1)			
 # Atualiza a posição X
-LUFFY.PULANDO.ATUALIZAX:# Salva nova velocidade Y
+LPU.ATUALIZA_X:		# Salva nova velocidade Y
 			la 		t1, velocidadeY_luffy
 			fsw		fs2, (t1)
 			loadb(t1, moveX)
-			beqz 		t1, LUFFY.PULANDO.PARADO
-			bgtz 		t1, LUFFY.PULANDO.DIREITA
+			beqz 		t1, LPU.PARADO
+			bgtz 		t1, LPU.DIREITA
 
-LUFFY.PULANDO.ESQUERDA:	jal 		COLISAO.ESQUERDA			
-			bnez 		a0, LUFFY.PULANDO.PARADO	
+LPU.ESQUERDA:		jal 		COLISAO.ESQUERDA			
+			bnez 		a0, LPU.PARADO	
 			 
 			la 		t1, mapa.lock.x
 			lb 		t1, 0(t1)
-			bgtz 		t1, LPE.MOVE.CHAR
+			bgtz 		t1, LPU.ESQUERDA.MOVE.CHAR
 								
-LPE.MOVE.MAPA:		# Movimenta o mapa em X			
+LPU.ESQUERDA.MOVE.MAPA:		# Movimenta o mapa em X			
 			la 		t1, mapa.x
 			lhu 		t2, (t1)
 			addi 		t2, t2, -3
@@ -173,22 +172,22 @@ LPE.MOVE.MAPA:		# Movimenta o mapa em X
 			li 		a2, MAPA.MIN.X
 			jal 		MAX
 			sh 		a0, (t1)
-			j 		LUFFY.PULANDO.PARADO
+			j 		LPU.PARADO
 			
-LPE.MOVE.CHAR:		la 		t1, horizontal_luffy
+LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_luffy
 			lw 		t2, 0(t1)
 			addi 		t2, t2, -3
 			sw 		t2, 0(t1)
-			j 		LUFFY.PULANDO.PARADO
+			j 		LPU.PARADO
 			
-LUFFY.PULANDO.DIREITA:	jal 		COLISAO.DIREITA
-			bnez 		a0, LUFFY.PULANDO.PARADO	# Se bateu em algo, não move
+LPU.DIREITA:		jal 		COLISAO.DIREITA
+			bnez 		a0, LPU.PARADO	# Se bateu em algo, não move
 				
 			la 		t1, mapa.lock.x
 			lb 		t1, 0(t1)
-			bgtz 		t1, LPD.MOVE.CHAR
+			bgtz 		t1, LPU.DIREITA.MOVE.CHAR
 				
-LPD.MOVE.MAPA:		# Movimenta o mapa em X			
+LPU.DIREITA.MOVE.MAPA:		# Movimenta o mapa em X			
 			la	 	t1, mapa.x
 			lhu 		t2, (t1)
 			addi 		t2, t2, 3
@@ -196,14 +195,14 @@ LPD.MOVE.MAPA:		# Movimenta o mapa em X
 			li 		a2, MAPA.MAX.X
 			jal 		MIN
 			sh 		a0, (t1)
-			j 		LUFFY.PULANDO.PARADO
+			j 		LPU.PARADO
 			
-LPD.MOVE.CHAR:		la 		t1, horizontal_luffy
+LPU.DIREITA.MOVE.CHAR:	la 		t1, horizontal_luffy
 			lw 		t2, 0(t1)
 			addi 		t2, t2, 3
 			sw 		t2, 0(t1)
 			
-LUFFY.PULANDO.PARADO:	# Gera os valores para renderizar
+LPU.PARADO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
 			loadw(a1, horizontal_luffy)				# X na tela
 			loadw(a2, vertical_luffy)				# Y na tela 
@@ -212,23 +211,23 @@ LUFFY.PULANDO.PARADO:	# Gera os valores para renderizar
 			frame_address(a5)					# Endereço da frame
 			loadb(t1, sprite_frame_atual)
 			li 		t2, 44
-			blt 		t1, t2,LUFFY.PULANDO.NAORESETA
+			blt 		t1, t2,LPU.NAO_RESETA			# Se tiver chegado na ultima animação, reseta
 			
 			li 		t1, 0
 			saveb(t1, sprite_frame_atual)
 			
-LUFFY.PULANDO.NAORESETA:
+LPU.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação
 			saveb(t3, sprite_frame_atual)
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, luffy.pulando.direita.offsets
 			loadb(t3, sentido)
-			bgtz 		t3, LUFFY.PULANDO.SENTIDO.DIREITA
+			bgtz 		t3, LPU.SENTIDO.DIREITA
 			
 			la 		t2 luffy.pulando.esquerda.offsets
 			
-LUFFY.PULANDO.SENTIDO.DIREITA:
+LPU.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)				# Offset na imagem
 			li 		a7, LUFFY.ALTURA
@@ -238,7 +237,8 @@ LUFFY.PULANDO.SENTIDO.DIREITA:
 			lw 		ra, (sp)				# Retorna ao loop principal
 			addi		sp, sp, 4
 			ret
-			
+
+# LCD			
 LUFFY.CORRENDO.DIREITA:	# Checa se deve destravar a camera
 			la 		t1, mapa.lock.x
 			lb 		t2, 0(t1)
@@ -318,12 +318,12 @@ LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			loadb(t1, sprite_frame_atual)
 			li 		t2, 31
 			
-			blt 		t1, t2,LUFFY.CORRENDO.DIREITA.NAORESETA
+			blt 		t1, t2,LCD.NAO_RESETA
 			
 			li 		t1, 16
 			saveb(t1, sprite_frame_atual)
 			
-LUFFY.CORRENDO.DIREITA.NAORESETA:
+LCD.NAO_RESETA:
 			addi 		t3, t1, 1					# Avança um movimento na animação
 			saveb(t3, sprite_frame_atual)
 			li 		t2, 4
@@ -338,7 +338,7 @@ LUFFY.CORRENDO.DIREITA.NAORESETA:
 			lw 		ra, (sp)					# Retorna ao loop principal
 			addi 		sp, sp, 4
 			ret
-			
+# LCE	
 LUFFY.CORRENDO.ESQUERDA:# Checa se deve destravar a camera horizontalmente
 			la 		t1, mapa.lock.x
 			lb 		t2, 0(t1)
@@ -366,12 +366,14 @@ LCE.NAOTRAVADA:		# Checa se deve travar a camera horizontalmente
 			la 		t1, mapa.lock.x
 			li 		t2, 1
 			sb 		t2, 0(t1)
+			
 LCE.NAOTRAVA:		jal 		COLISAO.ESQUERDA
 			bnez 		a0, LCE.COLIDIU
 			la 		t1, mapa.lock.x
 			lb 		t1, 0(t1)
 			bgtz 		t1, LCE.MOVE.CHAR
-LCE_MOVE.MAPA:		# Movimenta o mapa em X			
+			
+LCE.MOVE.MAPA:		# Movimenta o mapa em X			
 			la 		t1, mapa.x
 			lhu		t2, (t1)
 			addi 		t2, t2, -3
@@ -380,12 +382,15 @@ LCE_MOVE.MAPA:		# Movimenta o mapa em X
 			jal 		MAX
 			sh 		a0, (t1)
 			j 		LCE.COLIDIU
+			
 LCE.MOVE.CHAR:		la 		t1, horizontal_luffy
 			lw 		t2, 0(t1)
 			addi 		t2, t2, -3
 			sw 		t2, 0(t1)
+			
 LCE.COLIDIU:		jal 		COLISAO.BAIXO
 			bnez 		a0, LCE.COLIDIU.BAIXO
+			
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
@@ -394,6 +399,7 @@ LCE.COLIDIU:		jal 		COLISAO.BAIXO
 			li 		a2, MAPA.MAX.Y
 			jal 		MIN
 			sh 		a0, 0(t1)
+			
 LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			la 		t1, moveX
 			lb 		t2, (t1)
@@ -408,10 +414,12 @@ LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			frame_address(a5)						# Endereço da frame
 			loadb(t1, sprite_frame_atual)
 			li 		t2, 31
-			blt 		t1, t2,LUFFY.CORRENDO.ESQUERDA.NAORESETA
+			blt 		t1, t2,LCE.NAO_RESETA				# Se tiver chegado na última animação, recicla
+			
 			li 		t1, 16
 			saveb(t1, sprite_frame_atual)
-LUFFY.CORRENDO.ESQUERDA.NAORESETA:
+			
+LCE.NAO_RESETA:
 			addi 		t3, t1, 1					# Avança um movimento na animação
 			saveb(t3, sprite_frame_atual)
 			li 		t2, 4
@@ -426,7 +434,8 @@ LUFFY.CORRENDO.ESQUERDA.NAORESETA:
 			lw 		ra, (sp)					# Retorna ao loop principal
 			addi		sp, sp, 4
 			ret	
-	
+
+# LS	
 LUFFY.SOCANDO:		# Testa colisões verticais
 			jal 	COLISAO.BAIXO
 			bnez		a0, LS.COLIDIU.BAIXO
@@ -459,27 +468,30 @@ LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 		
 			loadb(t1, sprite_frame_atual)
 			li 		t2, 17
-			blt 		t1, t2,LUFFY.SOCANDO.DIREITA.NAORESETA
+			blt 		t1, t2,LS.RENDER				# Se tiver chegado na ultima animação, para de socar
+			
 			li 		t1, 0
 			saveb(t1, sprite_frame_atual)
 			saveb(t1, socando)
-LUFFY.SOCANDO.DIREITA.NAORESETA:
-			addi 		t3, t1, 1					# Avança um movimento na animação
+			j LS.RET
+			
+LS.RENDER:		addi 		t3, t1, 1					# Avança um movimento na animação
 			saveb(t3, sprite_frame_atual)
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, luffy.socando.direita.offsets
 			loadb(t3, sentido)
-			bgtz 		t3, LUFFY.SOCANDO.SENTIDO.DIREITA
-			la 		t2, luffy.socando.esquerda.offsets
-			addi 		a1, a1, -23
-LUFFY.SOCANDO.SENTIDO.DIREITA:
+			bgtz 		t3, LS.SENTIDO.DIREITA
+			
+			la 		t2, luffy.socando.esquerda.offsets			
+LS.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)					# Offset na imagem
 			li 		a7, LUFFY.ALTURA
 			jal 		RENDER
 		
 			atualiza_tela()
+LS.RET:
 			lw 		ra, (sp)					# Retorna ao loop principal
 			addi 		sp, sp, 4
 			ret

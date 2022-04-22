@@ -43,23 +43,43 @@ NAO_PODE_PARAR:		ret
 		
 		
 # Se a tecla D foi apertada,
-# - moveX = 9 (armazena 6 atualizações de movimentação a direita)
+# - moveX = 9 (armazena 9 atualizações de movimentação a direita)
 # - sentido = 1 (direita)
+# - Se o personagem estiver parado
+# - - Reseta animação para 0
 DIREITA:		loadb(t1, moveX)
 			bgtz 		t1, DIREITA.TURN
+			
+			loadb(t1, pulando)
+			bnez 		t1, DIREITA.TURN
+			
+			loadb(t1, socando)
+			bnez 		t1, DIREITA.TURN
+			
 			saveb(zero, sprite_frame_atual)
+			
 DIREITA.TURN:		li 		t1, 9
 			saveb(t1, moveX)
 			li 		t1, 1
 			saveb(t1, sentido) 
 			ret
 		
-# Se a tecla A foi apertada,
-# - moveX = -9 (armazena 6 atualizações de movimentação a esquerda)
+# Se a tecla A foi apertada
+# - moveX = -9 (armazena 9 atualizações de movimentação a esquerda)
 # - sentido = -1 (esquerda)
+# - Se o personagem estiver parado
+# - - Reseta animação para 0
 ESQUERDA:		loadb(t1, moveX)
 			bltz 		t1, ESQUERDA.TURN
+			
+			loadb(t1, pulando)
+			bnez 		t1, ESQUERDA.TURN
+			
+			loadb(t1, socando)
+			bnez 		t1, ESQUERDA.TURN
+			
 			saveb(zero, sprite_frame_atual)
+			
 ESQUERDA.TURN:		li 		t1, -9
 			saveb(t1, moveX)
 			li		 t1, -1
