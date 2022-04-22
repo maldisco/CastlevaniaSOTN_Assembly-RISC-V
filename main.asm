@@ -1,5 +1,5 @@
 .data
-
+.include "config.s"
 .include "macros.asm"
 .text
 	# Carrega arquivo de sprites do personagem principal 
@@ -10,7 +10,7 @@
 		ecall
 		mv 		s10, a0 		# Salva em s10 
 		
-		la 		a0, mapa
+		la 		a0, tela1
 		li		a1, 0
 		li		a2, 0
 		li 		a7, 1024

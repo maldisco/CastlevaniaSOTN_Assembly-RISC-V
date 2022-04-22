@@ -17,6 +17,7 @@ GRAVIDADE:			.float 0.5
 
 luffy:	.string "sprites/alucard.bin"
 mapa.lock.x:				.byte 0
+mapa.lock.y:				.byte 0
 mapa.y:					.half 587
 mapa.x:					.half 52
 luffy.parado.direita.offsets: 		.word 0,0,0,0,97,97,97,97,194,194,194,194,291,291,291,291,388,388,388,388,485,485,485,485
@@ -32,15 +33,17 @@ luffy.hellfire.esquerda.offsets: 	.word 1368864,1368767,1368670,1368573,1368476,
 
 .eqv MAPA.LARGURA			320
 .eqv MAPA.ALTURA			239
-.eqv MAPA.IMAGEM.LARGURA		1628
-.eqv MAPA.HITBOX.LARGURA		1628
-.eqv MAPA.MAX.Y				586
-.eqv MAPA.MIN.Y				0
-.eqv MAPA.MAX.X				1308
-.eqv MAPA.MIN.X				0
+mapa.imagem.largura:			.half 1628
+mapa.hitbox.largura:			.half 1628
+mapa.max.y:				.half 586
+mapa.min.y:				.half 0
+mapa.max.x:				.half 1308
+mapa.min.x:				.half 0
+mapa_hitbox:				.word 0		# Ponteiro para o mapa de hitboxes da tela atual
 
 
 mapa:					.string "sprites/map.bin"
+tela1:					.string "sprites/tela_1.bin"
 
 sprite_tela_atual:			.word 0
 tela_atual:				.word 1
@@ -138,7 +141,8 @@ saveb(t1,%label1)
 
 # Calcula offset do mapa
 .macro offset_mapa(%reg)
-li t1, MAPA.IMAGEM.LARGURA
+la t1, mapa.imagem.largura
+lhu t1, 0(t1)
 la t2, mapa.y
 lhu t2, 0(t2)
 la t3, mapa.x
@@ -162,4 +166,4 @@ add t5, t3, t1			# t5 = X da esquerda do personagem no mapa
 add t6, t6, t2			# t6 = Y de cima do personagem no mapa
 .end_macro
 
-.include "sprites/map_hitbox.s"
+.include "sprites/tela_1_hitboxes.s"

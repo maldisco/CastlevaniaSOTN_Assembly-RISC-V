@@ -87,22 +87,23 @@ ESQUERDA.TURN:		li 		t1, -9
 			ret
 		
 # Se a tecla W foi apertada
-# - Se pulando < 2
-# - - pulando += 1
-# - - velocidadeY = -6 (subindo)
+# - Se pulando  == 0
+# - - pulando = 1
+# - - velocidadeY = -7 (subindo)
 # - Senão
 # - - nada
-PULA:			loadb(t1, pulando)
-			li 		t2, 2
-			bge 		t1, t2, PULA_DIREITA	
-			addi 		t1, t1, 1
-			saveb(t1, pulando)
+PULA:			la		t0, pulando
+			lb 		t1, (t0)
+			bgtz 		t1, NAO_PULA	
+			
+			li		t1, 1
+			sb		t1, (t0)
 			saveb(zero, sprite_frame_atual) 	
-			li 		t1, -6		
+			li 		t1, -7		
 			fcvt.s.w 	ft1, t1			
 			la 		t2, velocidadeY_luffy
 			fsw 		ft1, (t2)
-PULA_DIREITA:		ret
+NAO_PULA:		ret
 	
 # Se a tecla Z foi apertada
 # - Se socando > 0

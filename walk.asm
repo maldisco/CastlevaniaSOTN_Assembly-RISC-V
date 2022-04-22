@@ -2,7 +2,7 @@
 
 # Posiçoes atuais do personagem
 horizontal_luffy:			.word 120
-vertical_luffy:				.word 130
+vertical_luffy:				.word 135
 
 
 velocidadeY_luffy:			.float 0
@@ -24,7 +24,8 @@ MAPA.ATUALIZA:		addi 		sp, sp, -4
 			mv 		a0, s9
 			li		a1, 0		
 			li 		a2, 0
-			li 		a3, MAPA.IMAGEM.LARGURA
+			la		t1, mapa.imagem.largura
+			lhu		a3, 0(t1)
 			li 		a4, MAPA.LARGURA		
 			frame_address(a5)
 			offset_mapa(a6)
@@ -62,15 +63,33 @@ LUFFY.ATUALIZA:		addi 		sp, sp, -4
 LUFFY.PARADO:		jal 		COLISAO.BAIXO			# Checa se colidiu com o chão
 			bnez 		a0, LP.COLIDIU.BAIXO
 			
-			# Movimenta o mapa em Y
+			la 		t0, mapa.lock.y
+			lb		t1, 0(t0)
+			bnez 		t1, LP.MOVE.CHAR		# Se o mapa estiver travado em Y, move o personagem
+			
+LP.MOVE.MAPA:
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
 			addi 		t2, t2, 2			# desce 2 pixels
-			mv		a1, t2
-			li 		a2, MAPA.MAX.Y
-			jal 		MIN
-			sh 		a0, 0(t1)
+			la 		t0, mapa.max.y
+			lhu		t3, 0(t0)
+			bgt 		t2, t3, LP.MOVE.CHAR		# Se passar do Limite inferior do mapa, move o personagem ao invés do mapa
 			
+			sh		t2, (t1)			# Se não, move mapa
+			j 		LP.COLIDIU.BAIXO
+
+LP.MOVE.CHAR:		# Movimenta o personagem em Y
+			la		t0, vertical_luffy
+			lw		t1, 0(t0)
+			addi 		t1, t1, 2
+			sw		t1, 0(t0)
+			
+			li		t2, 135
+			blt		t1, t2, LP.COLIDIU.BAIXO
+			
+			la		t0, mapa.lock.y
+			sb		zero, (t0)
+					
 LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10				# Descritor
 			loadw(a1, horizontal_luffy)			# X na tela
@@ -80,23 +99,23 @@ LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			frame_address(a5)				# Endereço da frame
 			loadb(t1, sprite_frame_atual)
 			li 		t2, 24
-			blt 		t1, t2,LUFFY.PARADO.NAORESETA
+			blt 		t1, t2,LP.NAORESETA
 			
 			li		t1, 0
 			saveb(t1, sprite_frame_atual)
 			
-LUFFY.PARADO.NAORESETA:
+LP.NAORESETA:
 			addi 		t3, t1, 1			# Avança um movimento na animação
 			saveb(t3, sprite_frame_atual)
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, luffy.parado.direita.offsets
 			loadb(t3, sentido)
-			bgtz 		t3, LUFFY.PARADO.SENTIDO.DIREITA
+			bgtz 		t3, LP.SENTIDO.DIREITA
 			
 			la 		t2 luffy.parado.esquerda.offsets
 			
-LUFFY.PARADO.SENTIDO.DIREITA:
+LP.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)			# Offset na imagem
 			li 		a7, LUFFY.ALTURA
@@ -114,7 +133,16 @@ LUFFY.PULANDO:		# Atualiza a posição Y
 					
 			bnez		t1, LPU.SUBINDO
 			
-LPU.DESCENDO:		# Checa se já caiu no chão
+LPU.DESCENDO:		la		t0, vertical_luffy
+			lw		t1, (t0)
+			li 		t2, 135
+			blt		t1, t2, LPU.DESCENDO.NAO_DESTRAVA		
+			
+			la		t0, mapa.lock.y
+			sb		zero, (t0)
+			
+LPU.DESCENDO.NAO_DESTRAVA:
+			# Checa se já caiu no chão
 			jal 		COLISAO.BAIXO
 			beqz 		a0, LPU.MOVE_Y
 			
@@ -124,31 +152,56 @@ LPU.DESCENDO:		# Checa se já caiu no chão
 			fsw		fs2, (t1)
 			j 		LPU.ATUALIZA_X	
 				
-LPU.SUBINDO:		#Checa se bateu no teto
-			jal 	COLISAO.CIMA
-			beqz 	a0, LPU.MOVE_Y
+LPU.SUBINDO:		la		t0, vertical_luffy
+			lw		t1, (t0)
+			li 		t2, 135
+			bgt		t1, t2, LPU.SUBINDO.NAO_DESTRAVA		
+			
+			la		t0, mapa.lock.y
+			sb		zero, (t0)
+			
+LPU.SUBINDO.NAO_DESTRAVA:	
+			# Checa se bateu no teto
+			jal 		COLISAO.CIMA
+			beqz 		a0, LPU.MOVE_Y
 			
 			# Salva nova velocidade Y
 			la 		t1, velocidadeY_luffy
 			fsw		fs2, (t1)
 			j 		LPU.ATUALIZA_X	
 				
-LPU.MOVE_Y:		# Movimenta o mapa em Y
+LPU.MOVE_Y:		la		t0, mapa.lock.y
+			lb		t1, 0(t0)
+			bnez 		t1, LPU.MOVE_Y.CHAR
+						
+LPU.MOVE_Y.MAPA:	# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, 0(t1)
 			la 		t3, velocidadeY_luffy
 			flw 		ft1, 0(t3)
 			fcvt.w.s	t3, ft1
-			add 		t2, t2, t3		
-			# MIN entre a nova posição e a maior posição possível
-			mv 		a1, t2			
-			li 		a2, MAPA.MAX.Y
-			jal 		MIN
-			# MAX entre a nova posição e a menor posição possível
-			mv 		a1, a0
-			li 		a2, MAPA.MIN.Y
-			jal 		MAX				
-			sh 		a0, 0(t1)			
+			add 		t2, t2, t3
+			la		t0, mapa.max.y
+			lhu		t3, 0(t0)
+			bgt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
+			
+			la		t0, mapa.min.y
+			lhu		t3, 0(t0)
+			blt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa
+			
+			sh		t2, (t1)			# Se não, move mapa
+			j		LPU.ATUALIZA_X
+					
+LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+			la		t0, vertical_luffy
+			lw		t1, 0(t0)
+			la 		t3, velocidadeY_luffy
+			flw 		ft1, 0(t3)
+			fcvt.w.s	t3, ft1
+			add 		t1, t1, t3
+			sw		t1, 0(t0)	
+	
+															
 # Atualiza a posição X
 LPU.ATUALIZA_X:		# Salva nova velocidade Y
 			la 		t1, velocidadeY_luffy
@@ -157,50 +210,86 @@ LPU.ATUALIZA_X:		# Salva nova velocidade Y
 			beqz 		t1, LPU.PARADO
 			bgtz 		t1, LPU.DIREITA
 
-LPU.ESQUERDA:		jal 		COLISAO.ESQUERDA			
+LPU.ESQUERDA:		la 		t1, mapa.x
+			lhu 		t2, 0(t1)
+			la		t0, mapa.min.x
+			lhu		t3, 0(t0)
+			bgt 		t2, t3, LPU.ESQUERDA.NAOTRAVA
+			
+			la 		t1, mapa.lock.x
+			li 		t2, 1
+			sb 		t2, 0(t1)
+			
+LPU.ESQUERDA.NAOTRAVA:	jal 		COLISAO.ESQUERDA			
 			bnez 		a0, LPU.PARADO	
 			 
 			la 		t1, mapa.lock.x
 			lb 		t1, 0(t1)
 			bgtz 		t1, LPU.ESQUERDA.MOVE.CHAR
-								
-LPU.ESQUERDA.MOVE.MAPA:		# Movimenta o mapa em X			
+			
 			la 		t1, mapa.x
 			lhu 		t2, (t1)
 			addi 		t2, t2, -3
-			mv 		a1, t2
-			li 		a2, MAPA.MIN.X
-			jal 		MAX
-			sh 		a0, (t1)
+			la		t0, mapa.min.x
+			lhu 		t3, 0(t0)
+			blt		t2, t3, LPU.ESQUERDA.MOVE.CHAR			
+						
+LPU.ESQUERDA.MOVE.MAPA:	# Movimenta o mapa em X			
+			sh 		t2, (t1)
 			j 		LPU.PARADO
 			
 LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_luffy
 			lw 		t2, 0(t1)
 			addi 		t2, t2, -3
 			sw 		t2, 0(t1)
+			
+			li		t1, 135
+			bgt 		t2, t1, LPU.PARADO
+			
+			la		t0, mapa.lock.x
+			sb		zero, (t0)			
 			j 		LPU.PARADO
 			
-LPU.DIREITA:		jal 		COLISAO.DIREITA
-			bnez 		a0, LPU.PARADO	# Se bateu em algo, não move
+LPU.DIREITA:		# Checa se deve travar a camera horizontalmente
+			la 		t1, mapa.x
+			lhu 		t2, 0(t1)
+			la		t0, mapa.max.x
+			lhu		t3, 0(t0)
+			blt 		t2, t3, LPU.DIREITA.NAOTRAVA
+			
+			la		t1, mapa.lock.x
+			li		t2, 1
+			sb 		t2, 0(t1)
+			
+LPU.DIREITA.NAOTRAVA:	# Calcula colisão
+			jal 		COLISAO.DIREITA
+			bnez 		a0, LPU.PARADO				# Se bateu em algo, não move
 				
 			la 		t1, mapa.lock.x
 			lb 		t1, 0(t1)
 			bgtz 		t1, LPU.DIREITA.MOVE.CHAR
 				
-LPU.DIREITA.MOVE.MAPA:		# Movimenta o mapa em X			
 			la	 	t1, mapa.x
 			lhu 		t2, (t1)
 			addi 		t2, t2, 3
-			mv 		a1, t2
-			li 		a2, MAPA.MAX.X
-			jal 		MIN
-			sh 		a0, (t1)
+			la		t0, mapa.max.x
+			lhu		t3, 0(t0)
+			bgt 		t2, t3, LPU.DIREITA.MOVE.CHAR
+				
+LPU.DIREITA.MOVE.MAPA:	# Movimenta o mapa em X			
+			sh 		t2, (t1)
 			j 		LPU.PARADO
 			
 LPU.DIREITA.MOVE.CHAR:	la 		t1, horizontal_luffy
 			lw 		t2, 0(t1)
 			addi 		t2, t2, 3
 			sw 		t2, 0(t1)
+			
+			li		t1, 135
+			blt		t2, t1, LPU.PARADO			# Se o mapa estiver travado e o personagem voltar pro meio da tela, destrava
+			
+			la		t0, mapa.lock.x
+			sb		zero, (t0)
 			
 LPU.PARADO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
@@ -243,31 +332,28 @@ LUFFY.CORRENDO.DIREITA:	# Checa se deve destravar a camera
 			la 		t1, mapa.lock.x
 			lb 		t2, 0(t1)
 			beqz 		t2, LCD.NAOTRAVADA
+			
 			la 		t2, horizontal_luffy
 			lw 		t2, 0(t2)
 			addi 		t2, t2 , 3
-			li 		t3, 280
+			li 		t3, 120
 			blt 		t2, t3, LCD.NAOTRAVADA
-			li 		t2, 0					# Se a camera estiver travada, e o personagem chegar no limite esquerdo da tela
+			
+			li 		t2, 0					# Se a camera estiver travada, e o personagem voltar pro centro
 			sb 		t2, (t1)				# Destrava a camera
-			la 		t1, mapa.x
-			la 		t2, horizontal_luffy
-			lhu 		t3, 0(t1)
-			li		t4, 145					# Coloca o personagem no meio da tela
-			addi 		t3, t3, 145				# Arrasta a tela para esquerda
-			sh 		t3, 0(t1)
-			sw 		t4, 0(t2)
 			
 LCD.NAOTRAVADA:		# Checa se deve travar a camera horizontalmente
 			la 		t1, mapa.x
 			lhu 		t2, 0(t1)
-			li		t3, MAPA.MAX.X
+			la		t0, mapa.max.x
+			lhu		t3, 0(t0)
 			blt 		t2, t3, LCD.NAOTRAVA
+			
 			la		t1, mapa.lock.x
 			li		t2, 1
 			sb 		t2, 0(t1)
 			
-LCD.NAOTRAVA:		# Calcula colisões
+LCD.NAOTRAVA:		# Calcula colisão
 			jal 		COLISAO.DIREITA
 			bnez 		a0, LCD.COLIDIU
 			la 		t1, mapa.lock.x
@@ -280,10 +366,10 @@ LCD.MOVE.MAPA:		# Movimenta o mapa em X
 			lhu 		t2, (t1)
 			addi 		t2, t2, 3
 			mv 		a1, t2
-			li 		a2, MAPA.MAX.X
+			la		t0, mapa.max.x
+			lhu		a2, 0(t0)
 			jal 		MIN
 			sh 		a0, (t1)
-			
 			j 		LCD.COLIDIU
 			
 LCD.MOVE.CHAR:		la 		t1, horizontal_luffy
@@ -292,16 +378,36 @@ LCD.MOVE.CHAR:		la 		t1, horizontal_luffy
 			sw 		t2, 0(t1)
 			
 LCD.COLIDIU:		jal 		COLISAO.BAIXO
+			bnez 		a0, LCD.COLIDIU.BAIXO		
+		
+			# Checa se o mapa está travado verticalmente
+			la 		t0, mapa.lock.y
+			lb		t1, 0(t0)
+			beqz 		t1, LCD.MOVE_Y.CHAR
 
-			bnez 		a0, LCD.COLIDIU.BAIXO
+LCD.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 2					# S2 =  Velocidade Y do personagem
-			mv 		a1, t2
-			li 		a2, MAPA.MAX.Y
-			jal 		MIN
-			sh 		a0, 0(t1)
+			addi 		t2, t2, 2			# desce 2 pixels
+			la		t0, mapa.max.y
+			lhu		t3, 0(t0)
+			bgt 		t2, t3, LCD.MOVE_Y.CHAR
+			
+			sh		t2, (t1)
+			j 		LCD.COLIDIU.BAIXO
+
+LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+			la		t0, vertical_luffy
+			lw		t1, 0(t0)
+			addi 		t1, t1, 2
+			sw		t1, 0(t0)
+			
+			li		t2, 135
+			blt		t1, t2, LCD.COLIDIU.BAIXO
+			
+			la		t0, mapa.lock.y
+			sb		zero, (t0)
 			
 LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			la 		t1, moveX
@@ -343,25 +449,21 @@ LUFFY.CORRENDO.ESQUERDA:# Checa se deve destravar a camera horizontalmente
 			la 		t1, mapa.lock.x
 			lb 		t2, 0(t1)
 			beqz 		t2, LCE.NAOTRAVADA
+			
 			la 		t2, horizontal_luffy
 			lw 		t2, 0(t2)
 			addi 		t2, t2, -3
-			bgtz 		t2, LCE.NAOTRAVADA
-			li 		t2, 0						# Se a camera estiver travada, e o personagem chegar no limite esquerdo da tela
+			li 		t3, 120 
+			bgt 		t2, t3, LCE.NAOTRAVADA
+			
+			li 		t2, 0						# Se a camera estiver travada, e o personagem voltar pro meio da tela
 			sb 		t2, (t1)					# Destrava a camera
-			la 		t1, mapa.x
-			lhu 		t2, 0(t1)
-			addi 		t2, t2, -145					# Arrasta a tela para esquerda
-			sh 		t2, 0(t1)
-			la 		t1, horizontal_luffy
-			lw 		t2, 0(t1)
-			addi 		t2, t2, 145					# Coloca o personagem no meio da tela
-			sw 		t2, 0(t1)	
 			
 LCE.NAOTRAVADA:		# Checa se deve travar a camera horizontalmente
 			la 		t1, mapa.x
 			lhu 		t2, 0(t1)
-			li 		t3, MAPA.MIN.X
+			la		t0, mapa.min.x
+			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCE.NAOTRAVA
 			la 		t1, mapa.lock.x
 			li 		t2, 1
@@ -378,7 +480,8 @@ LCE.MOVE.MAPA:		# Movimenta o mapa em X
 			lhu		t2, (t1)
 			addi 		t2, t2, -3
 			mv 		a1, t2
-			li 		a2, MAPA.MIN.X
+			la		t0, mapa.min.x
+			lhu		a2, 0(t0)
 			jal 		MAX
 			sh 		a0, (t1)
 			j 		LCE.COLIDIU
@@ -391,14 +494,34 @@ LCE.MOVE.CHAR:		la 		t1, horizontal_luffy
 LCE.COLIDIU:		jal 		COLISAO.BAIXO
 			bnez 		a0, LCE.COLIDIU.BAIXO
 			
+			# Checa se o mapa está travado verticalmente
+			la 		t0, mapa.lock.y
+			lb		t1, 0(t0)
+			beqz 		t1, LCE.MOVE_Y.CHAR
+
+LCE.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 2					# S2 =  Velocidade Y do personagem
-			mv 		a1, t2
-			li 		a2, MAPA.MAX.Y
-			jal 		MIN
-			sh 		a0, 0(t1)
+			addi 		t2, t2, 2			# desce 2 pixels
+			la		t0, mapa.max.y
+			lhu		t3, 0(t0)
+			bgt 		t2, t3, LCE.MOVE_Y.CHAR
+			
+			sh		t2, (t1)
+			j 		LCE.COLIDIU.BAIXO
+
+LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+			la		t0, vertical_luffy
+			lw		t1, 0(t0)
+			addi 		t1, t1, 2
+			sw		t1, 0(t0)
+			
+			li		t2, 135
+			blt		t1, t2, LCE.COLIDIU.BAIXO
+			
+			la		t0, mapa.lock.y
+			sb		zero, (t0)
 			
 LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			la 		t1, moveX
@@ -436,28 +559,46 @@ LCE.NAO_RESETA:
 			ret	
 
 # LS	
-LUFFY.SOCANDO:		# Testa colisões verticais
-			jal 	COLISAO.BAIXO
+LUFFY.SOCANDO:		# Testa colisão abaixo
+			jal 		COLISAO.BAIXO
 			bnez		a0, LS.COLIDIU.BAIXO
-			# Movimenta o mapa em Y
-			la 		t1, mapa.y	
+			
+LS.MOVE_Y:		la		t0, mapa.lock.y
+			lw		t1, 0(t0)
+			beqz 		t1, LS.MOVE_Y.MAPA
+			
+LS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
+			la		t0, vertical_luffy
+			lw		t1, 0(t0)
+			la 		t3, velocidadeY_luffy
+			flw 		ft1, 0(t3)
+			fcvt.w.s	t3, ft1
+			add 		t1, t1, t3
+			sw		t1, 0(t0)
+			j 		LS.COLIDIU.BAIXO			
+												
+LS.MOVE_Y.MAPA:		# Movimenta o mapa em Y
+			la 		t1, mapa.y
 			lhu 		t2, 0(t1)
 			la 		t3, velocidadeY_luffy
 			flw 		ft1, 0(t3)
 			fcvt.w.s	t3, ft1
 			add 		t2, t2, t3		
 			# MIN entre a nova posição e a maior posição possível
-			mv 		a1, t2			
-			li 		a2, MAPA.MAX.Y
+			mv 		a1, t2	
+			la 		t0, mapa.max.y		
+			lhu		a2, 0(t0)
 			jal 		MIN
 			# MAX entre a nova posição e a menor posição possível
 			mv 		a1, a0
-			li 		a2, MAPA.MIN.Y
+			la 		t0, mapa.min.y
+			lhu 		a2, 0(t0)
 			jal 		MAX				
-			sh 		a0, 0(t1)		
-			# Salva nova velocidade Y
+			sh 		a0, 0(t1)	
+			# Salva nova velocidadeY
 			la 		t1, velocidadeY_luffy
 			fsw		fs2, (t1)
+			
 LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			loadw(a1, horizontal_luffy)					# X na tela
@@ -517,10 +658,11 @@ COLISAO.DIREITA:	# Calcula coordenadas inicais da hitbox do persongem
 			add 		t1, t1, t3			 # X do personagem relativo ao mapa
 			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
 			
-			la 		t3, map_hitbox
-			addi 		t3, t3, 8
+			la 		t0, mapa_hitbox			
+			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
 	 
-			li 		t4, MAPA.HITBOX.LARGURA
+			la		t0, mapa.hitbox.largura
+			lhu		t4, 0(t0)
 			mul 		t4, t4, t2
 			add 		t4, t4, t1			# t4 = Primeiro pixel do personagem no mapa de hitboxes
 			
@@ -540,7 +682,8 @@ CD.LOOP:		add 		t1, t4, t3
 	 		ret
 	 		
 CD.NEGATIVO:		addi		t6, t6, 1
-		 	li 		t1, MAPA.HITBOX.LARGURA
+		 	la		t0, mapa.hitbox.largura
+			lhu		t1, 0(t0)
 		 	add 		t4, t4, t1
 		 	blt 		t6, t5, CD.LOOP
 		 	
@@ -567,10 +710,11 @@ COLISAO.ESQUERDA:	# Calcula coordenadas inicais da hitbox do persongem
 			add 		t1, t1, t3			 # X do personagem relativo ao mapa
 			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
 	
-			la 		t3, map_hitbox
-			addi 		t3, t3, 8
+			la 		t0, mapa_hitbox			
+			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
 	 
-			li		t4, MAPA.HITBOX.LARGURA
+			la		t0, mapa.hitbox.largura
+			lhu		t4, 0(t0)
 			mul 		t4, t4, t2
 			add 		t4, t4, t1			# t4 = Endereço do primeiro pixel do personagem 
 			
@@ -587,7 +731,8 @@ CE.LOOP:		add		t1, t4, t3
 	 		ret
 	 		
 CE.NEGATIVO:		addi 		t6, t6, 1
-		 	li 		t1, MAPA.HITBOX.LARGURA
+		 	la		t0, mapa.hitbox.largura
+			lhu		t1, 0(t0)
 		 	add 		t4, t4, t1
 		 	blt		t6, t5, CE.LOOP
 CE.FIM:
@@ -614,10 +759,11 @@ COLISAO.BAIXO:		# Calcula coordenadas inicais da hitbox do persongem
 			add 		t1, t1, t3			 # X do personagem relativo ao mapa
 			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
 	
-			la 		t3, map_hitbox
-			addi 		t3, t3, 8
+			la 		t0, mapa_hitbox			
+			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
 	 
-			li		t4, MAPA.HITBOX.LARGURA
+			la		t0, mapa.hitbox.largura
+			lhu		t4, 0(t0)
 			li 		t5, LUFFY.HITBOX.ALTURA
 			add 		t2, t2, t5			# Desce até o pé do personagem
 			mul 		t4, t4, t2
@@ -628,12 +774,13 @@ COLISAO.BAIXO:		# Calcula coordenadas inicais da hitbox do persongem
 			li		t6, 0
 			
 CB.LOOP:		lb		t2, 0(t3)
-			bnez 		t2, CB.NEGATIVO
+			li		t0, 1
+			beq 		t2, t0, CB.NAO_COLIDIU
 			
-	 		li		a0, 1
+CB.COLIDIU: 		li		a0, 1
 	 		ret
 	 		
-CB.NEGATIVO:		addi 		t6, t6, 1
+CB.NAO_COLIDIU:		addi 		t6, t6, 1
 			addi 		t3, t3, 1
 			blt 		t6, t5, CB.LOOP
 			 
@@ -660,10 +807,11 @@ COLISAO.CIMA:		# Calcula coordenadas inicais da hitbox do persongem
 			add 		t1, t1, t3			 # X do personagem relativo ao mapa
 			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
 			
-			la 		t3, map_hitbox
-			addi 		t3, t3, 8
+			la 		t0, mapa_hitbox			
+			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
 			 
-			li 		t4, MAPA.HITBOX.LARGURA
+			la		t0, mapa.hitbox.largura
+			lhu		t4, 0(t0)
 			mul 		t4, t4, t2
 			add 		t4, t4, t1			# t4 = Endereço do primeiro pixel acima do personagem
 			
@@ -672,18 +820,20 @@ COLISAO.CIMA:		# Calcula coordenadas inicais da hitbox do persongem
 			li 		t6, 0
 CC.LOOP:
 			lb 		t2, 0(t3)
-			bnez 		t2, CC.NEGATIVO
+			li 		t0, 0
+			beq 		t2, t0, CC.COLIDIU
 			
-			li 		a0, 1
-			ret
-			 
-CC.NEGATIVO:
 			addi 		t6, t6, 1
 			addi 		t3, t3, 1
-			blt 		t6, t5, CB.LOOP
+			blt 		t6, t5, CC.LOOP
 			
-CC.FIM:			li 		a0, 0
-			ret	
+CC.NAO_COLIDIU:		li 		a0, 0
+			ret
+			 			 			 
+CC.COLIDIU:		li 		a0, 1
+			ret
+			
+	
 	
 # Param a0 = Descritor
 # Param a1 = X na VGA
