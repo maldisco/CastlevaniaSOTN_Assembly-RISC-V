@@ -8,20 +8,17 @@ vertical_luffy:				.word 135
 velocidadeY_luffy:			.float 0
 
 # booleano para indicar se o personagem está em animação de pulo
-moveX:				.byte 0
-pulando:			.byte 0
-sentido:			.byte 1
-socando:			.byte 0
-
-# Tempo desde a ultima atualização de posição
-tempo_luffy:			.word 0
+moveX:					.byte 0
+pulando:				.byte 0
+sentido:				.byte 1
+socando:				.byte 0
 
 .text
 # Renderiza novamente o mapa
 MAPA.ATUALIZA:		addi 		sp, sp, -4
 			sw 		ra, (sp)				# Guardando endereço de retorno para o loop principal
 		
-			mv 		a0, s9
+			mv		a0, s9
 			li		a1, 0		
 			li 		a2, 0
 			la		t1, mapa.imagem.largura
@@ -81,10 +78,10 @@ LP.MOVE.MAPA:
 LP.MOVE.CHAR:		# Movimenta o personagem em Y
 			la		t0, vertical_luffy
 			lw		t1, 0(t0)
-			addi 		t1, t1, 2
+			addi 		t1, t1, 3
 			sw		t1, 0(t0)
 			
-			li		t2, 135
+			li		t2, 130
 			blt		t1, t2, LP.COLIDIU.BAIXO
 			
 			la		t0, mapa.lock.y
@@ -135,8 +132,8 @@ LUFFY.PULANDO:		# Atualiza a posição Y
 			
 LPU.DESCENDO:		la		t0, vertical_luffy
 			lw		t1, (t0)
-			li 		t2, 135
-			blt		t1, t2, LPU.DESCENDO.NAO_DESTRAVA		
+			li 		t2, 130
+			bgt		t1, t2, LPU.DESCENDO.NAO_DESTRAVA		
 			
 			la		t0, mapa.lock.y
 			sb		zero, (t0)
@@ -154,8 +151,8 @@ LPU.DESCENDO.NAO_DESTRAVA:
 				
 LPU.SUBINDO:		la		t0, vertical_luffy
 			lw		t1, (t0)
-			li 		t2, 135
-			bgt		t1, t2, LPU.SUBINDO.NAO_DESTRAVA		
+			li 		t2, 130
+			blt		t1, t2, LPU.SUBINDO.NAO_DESTRAVA		
 			
 			la		t0, mapa.lock.y
 			sb		zero, (t0)
@@ -243,7 +240,7 @@ LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_luffy
 			addi 		t2, t2, -3
 			sw 		t2, 0(t1)
 			
-			li		t1, 135
+			li		t1, 130
 			bgt 		t2, t1, LPU.PARADO
 			
 			la		t0, mapa.lock.x
@@ -285,7 +282,7 @@ LPU.DIREITA.MOVE.CHAR:	la 		t1, horizontal_luffy
 			addi 		t2, t2, 3
 			sw 		t2, 0(t1)
 			
-			li		t1, 135
+			li		t1, 130
 			blt		t2, t1, LPU.PARADO			# Se o mapa estiver travado e o personagem voltar pro meio da tela, destrava
 			
 			la		t0, mapa.lock.x
@@ -336,7 +333,7 @@ LUFFY.CORRENDO.DIREITA:	# Checa se deve destravar a camera
 			la 		t2, horizontal_luffy
 			lw 		t2, 0(t2)
 			addi 		t2, t2 , 3
-			li 		t3, 120
+			li 		t3, 130
 			blt 		t2, t3, LCD.NAOTRAVADA
 			
 			li 		t2, 0					# Se a camera estiver travada, e o personagem voltar pro centro
@@ -389,7 +386,7 @@ LCD.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 2			# desce 2 pixels
+			addi 		t2, t2, 3			# desce 2 pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCD.MOVE_Y.CHAR
@@ -400,14 +397,15 @@ LCD.MOVE_Y.MAPA:
 LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			la		t0, vertical_luffy
 			lw		t1, 0(t0)
-			addi 		t1, t1, 2
+			addi 		t1, t1, 3
 			sw		t1, 0(t0)
 			
-			li		t2, 135
-			blt		t1, t2, LCD.COLIDIU.BAIXO
+			li		t2, 130
+			bgt		t1, t2, LCD.COLIDIU.BAIXO
 			
 			la		t0, mapa.lock.y
-			sb		zero, (t0)
+			li		t1, 1
+			sb		t1, (t0)
 			
 LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			la 		t1, moveX
@@ -453,7 +451,7 @@ LUFFY.CORRENDO.ESQUERDA:# Checa se deve destravar a camera horizontalmente
 			la 		t2, horizontal_luffy
 			lw 		t2, 0(t2)
 			addi 		t2, t2, -3
-			li 		t3, 120 
+			li 		t3, 120
 			bgt 		t2, t3, LCE.NAOTRAVADA
 			
 			li 		t2, 0						# Se a camera estiver travada, e o personagem voltar pro meio da tela
@@ -503,7 +501,7 @@ LCE.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 2			# desce 2 pixels
+			addi 		t2, t2, 3			# desce 2 pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCE.MOVE_Y.CHAR
@@ -514,14 +512,15 @@ LCE.MOVE_Y.MAPA:
 LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			la		t0, vertical_luffy
 			lw		t1, 0(t0)
-			addi 		t1, t1, 2
+			addi 		t1, t1, 3
 			sw		t1, 0(t0)
 			
-			li		t2, 135
-			blt		t1, t2, LCE.COLIDIU.BAIXO
+			li		t2, 130
+			bgt		t1, t2, LCE.COLIDIU.BAIXO
 			
 			la		t0, mapa.lock.y
-			sb		zero, (t0)
+			li		t1, 1
+			sb		t1, (t0)
 			
 LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			la 		t1, moveX
@@ -636,260 +635,3 @@ LS.RET:
 			lw 		ra, (sp)					# Retorna ao loop principal
 			addi 		sp, sp, 4
 			ret
-# ====================================================== REFATORAR COLISÕES LEMBRE =========================================================================
-
-# Checa colisão à direita do personagem
-# Return a0, 1 = Colidiu
-COLISAO.DIREITA:	# Calcula coordenadas inicais da hitbox do persongem
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_luffy
-			lw 		t3, (t3)
-			li 		t4, LUFFY.HITBOX_OFFSET.X
-			add 		t3, t3, t4
-			addi 		t3, t3, 2
-			la 		t4, vertical_luffy
-			lw 		t4, (t4)
-			li 		t5, LUFFY.HITBOX_OFFSET.Y
-			add 		t4, t4, t5
-	
-			add 		t1, t1, t3			 # X do personagem relativo ao mapa
-			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
-			
-			la 		t0, mapa_hitbox			
-			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
-	 
-			la		t0, mapa.hitbox.largura
-			lhu		t4, 0(t0)
-			mul 		t4, t4, t2
-			add 		t4, t4, t1			# t4 = Primeiro pixel do personagem no mapa de hitboxes
-			
-			li 		t5, LUFFY.HITBOX.LARGURA
-			add 		t4, t4, t5			# t4 = Primeiro pixel a direita do personagem
-			
-			li 		t5, LUFFY.HITBOX.ALTURA
-			addi 		t5, t5, -10			# Sobe um pouco pra não testar no pé
-			
-			li 		t6, 0
-			
-CD.LOOP:		add 		t1, t4, t3
-			lb 		t2, 0(t1)
-			bnez 		t2, CD.NEGATIVO
-			
-	 		li 		a0, 1
-	 		ret
-	 		
-CD.NEGATIVO:		addi		t6, t6, 1
-		 	la		t0, mapa.hitbox.largura
-			lhu		t1, 0(t0)
-		 	add 		t4, t4, t1
-		 	blt 		t6, t5, CD.LOOP
-		 	
-CD.FIM:			li 		a0, 0
-			ret
-
-# Checa colisão à esquerda do personagem
-# Return a0, 1 = Colidiu
-COLISAO.ESQUERDA:	# Calcula coordenadas inicais da hitbox do persongem
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_luffy
-			lw		t3, (t3)
-			li 		t4, LUFFY.HITBOX_OFFSET.X
-			add 		t3, t3, t4
-			addi 		t3, t3, -2
-			la 		t4, vertical_luffy
-			lw 		t4, (t4)
-			li 		t5, LUFFY.HITBOX_OFFSET.Y
-			add 		t4, t4, t5
-			
-			add 		t1, t1, t3			 # X do personagem relativo ao mapa
-			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
-	
-			la 		t0, mapa_hitbox			
-			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
-	 
-			la		t0, mapa.hitbox.largura
-			lhu		t4, 0(t0)
-			mul 		t4, t4, t2
-			add 		t4, t4, t1			# t4 = Endereço do primeiro pixel do personagem 
-			
-			li		t5, LUFFY.HITBOX.ALTURA
-			addi 		t5, t5, -5
-			
-			li 		t6, 0
-			
-CE.LOOP:		add		t1, t4, t3
-			lb		t2, 0(t1)
-			bnez 		t2, CE.NEGATIVO
-			
-	 		li 		a0, 1
-	 		ret
-	 		
-CE.NEGATIVO:		addi 		t6, t6, 1
-		 	la		t0, mapa.hitbox.largura
-			lhu		t1, 0(t0)
-		 	add 		t4, t4, t1
-		 	blt		t6, t5, CE.LOOP
-CE.FIM:
-			li 		a0, 0
-		 	ret
-
-# Checa colisão abaixo do personagem
-# Return a0, 1 = Colidiu
-COLISAO.BAIXO:		# Calcula coordenadas inicais da hitbox do persongem
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_luffy
-			lw 		t3, (t3)
-			li		t4, LUFFY.HITBOX_OFFSET.X
-			add 		t3, t3, t4
-			la 		t4, vertical_luffy
-			lw 		t4, (t4)
-			li		t5, LUFFY.HITBOX_OFFSET.Y
-			add 		t4, t4, t5
-			addi 		t4, t4, 2
-	
-			add 		t1, t1, t3			 # X do personagem relativo ao mapa
-			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
-	
-			la 		t0, mapa_hitbox			
-			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
-	 
-			la		t0, mapa.hitbox.largura
-			lhu		t4, 0(t0)
-			li 		t5, LUFFY.HITBOX.ALTURA
-			add 		t2, t2, t5			# Desce até o pé do personagem
-			mul 		t4, t4, t2
-			add 		t4, t4, t1			# t4 = Endereço do primeiro pixel abaixo do personagem
-	
-			add 		t3, t3, t4			# Pixel no endereço de hitboxes
-			li 		t5, LUFFY.HITBOX.LARGURA
-			li		t6, 0
-			
-CB.LOOP:		lb		t2, 0(t3)
-			li		t0, 1
-			beq 		t2, t0, CB.NAO_COLIDIU
-			
-CB.COLIDIU: 		li		a0, 1
-	 		ret
-	 		
-CB.NAO_COLIDIU:		addi 		t6, t6, 1
-			addi 		t3, t3, 1
-			blt 		t6, t5, CB.LOOP
-			 
-CB.FIM:			li		a0, 0
-			ret
-	
-# Checa colisão acima do personagem
-# Return a0, 1 = Colidiu
-COLISAO.CIMA:		# Calcula coordenadas inicais da hitbox do persongem
-			la		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_luffy
-			lw 		t3, (t3)
-			li		t4, LUFFY.HITBOX_OFFSET.X
-			add		t3, t3, t4
-			la		t4, vertical_luffy
-			lw 		t4, (t4)
-			li		t5, LUFFY.HITBOX_OFFSET.Y
-			add 		t4, t4, t5
-			addi		t4, t4, -2
-			
-			add 		t1, t1, t3			 # X do personagem relativo ao mapa
-			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
-			
-			la 		t0, mapa_hitbox			
-			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
-			 
-			la		t0, mapa.hitbox.largura
-			lhu		t4, 0(t0)
-			mul 		t4, t4, t2
-			add 		t4, t4, t1			# t4 = Endereço do primeiro pixel acima do personagem
-			
-			add 		t3, t3, t4			# t3 = Pixel no endereço de hitboxes	
-			li 		t5, LUFFY.HITBOX.LARGURA
-			li 		t6, 0
-CC.LOOP:
-			lb 		t2, 0(t3)
-			li 		t0, 0
-			beq 		t2, t0, CC.COLIDIU
-			
-			addi 		t6, t6, 1
-			addi 		t3, t3, 1
-			blt 		t6, t5, CC.LOOP
-			
-CC.NAO_COLIDIU:		li 		a0, 0
-			ret
-			 			 			 
-CC.COLIDIU:		li 		a0, 1
-			ret
-			
-	
-	
-# Param a0 = Descritor
-# Param a1 = X na VGA
-# Param a2 = Y na VGA
-# Param a3 = Largura da imagem
-# Param a4 = Largura da sprite
-# Param a5 = Endereço da frame
-# Param a6 = Offset na imagem
-# Param a7 = Altura da sprite
-RENDER:			# Calculo do endereço na VGA
-			li 		t3, 320
-			mul 		t3, t3, a2			# Y do personagem x 320 (Altura inicial)
-			add 		t3, t3, a1
-			add 		a5, a5, t3			# a5 = Endereço inicial = Frame 0/1 + horizontal + 320 x vertical
-	
-			# Calculo do endereço final na VGA
-			li		t1, 320
-			mul		t1, t1, a7
-			add 		t1, t1, a4
-			add 		t1, a5, t1
-		
-# a0 = Descritor
-# a6 = Offset na imagem
-# a5 = Offset na tela
-# t1 = Endereço final na tela	
-RENDER.LOOP: 		# Salva o descritor
-			mv 		t5, a0
-		
-			# Chega à posição definida pelo offset na imagem
-			li 		a7, 62
-			mv		a1, a6			# a6 = offset na imagem
-			li 		a2, 0
-			ecall
-				
-			# Restaura a0
-			mv		a0, t5
-		
-			# Transfere os bytes de uma linha do arquivo para a memóeria VGA
-			li 		a7, 63
-			mv 		a1, a5			# a5 = Endereço na VGA
-			mv 		a2, a4			# a4 = Quantidade de bytes em uma linha
-			ecall					# Escreve uma linha
-				
-			# Restaura a0
-			mv 		a0, t5
-		
-			# Incrementar offset imagem (pular linha)
-			add 		a6, a6, a3 
-				
-			# Incrementa offset VGA (pular linha)
-			addi 		a5, a5, 320
-		
-			# a5 = Endereço atual na VGA
-			# t1 = Endereço final na VGA
-			bltu		a5, t1, RENDER.LOOP
-			ret
-			
-	
-	

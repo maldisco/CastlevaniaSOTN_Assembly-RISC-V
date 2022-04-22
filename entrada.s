@@ -1,25 +1,26 @@
 # Captura e trata o evento de apertar uma tecla do teclado
-ENTRADA:		lw t1, (s11)			# carrega para t1 o estado do teclado
-			beqz t1, ENTRADA.RET	# se for igual a 0 (nada digitado), volta ao loop
-			li s0, MMIO_add			# carrega para s0 o endereço armazenando a tecla digitada
-			lw s0, (s0)			# carrega para s0 a tecla digitada
+ENTRADA:		li		s11, MMIO_set
+			lw 		t1, (s11)			# carrega para t1 o estado do teclado
+			beqz 		t1, ENTRADA.RET	# se for igual a 0 (nada digitado), volta ao loop
+			li 		s0, MMIO_add			# carrega para s0 o endereço armazenando a tecla digitada
+			lw 		s0, (s0)			# carrega para s0 a tecla digitada
 	
-			li t1, 'd'
-			beq s0, t1, DIREITA		# checa se a tecla 'D' foi apertada
+			li 		t1, 'd'
+			beq 		s0, t1, DIREITA		# checa se a tecla 'D' foi apertada
 			
-			li t1, 'a'
-			beq s0, t1, ESQUERDA		# checa se a tecla 'A' foi apertada
+			li 		t1, 'a'
+			beq 		s0, t1, ESQUERDA		# checa se a tecla 'A' foi apertada
 			
-			li t1, 'w'
-			beq s0, t1, PULA		# checa se a tecla 'W' foi apertada
+			li 		t1, 'w'
+			beq 		s0, t1, PULA		# checa se a tecla 'W' foi apertada
 			
-			li t1, 's'
-			beq s0, t1, PARA		# checa se a tecla 'S' foi apertada
+			li		t1, 's'
+			beq 		s0, t1, PARA		# checa se a tecla 'S' foi apertada
 			
-			li t1, 'z'
-			beq s0, t1, SOCA
+			li 		t1, 'z'
+			beq 		s0, t1, SOCA
 		
-ENTRADA.RET:	ret
+ENTRADA.RET:		ret
 		
 # Se a tecla 'S' foi apertada
 # - Se pulando > 0
@@ -31,12 +32,12 @@ ENTRADA.RET:	ret
 # - - - sentido = -1 (esquerda)
 # - - moveX = 0
 PARA:			loadb(t1, pulando)
-			bnez t1, NAO_PODE_PARAR	
+			bnez 		t1, NAO_PODE_PARAR	
 			loadb(t1, moveX)
-			li t2, 1
-			bgtz t1, PARA.SENTIDO.DIREITA
-			li t2, -1
-PARA.SENTIDO.DIREITA:	li t1, 0
+			li 		t2, 1
+			bgtz 		t1, PARA.SENTIDO.DIREITA
+			li 		t2, -1
+PARA.SENTIDO.DIREITA:	li 		t1, 0
 			saveb(t1, moveX)
 			saveb(t2, sentido)
 NAO_PODE_PARAR:		ret
@@ -99,7 +100,7 @@ PULA:			la		t0, pulando
 			li		t1, 1
 			sb		t1, (t0)
 			saveb(zero, sprite_frame_atual) 	
-			li 		t1, -7		
+			li 		t1, -8		
 			fcvt.s.w 	ft1, t1			
 			la 		t2, velocidadeY_luffy
 			fsw 		ft1, (t2)

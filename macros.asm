@@ -41,10 +41,6 @@ mapa.max.x:				.half 1308
 mapa.min.x:				.half 0
 mapa_hitbox:				.word 0		# Ponteiro para o mapa de hitboxes da tela atual
 
-
-mapa:					.string "sprites/map.bin"
-tela1:					.string "sprites/tela_1.bin"
-
 sprite_tela_atual:			.word 0
 tela_atual:				.word 1
 frame_atual:				.word 0
@@ -167,3 +163,4 @@ add t6, t6, t2			# t6 = Y de cima do personagem no mapa
 .end_macro
 
 .include "sprites/tela_1_hitboxes.s"
+.include "sprites/tela_2_hitboxes.s"
