@@ -23,7 +23,6 @@
 	jal 	config_tela_1	
 			
 	# ===================== NÃO DEVE MUDAR ===============================
-	# SYMPHONY OF THE KNIGHT
 	# S11 = MMIO_set
 	# S10 = Descritor do arquivo de sprites do Luffy
 	# S9 = Descritor do arquivo do mapa	
@@ -35,15 +34,16 @@ poll_loop:			# início do loop de polling
 	bltu 	t0, t1, nao_atualiza
 		#call OST.TOCA
 		troca_tela()
-		jal 	LUFFY.INPUT	# Trata o input
+		jal 	ENTRADA			# Trata o input do teclado
 		jal 	MAPA.ATUALIZA
 		jal	LUFFY.ATUALIZA
-		csrr s7, 3073 		# Atualiza o tempo atual
+		csrr s7, 3073 			# Atualiza o tempo atual
 	nao_atualiza:
 	j poll_loop
 				
 
-	
+
+.include "entrada.s"
 .include "game.asm"	
 .include "render.asm"
 .include "walk.asm"
