@@ -41,24 +41,16 @@ TELA_1.PARA.TELA_2:	addi		sp, sp, 4			# Reseta a pilha
 			li 		t1, T2.Y_INI
 			sh		t1, 0(t0)
 			
-			la 		t0, mapa.lock.x
-			li		t1, T2.LOCK_X
-			sb		t1, 0(t0)
-			
-			la 		t0, mapa.lock.y
-			li		t1, T2.LOCK_Y
-			sb		t1, 0(t0)
-			
 			la		t0, horizontal_luffy
-			li		t1, 93
+			li		t1, 110
 			sw		t1, (t0)
 			
 			la		t0, vertical_luffy
-			li		t1, 139
+			li		t1, 150
 			sw		t1, (t0)
 			
 			la		t0, moveX
-			li		t1, -7
+			li		t1, -14
 			sb		t1, (t0)
 			
 			la		t0, pulando
@@ -101,10 +93,6 @@ TELA_1.PARA.TELA_2:	addi		sp, sp, 4			# Reseta a pilha
 			li 		a7, MAPA.ALTURA
 			jal 		RENDER
 	
-			li 		a7, 1
-			li 		a0, 999
-			ecall
-	
 			tail poll_loop
 	
 config_tela_1:
@@ -141,14 +129,6 @@ config_tela_1:
 			la		t0, mapa.y
 			li 		t1, T1.Y_INI
 			sh		t1, 0(t0)
-	
-			la 		t0, mapa.lock.x
-			li		t1, T1.LOCK_X
-			sb		t1, 0(t0)
-	
-			la 		t0, mapa.lock.y
-			li		t1, T1.LOCK_Y
-			sb		t1, 0(t0)
 	
 			mv		s9, s8			# S9 = Tela atual e S8 = Tela 1
 	

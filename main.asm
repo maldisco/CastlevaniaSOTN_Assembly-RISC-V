@@ -41,7 +41,7 @@
 poll_loop:	# início do loop de polling
 		csrr 		t0, 3073
 		sub 		t0, t0, s11
-		li 		t1, 32
+		li 		t1, 16
 		bltu 		t0, t1, nao_atualiza
 		#call OST.TOCA
 		troca_tela()

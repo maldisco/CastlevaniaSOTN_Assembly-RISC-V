@@ -44,7 +44,7 @@ NAO_PODE_PARAR:		ret
 		
 		
 # Se a tecla D foi apertada,
-# - moveX = 9 (armazena 9 atualizações de movimentação a direita)
+# - moveX = 14 (armazena 14 atualizações de movimentação a direita)
 # - sentido = 1 (direita)
 # - Se o personagem estiver parado
 # - - Reseta animação para 0
@@ -59,14 +59,14 @@ DIREITA:		loadb(t1, moveX)
 			
 			saveb(zero, sprite_frame_atual)
 			
-DIREITA.TURN:		li 		t1, 9
+DIREITA.TURN:		li 		t1, 16
 			saveb(t1, moveX)
 			li 		t1, 1
 			saveb(t1, sentido) 
 			ret
 		
 # Se a tecla A foi apertada
-# - moveX = -9 (armazena 9 atualizações de movimentação a esquerda)
+# - moveX = -14 (armazena 14 atualizações de movimentação a esquerda)
 # - sentido = -1 (esquerda)
 # - Se o personagem estiver parado
 # - - Reseta animação para 0
@@ -81,7 +81,7 @@ ESQUERDA:		loadb(t1, moveX)
 			
 			saveb(zero, sprite_frame_atual)
 			
-ESQUERDA.TURN:		li 		t1, -9
+ESQUERDA.TURN:		li 		t1, -16
 			saveb(t1, moveX)
 			li		 t1, -1
 			saveb(t1, sentido)
@@ -90,7 +90,7 @@ ESQUERDA.TURN:		li 		t1, -9
 # Se a tecla W foi apertada
 # - Se pulando  == 0
 # - - pulando = 1
-# - - velocidadeY = -7 (subindo)
+# - - velocidadeY = -6.5 (subindo)
 # - Senão
 # - - nada
 PULA:			la		t0, pulando
@@ -100,10 +100,10 @@ PULA:			la		t0, pulando
 			li		t1, 1
 			sb		t1, (t0)
 			saveb(zero, sprite_frame_atual) 	
-			li 		t1, -8		
-			fcvt.s.w 	ft1, t1			
+			la		t1, SALTO
+			flw		ft0, (t1)		
 			la 		t2, velocidadeY_luffy
-			fsw 		ft1, (t2)
+			fsw 		ft0, (t2)
 NAO_PULA:		ret
 	
 # Se a tecla Z foi apertada
