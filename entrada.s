@@ -57,7 +57,7 @@ DIREITA:		loadb(t1, moveX)
 			loadb(t1, socando)
 			bnez 		t1, DIREITA.TURN
 			
-			saveb(zero, sprite_frame_atual)
+			saveb(zero, alucard.animacao)
 			
 DIREITA.TURN:		li 		t1, 16
 			saveb(t1, moveX)
@@ -79,7 +79,7 @@ ESQUERDA:		loadb(t1, moveX)
 			loadb(t1, socando)
 			bnez 		t1, ESQUERDA.TURN
 			
-			saveb(zero, sprite_frame_atual)
+			saveb(zero, alucard.animacao)
 			
 ESQUERDA.TURN:		li 		t1, -16
 			saveb(t1, moveX)
@@ -99,10 +99,10 @@ PULA:			la		t0, pulando
 			
 			li		t1, 1
 			sb		t1, (t0)
-			saveb(zero, sprite_frame_atual) 	
+			saveb(zero, alucard.animacao) 	
 			la		t1, SALTO
 			flw		ft0, (t1)		
-			la 		t2, velocidadeY_luffy
+			la 		t2, velocidadeY_alucard
 			fsw 		ft0, (t2)
 NAO_PULA:		ret
 	
@@ -113,7 +113,7 @@ NAO_PULA:		ret
 # - - socando = 1	
 SOCA:			loadb(t1, socando)
 			bnez 		t1, JA_ESTA_SOCANDO
-			saveb(zero, sprite_frame_atual) 
+			saveb(zero, alucard.animacao) 
 			li		t1, 1
 			saveb(t1, socando)
 JA_ESTA_SOCANDO:	ret
