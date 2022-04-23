@@ -113,6 +113,13 @@ NAO_PULA:		ret
 # - - socando = 1	
 SOCA:			loadb(t1, socando)
 			bnez 		t1, JA_ESTA_SOCANDO
+			
+			addi		sp, sp, -4
+			sw		ra, (sp)
+			jal		OST.SLASH
+			lw		ra, (sp)
+			addi		sp, sp, 4
+			
 			saveb(zero, alucard.animacao) 
 			li		t1, 1
 			saveb(t1, socando)
