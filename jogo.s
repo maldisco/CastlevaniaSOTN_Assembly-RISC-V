@@ -46,7 +46,7 @@
 			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
 			jal		OST.SETUP
 			jal 		config_tela_1	
-				
+			
 			# ===================== NÃO DEVE MUDAR ===============================
 			# S11 = Tempo da ultima atualizacao de tela
 			# S10 = Descritor do arquivo de sprites do Luffy
@@ -61,7 +61,7 @@ LOOP_JOGO:		csrr 		t0, 3073
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
 			troca_tela()						# Troca a tela para o usuário não ver as atualizações
-			jal		OST.TOCA
+			#jal		OST.TOCA
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
@@ -77,7 +77,7 @@ MAPA.ATUALIZA:		mv		a0, s9
 			jal		RENDER
 
 # Atualiza a posição da personagem 	
-ALUCARD.ATUALIZA:		la	 	t1, velocidadeY_alucard
+ALUCARD.ATUALIZA:	la	 	t1, velocidadeY_alucard
 			flw 		ft1, (t1)
 			loadw(t2, vertical_alucard)
 			fcvt.s.w 	ft2, t2
@@ -191,7 +191,7 @@ LPU.MOVE_Y:		# Movimenta o mapa em Y
 			la		t0, vertical_alucard		# Se o personagem está acima da metade da tela, move o personagem ao invés do mapa
 			lw		t3, (t0)	
 			li 		t4, 130
-			blt		t3, t4, LPU.MOVE_Y.CHAR		
+			bgt		t3, t4, LPU.MOVE_Y.CHAR		
 												
 			sh		t2, (t1)			# Se não, move mapa
 			j		LPU.ATUALIZA_X
@@ -534,3 +534,4 @@ ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 .include "fisica.s"
 .include "render.s"
 .include "ost.s"
+.include "dialogos.s"

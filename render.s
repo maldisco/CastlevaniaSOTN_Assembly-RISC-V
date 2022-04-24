@@ -8,7 +8,7 @@
 # Param a7 = Altura da sprite
 RENDER:			# Calculo do endereço na VGA
 			li 		t3, 320
-			mul 		t3, t3, a2			# Y do personagem x 320 (Altura inicial)
+			mul 		t3, t3, a2			# Y alvo x 320 (Altura inicial)
 			add 		t3, t3, a1
 			add 		a5, a5, t3			# a5 = Endereço inicial = Frame 0/1 + horizontal + 320 x vertical
 	
@@ -24,7 +24,7 @@ RENDER:			# Calculo do endereço na VGA
 # t1 = Endereço final na tela	
 RENDER.LOOP: 		# Salva o descritor
 			mv 		t5, a0
-		
+			
 			# Chega à posição definida pelo offset na imagem
 			li 		a7, 62
 			mv		a1, a6			# a6 = offset na imagem

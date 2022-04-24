@@ -4,6 +4,8 @@
 .eqv MMIO_add			0xff200004
 frame_atual:			.word 0
 
+dialogo1:			.string "dialogos/dialogo1.bin"
+
 TELA:				.word 0						# Descritor da tela atual
 tela1:				.string "sprites/tela_1.bin"
 tela2:				.string "sprites/tela_2.bin"

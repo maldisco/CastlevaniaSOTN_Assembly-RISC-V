@@ -1,5 +1,5 @@
 GRAVIDADE:				.float 0.35
-SALTO:					.float -6.9
+SALTO:					.float -7
 
 mapa.y:					.half 587
 mapa.x:					.half 52

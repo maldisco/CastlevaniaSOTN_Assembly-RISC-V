@@ -517,6 +517,8 @@ config_tela_1:
 			la 		t1, velocidadeY_alucard
 			fcvt.s.w	ft1, zero
 			fsw		ft1, (t1)
+			
+			# Dialogo inicial do jogo			
  			tail 		LOOP_JOGO
  
 
