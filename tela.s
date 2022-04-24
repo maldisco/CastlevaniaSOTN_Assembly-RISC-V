@@ -234,7 +234,9 @@ config_tela_1:		jal		CONFIG.TELA_1
 			fcvt.s.w	ft1, zero
 			fsw		ft1, (t1)
 			
-			# Dialogo inicial do jogo			
+			# Dialogo inicial do jogo
+			# jal		DIALOGO_1.START
+									
  			tail 		LOOP_JOGO
  
 # Constantes ao mudar para o mapa 1

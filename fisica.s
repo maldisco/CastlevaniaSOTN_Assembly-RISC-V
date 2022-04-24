@@ -1,6 +1,24 @@
-# Checa colisão à direita do personagem
-# Return a0, 1 = Colidiu
-COLISAO.DIREITA:	# Calcula coordenadas inicais da hitbox do persongem
+#  física
+# Return:		a1 = Colisão à direita
+#			a2 = Colisão à esquerda
+#			a3 = Colisão acima
+#			a4 = Colisão abaixo
+FISICA:			addi		sp, sp, -4
+			sw		ra, (sp)
+
+			la	 	t1, velocidadeY_alucard
+			flw 		ft1, (t1)
+			
+			la 		t2, GRAVIDADE
+			flw 		ft0, (t2)
+			fadd.s 		fs2, ft1, ft0	
+			fsw		fs2, (t1)			# Guarda nova velocidade Y		
+			fcvt.w.s	s2, fs2				# s2 = Nova velocidade Y = velocidade + gravidade
+			
+			loadw(t2, vertical_alucard)
+			add		s1, s2, t2			# s1 = Nova posição Y
+			
+			# Calculo das posições do personagem relativas ao mapa
 			la 		t1, mapa.x
 			lh 		t1, (t1)
 			la 		t2, mapa.y
@@ -9,121 +27,124 @@ COLISAO.DIREITA:	# Calcula coordenadas inicais da hitbox do persongem
 			lw 		t3, (t3)
 			li 		t4, ALUCARD.HITBOX_OFFSET.X
 			add 		t3, t3, t4
-			addi 		t3, t3, 2
 			la 		t4, vertical_alucard
 			lw 		t4, (t4)
 			li 		t5, ALUCARD.HITBOX_OFFSET.Y
 			add 		t4, t4, t5
-	
-			add 		t1, t1, t3			 # X do personagem relativo ao mapa
-			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
+			add 		a1, t1, t3			 # X do personagem relativo ao mapa
+			add 		a2, t2, t4			 # Y do personagem relativo ao mapa
 			
-			la 		t0, mapa_hitbox			
-			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
+			jal		COLISAO.DIREITA
+			mv		a3, a0
+			
+			jal		COLISAO.ESQUERDA
+			mv		a4, a0
+			
+			jal		COLISAO.CIMA
+			mv		a5, a0
+			
+			li		a6, 0
+			bltz		s2, FISICA.SUBINDO		# Se estiver subindo, não calcula colisão baixo
+			
+			jal		COLISAO.BAIXO
+			mv		a6, a0	
+
+FISICA.SUBINDO:
+			
+			
+			mv		a1, a3
+			mv		a2, a4
+			mv		a3, a5
+			mv		a4, a6	
+			
+		
+			lw		ra, (sp)
+			addi		sp, sp, 4
+			ret
+
+# Checa colisão à direita do personagem
+# Param  a1 = Posição X do personagem relativa ao mapa
+# Param  a2 = Posição Y do personagem relativa ao mapa
+# Return a0, 1 = Colidiu
+COLISAO.DIREITA:	addi		t1, a1, 2
+			mv		t2, a2
 	 
 			la		t0, mapa.hitbox.largura
-			lhu		t4, 0(t0)
-			mul 		t4, t4, t2
-			add 		t4, t4, t1			# t4 = Primeiro pixel do personagem no mapa de hitboxes
+			lhu		t0, 0(t0)
+			mul 		t2, t0, t2
+			add 		t2, t2, t1			# t2 = Primeiro pixel do personagem no mapa de hitboxes
 			
 			li 		t5, ALUCARD.HITBOX.LARGURA
-			add 		t4, t4, t5			# t4 = Primeiro pixel a direita do personagem
+			add 		t2, t2, t5			# t2 = Primeiro pixel a direita do personagem
 			
-			li 		t5, ALUCARD.HITBOX.ALTURA
-			addi 		t5, t5, -10			# Sobe um pouco pra não testar no pé
+			la 		t1, mapa_hitbox			
+			lw		t3, 0(t1)			# Endereço do mapa de hitboxes da tela atual
 			
-			li 		t6, 0
+			add		t2, t2, t3			# t2 = Posição do personagem no mapa de hitboxes			
 			
-CD.LOOP:		add 		t1, t4, t3
-			lb 		t2, 0(t1)
-			bgtz 		t2, CD.NEGATIVO
+			li 		t5, ALUCARD.HITBOX.ALTURA	# Quantidade de pixels a serem testados
+			#addi 		t5, t5, -5			# Sobe um pouco pra não testar no pé
 			
-CD.COLIDIU: 		beqz		t2, COLISAO.VERDADEIRO
+			li 		t6, 0				# Contador de pixels testados
 			
-			mv 		a0, t2
-			jal 		TELA.TROCA
+CD.LOOP:		lb 		t1, 0(t2)
+			bgtz 		t1, CD.NAO_COLIDIU		# Se o byte for > zero, não colidiu
+			
+CD.COLIDIU: 		beqz		t1, COLISAO.VERDADEIRO		# Se for = 0, colidiu
+			
+			mv 		a0, t1			
+			j 		TELA.TROCA			# Se for < 0, trocou de tela
 	 		
-CD.NEGATIVO:		addi		t6, t6, 1
-		 	la		t0, mapa.hitbox.largura
-			lhu		t1, 0(t0)
-		 	add 		t4, t4, t1
+CD.NAO_COLIDIU:		addi		t6, t6, 1
+		 	add 		t2, t2, t0			# Desce uma linha
 		 	blt 		t6, t5, CD.LOOP
 		 	
 CD.FIM:			li 		a0, 0
 			ret
 
 # Checa colisão à esquerda do personagem
+# Param  a1 = Posição X do personagem relativa ao mapa
+# Param  a2 = Posição Y do personagem relativa ao mapa
 # Return a0, 1 = Colidiu
-COLISAO.ESQUERDA:	# Calcula coordenadas inicais da hitbox do persongem
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_alucard
-			lw		t3, (t3)
-			li 		t4, ALUCARD.HITBOX_OFFSET.X
-			add 		t3, t3, t4
-			addi 		t3, t3, -2
-			la 		t4, vertical_alucard
-			lw 		t4, (t4)
-			li 		t5, ALUCARD.HITBOX_OFFSET.Y
-			add 		t4, t4, t5
-			
-			add 		t1, t1, t3			 # X do personagem relativo ao mapa
-			add 		t2, t2, t4			 # Y do personagem relativo ao mapa
+COLISAO.ESQUERDA:	addi		t1, a1, -2
+			mv		t2, a2
 	
-			la 		t0, mapa_hitbox			
-			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
-	 
 			la		t0, mapa.hitbox.largura
-			lhu		t4, 0(t0)
-			mul 		t4, t4, t2
-			add 		t4, t4, t1			# t4 = Endereço do primeiro pixel do personagem 
+			lhu		t0, 0(t0)
+			mul 		t2, t0, t2
+			add 		t2, t2, t1			# t2 = Primeiro pixel do personagem no mapa de hitboxes
 			
-			li		t5, ALUCARD.HITBOX.ALTURA
-			addi 		t5, t5, -5
+			la 		t1, mapa_hitbox			
+			lw		t3, 0(t1)			# Endereço do mapa de hitboxes da tela atual
 			
-			li 		t6, 0
+			add		t2, t2, t3			# t2 = Posição do personagem no mapa de hitboxes			
 			
-CE.LOOP:		add		t1, t4, t3
-			lb		t2, 0(t1)
-			bgtz 		t2, CE.NEGATIVO
+			li 		t5, ALUCARD.HITBOX.ALTURA	# Quantidade de pixels a serem testados
+			#addi 		t5, t5, -5			# Sobe um pouco pra não testar no pé
 			
-CE.COLIDIU: 		beqz		t2, COLISAO.VERDADEIRO
+			li 		t6, 0				# Contador de pixels testados
 			
-			mv 		a0, t2
-			jal 		TELA.TROCA
+CE.LOOP:		lb 		t1, 0(t2)
+			bgtz 		t1, CE.NAO_COLIDIU		# Se o byte for > zero, não colidiu
+			
+CE.COLIDIU: 		beqz		t1, COLISAO.VERDADEIRO		# Se for = 0, colidiu
+			
+			mv 		a0, t1			
+			j 		TELA.TROCA			# Se for < 0, trocou de tela
 	 		
-CE.NEGATIVO:		addi 		t6, t6, 1
-		 	la		t0, mapa.hitbox.largura
-			lhu		t1, 0(t0)
-		 	add 		t4, t4, t1
-		 	blt		t6, t5, CE.LOOP
-CE.FIM:
-			li 		a0, 0
-		 	ret
+CE.NAO_COLIDIU:		addi		t6, t6, 1
+		 	add 		t2, t2, t0			# Desce uma linha
+		 	blt 		t6, t5, CE.LOOP
+		 	
+CE.FIM:			li 		a0, 0
+			ret
 
 # Checa colisão abaixo do personagem
+# Param  a1 = Posição X do personagem relativa ao mapa
+# Param  a2 = Posição Y do personagem relativa ao mapa
 # Return a0, 1 = Colidiu
-COLISAO.BAIXO:		# Calcula coordenadas inicais da hitbox do persongem
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_alucard
-			lw 		t3, (t3)
-			li		t4, ALUCARD.HITBOX_OFFSET.X
-			add 		t3, t3, t4
-			la 		t4, vertical_alucard
-			lw 		t4, (t4)
-			li		t5, ALUCARD.HITBOX_OFFSET.Y
-			add 		t4, t4, t5
-			addi 		t4, t4, 3				
-	
-			# 11 = mapa.x + horizontal_char + char.hitbox_offset.x = X do personagem relativo ao mapa
-			add 		t1, t1, t3			
-			# t2 = mapa.y + vertical_char + char.hitbox_offset.y = Y do personagem relativo ao mapa
-			add 		t2, t2, t4
+COLISAO.BAIXO:		mv		t1, a1
+			add		t2, a2, s2
 	
 			la 		t0, mapa_hitbox			
 			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
@@ -143,10 +164,15 @@ CB.LOOP:		lb		t2, 0(t3)
 			li		t0, 1
 			beq 		t2, t0, CB.NAO_COLIDIU		# Se o byte do mapa de hitboxes != 1, colidiu
 			
-CB.COLIDIU: 		bgez		t2, COLISAO.VERDADEIRO
+CB.COLIDIU: 		# Zera a velocidade vertical
+			la		t0, velocidadeY_alucard
+			fcvt.s.w	ft0, zero
+			fsw		ft0, (t0)
+			
+			bgez		t2, COLISAO.VERDADEIRO
 			
 			mv 		a0, t2
-			jal 		TELA.TROCA
+			j 		TELA.TROCA
 	 		
 CB.NAO_COLIDIU:		addi 		t6, t6, 1
 			addi 		t3, t3, 1
@@ -156,25 +182,11 @@ CB.FIM:			li		a0, 0
 			ret
 	
 # Checa colisão acima do personagem
+# Param  a1 = Posição X do personagem relativa ao mapa
+# Param  a2 = Posição Y do personagem relativa ao mapa
 # Return a0, 1 = Colidiu
-COLISAO.CIMA:		# Calcula coordenadas inicais da hitbox do persongem
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
-			la 		t3, horizontal_alucard
-			lw 		t3, (t3)
-			li		t4, ALUCARD.HITBOX_OFFSET.X
-			add 		t3, t3, t4
-			la 		t4, vertical_alucard
-			lw 		t4, (t4)
-			li		t5, ALUCARD.HITBOX_OFFSET.Y
-			add 		t4, t4, t5				
-	
-			# 11 = mapa.x + horizontal_char + char.hitbox_offset.x = X do personagem relativo ao mapa
-			add 		t1, t1, t3			
-			# t2 = mapa.y + vertical_char + char.hitbox_offset.y = Y do personagem relativo ao mapa
-			add 		t2, t2, t4
+COLISAO.CIMA:		mv		t1, a1
+			add		t2, a2, s2
 			
 			la 		t0, mapa_hitbox			
 			lw		t3, 0(t0)			# Endereço do mapa de hitboxes da tela atual
@@ -201,7 +213,7 @@ CC.NAO_COLIDIU:		li 		a0, 0
 CC.COLIDIU:		beqz		t2, COLISAO.VERDADEIRO
 			
 			mv 		a0, t2
-			jal 		TELA.TROCA
+			j 		TELA.TROCA
 		
 # Retorna verdadeiro
 COLISAO.VERDADEIRO:	li		a0, 1

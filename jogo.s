@@ -65,7 +65,7 @@ LOOP_JOGO:		csrr 		t0, 3073
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
-MAPA.ATUALIZA:		mv		a0, s9
+MAPA.RENDER:		mv		a0, s9
 			li		a1, 0		
 			li 		a2, 0
 			la		t1, mapa.imagem.largura
@@ -76,33 +76,29 @@ MAPA.ATUALIZA:		mv		a0, s9
 			li 		a7, MAPA.ALTURA
 			jal		RENDER
 
+			jal 		FISICA
+			# Retorna booleanos (1 = True, 0 = False)
+			#		a1 = Colisão à direita
+			#		a2 = Colisão à esquerda
+			#		a3 = Colisão acima
+			#		a4 = Colisão abaixo
+
 # Atualiza a posição da personagem 	
-ALUCARD.ATUALIZA:	la	 	t1, velocidadeY_alucard
-			flw 		ft1, (t1)
-			loadw(t2, vertical_alucard)
-			fcvt.s.w 	ft2, t2
-			fadd.s 		ft3, ft2, ft1
-			fcvt.w.s 	s1, ft3				# s1 = Nova posição Y
-			
-			la 		t2, GRAVIDADE
-			flw 		ft0, (t2)
-			fadd.s 		fs2, ft1, ft0			
-			fcvt.w.s	s2, fs2				# s2 = Nova velocidade Y = velocidade + gravidade
-			
-			loadb(t1, socando)
+ALUCARD.ATUALIZA:	loadb(t1, socando)
 			bnez 		t1, ALUCARD.SOCANDO
 			loadb(t1, pulando)
 			bnez 		t1, ALUCARD.PULANDO
 			loadb(t1, moveX)
 			bgtz 		t1, ALUCARD.CORRENDO.DIREITA
+			
 			bltz 		t1, ALUCARD.CORRENDO.ESQUERDA
 			
-ALUCARD.PARADO:		jal 		COLISAO.BAIXO			# Checa se colidiu com o chão
-			bnez 		a0, LP.COLIDIU.BAIXO
+ALUCARD.PARADO:		bnez 		a4, LP.COLIDIU.BAIXO		# Checa se colidiu com o chão
+			
 						
 LP.MOVE.MAPA:		la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 2			# desce 2 pixels
+			add 		t2, t2, s2			# desce 2 pixels
 			la 		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LP.MOVE.CHAR		# Se passar do Limite inferior do mapa, move o personagem ao invés do mapa
@@ -113,7 +109,7 @@ LP.MOVE.MAPA:		la 		t1, mapa.y
 LP.MOVE.CHAR:		# Movimenta o personagem em Y
 			la		t0, vertical_alucard
 			lw		t1, 0(t0)
-			addi 		t1, t1, 3
+			add 		t1, t1, s2
 			sw		t1, 0(t0)
 					
 LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
@@ -155,8 +151,7 @@ ALUCARD.PULANDO:		# Atualiza a posição Y
 			bnez		t1, LPU.SUBINDO
 			
 LPU.DESCENDO:		# Checa se já caiu no chão
-			jal 		COLISAO.BAIXO
-			beqz 		a0, LPU.MOVE_Y
+			beqz 		a4, LPU.MOVE_Y
 			
 			saveb(zero, pulando)
 			# Salva nova velocidade Y
@@ -165,8 +160,7 @@ LPU.DESCENDO:		# Checa se já caiu no chão
 			j 		LPU.ATUALIZA_X	
 				
 LPU.SUBINDO:		# Checa se bateu no teto
-			jal 		COLISAO.CIMA
-			beqz 		a0, LPU.MOVE_Y
+			beqz 		a3, LPU.MOVE_Y
 			
 			# Salva nova velocidade Y
 			la 		t1, velocidadeY_alucard
@@ -176,10 +170,7 @@ LPU.SUBINDO:		# Checa se bateu no teto
 LPU.MOVE_Y:		# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, 0(t1)
-			la 		t3, velocidadeY_alucard
-			flw 		ft1, 0(t3)
-			fcvt.w.s	t3, ft1
-			add 		t2, t2, t3
+			add 		t2, t2, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
@@ -199,24 +190,17 @@ LPU.MOVE_Y:		# Movimenta o mapa em Y
 LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			la		t0, vertical_alucard
 			lw		t1, 0(t0)
-			la 		t3, velocidadeY_alucard
-			flw 		ft1, 0(t3)
-			fcvt.w.s	t3, ft1
-			add 		t1, t1, t3
+			add 		t1, t1, s2
 			sw		t1, 0(t0)	
 	
 															
 # Atualiza a posição X
-LPU.ATUALIZA_X:		# Salva nova velocidade Y
-			la 		t1, velocidadeY_alucard
-			fsw		fs2, (t1)
-			loadb(t1, moveX)
+LPU.ATUALIZA_X:		loadb(t1, moveX)
 			beqz 		t1, LPU.PARADO
 			bgtz 		t1, LPU.DIREITA
 
-LPU.ESQUERDA:		# Testa colisão a esquerda
-			jal 		COLISAO.ESQUERDA			
-			bnez 		a0, LPU.PARADO	
+LPU.ESQUERDA:		# Testa colisão a esquerda			
+			bnez 		a2, LPU.PARADO	
 			 
 			
 			la 		t1, mapa.x
@@ -243,8 +227,7 @@ LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_alucard
 			j 		LPU.PARADO
 			
 LPU.DIREITA:		# Calcula colisão
-			jal 		COLISAO.DIREITA
-			bnez 		a0, LPU.PARADO				# Se bateu em algo, não move
+			bnez 		a1, LPU.PARADO				# Se bateu em algo, não move
 								
 			la	 	t1, mapa.x
 			lhu 		t2, (t1)
@@ -299,8 +282,7 @@ LPU.SENTIDO.DIREITA:
 
 # LCD			
 ALUCARD.CORRENDO.DIREITA:	# Calcula colisão
-			jal 		COLISAO.DIREITA
-			bnez 		a0, LCD.COLIDIU
+			bnez 		a1, LCD.COLIDIU
 								
 LCD.MOVE.MAPA:		# Se tiver chegado no final do mapa OU o personagem está à esquerda do centro da tela, move o personagem
 			# Se não, move a tela/mapa
@@ -324,14 +306,13 @@ LCD.MOVE.CHAR:		la 		t1, horizontal_alucard
 			addi 		t2, t2, 2
 			sw 		t2, 0(t1)
 			
-LCD.COLIDIU:		jal 		COLISAO.BAIXO
-			bnez 		a0, LCD.COLIDIU.BAIXO		
+LCD.COLIDIU:		bnez 		a4, LCD.COLIDIU.BAIXO		
 		
 LCD.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 3			# desce 2 pixels
+			add 		t2, t2, s2			# desce 2 pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCD.MOVE_Y.CHAR		# Se chegou ao limite inferior do mapa, move o personagem ao invés do mapa
@@ -342,7 +323,7 @@ LCD.MOVE_Y.MAPA:
 LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			la		t0, vertical_alucard
 			lw		t1, 0(t0)
-			addi 		t1, t1, 3
+			add 		t1, t1, s2
 			sw		t1, 0(t0)
 			
 LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
@@ -375,9 +356,8 @@ LCD.NAO_RESETA:
 			li 		a7, ALUCARD.ALTURA
 			j 		ALUCARD.RENDER
 # LCE	
-ALUCARD.CORRENDO.ESQUERDA:# Calcula colisão
-			jal 		COLISAO.ESQUERDA
-			bnez 		a0, LCE.COLIDIU 
+ALUCARD.CORRENDO.ESQUERDA:# checa colisão
+			bnez 		a2, LCE.COLIDIU 
 
 ALUCARD.MOVE.MAPA:	# Se tiver chegado no inicio do mapa OU o personagem está à direita do centro da tela, move o personagem
 			# Se não, move a tela/mapa		 					 		
@@ -401,14 +381,14 @@ LCE.MOVE.CHAR:		la 		t1, horizontal_alucard
 			addi 		t2, t2, -2
 			sw 		t2, 0(t1)
 			
-LCE.COLIDIU:		jal 		COLISAO.BAIXO
-			bnez 		a0, LCE.COLIDIU.BAIXO
+LCE.COLIDIU:		# Checa colisão baixo 
+			bnez 		a4, LCE.COLIDIU.BAIXO
 
 LCE.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, (t1)
-			addi 		t2, t2, 3			# desce 2 pixels
+			add 		t2, t2, s2			# desce 2 pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCE.MOVE_Y.CHAR		# Se tiver chegado no limite inferior do mapa, move o personagem ao invés do mapa
@@ -419,7 +399,7 @@ LCE.MOVE_Y.MAPA:
 LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			la		t0, vertical_alucard
 			lw		t1, 0(t0)
-			addi 		t1, t1, 3
+			add 		t1, t1, s2
 			sw		t1, 0(t0)
 			
 LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
@@ -452,17 +432,13 @@ LCE.NAO_RESETA:
 			j		ALUCARD.RENDER	
 
 # LS	
-ALUCARD.SOCANDO:		# Testa colisão abaixo
-			jal 		COLISAO.BAIXO
-			bnez		a0, LS.COLIDIU.BAIXO		
+ALUCARD.SOCANDO:	# checa colisão abaixo
+			bnez		a4, LS.COLIDIU.BAIXO		
 	
 LS.MOVE_Y:		# Movimenta o mapa em Y
 			la 		t1, mapa.y
 			lhu 		t2, 0(t1)
-			la 		t3, velocidadeY_alucard
-			flw 		ft1, 0(t3)
-			fcvt.w.s	t3, ft1
-			add 		t2, t2, t3
+			add 		t2, t2, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
@@ -482,16 +458,10 @@ LS.MOVE_Y:		# Movimenta o mapa em Y
 LS.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			la		t0, vertical_alucard
 			lw		t1, 0(t0)
-			la 		t3, velocidadeY_alucard
-			flw 		ft1, 0(t3)
-			fcvt.w.s	t3, ft1
-			add 		t1, t1, t3
+			add 		t1, t1, s2
 			sw		t1, 0(t0)	
 			
-LS.COLIDIU.BAIXO:	# Salva nova velocidade Y
-			la 		t1, velocidadeY_alucard
-			fsw		fs2, (t1)
-			# Gera os valores para renderizar
+LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			loadw(a1, horizontal_alucard)					# X na tela
 			loadw(a2, vertical_alucard)					# Y na tela
