@@ -12,6 +12,9 @@ TELA.TROCA:		li		t0, -1
 			li 		t0, -4
 			beq		a0, t0, TELA_3.PARA.TELA_2 
 			
+			li		t0, -7
+			beq		a0, t0, TELA_2.PARA.TELA_10
+			
 			li		t0, -5
 			beq 		a0, t0, TELA_3.PARA.TELA_4
 			
@@ -32,7 +35,21 @@ TELA.TROCA:		li		t0, -1
 			
 			li		t0, -16
 			beq		a0, t0, TELA_6.PARA.TELA_5
-
+			
+			li		t0, -10
+			beq		a0, t0, TELA_4.PARA.TELA_7 
+			
+			li		t0, -18
+			beq		a0, t0, TELA_7.PARA.TELA_4
+			
+			li		t0, -17
+			beq		a0, t0, TELA_7.PARA.TELA_10
+			
+			li 		t0, -12
+			beq		a0, t0, TELA_10.PARA.TELA_7
+			
+			li		t0, -13
+			beq		a0, t0, TELA_10.PARA.TELA_2
 
 # Configurações para mudar da tela 1 para 2
 TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
@@ -150,6 +167,46 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			sb		zero, (t0)
 			
 			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 2 para 10
+TELA_2.PARA.TELA_10:	
+			jal		CONFIG.TELA_10
+			
+			la 		t0, mapa.x
+			li		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, mapa.y
+			li 		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, horizontal_alucard
+			li		t1, 20
+			sw		t1, (t0)
+			
+			la		t0, vertical_alucard
+			li		t1, 95
+			sw		t1, (t0)
+			
+			la		t0, moveX
+			sb		zero, (t0)
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			la		t0, velocidadeY_alucard
+			fcvt.s.w 	ft1, zero
+			fsw		ft1, (t0)
+			
+			la		t0, sentido
+			li		t1, 1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+	
+			tail		LOOP_JOGO
+
 
 # Configurações para mudar da tela 3 para 2
 TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
@@ -460,6 +517,201 @@ TELA_6.PARA.TELA_5:
 	
 			tail		LOOP_JOGO
 
+# Configurações ao mudar da tela 4 para 7
+TELA_4.PARA.TELA_7:	
+			jal		CONFIG.TELA_7
+			
+			la 		t0, mapa.x
+			li		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, mapa.y
+			li 		t1, 528
+			sh		t1, 0(t0)
+			
+			la		t0, horizontal_alucard
+			li		t1, 20
+			sw		t1, (t0)
+			
+			la		t0, vertical_alucard
+			li		t1, 70
+			sw		t1, (t0)
+			
+			la		t0, moveX
+			sb		zero, (t0)
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			la		t0, velocidadeY_alucard
+			fcvt.s.w 	ft1, zero
+			fsw		ft1, (t0)
+			
+			la		t0, sentido
+			li		t1, 1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+	
+			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 7 para 4
+TELA_7.PARA.TELA_4:	
+			jal		CONFIG.TELA_4
+			
+			la 		t0, mapa.x
+			li		t1, 704
+			sh		t1, 0(t0)
+			
+			la		t0, mapa.y
+			li 		t1, 222
+			sh		t1, 0(t0)
+			
+			la		t0, horizontal_alucard
+			li		t1, 220
+			sw		t1, (t0)
+			
+			la		t0, vertical_alucard
+			li		t1, 90
+			sw		t1, (t0)
+			
+			la		t0, moveX
+			sb		zero, (t0)
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			la		t0, velocidadeY_alucard
+			fcvt.s.w 	ft1, zero
+			fsw		ft1, (t0)
+			
+			la		t0, sentido
+			li		t1, -1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+	
+			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 7 para 10
+TELA_7.PARA.TELA_10:	
+			jal		CONFIG.TELA_10
+			
+			la 		t0, mapa.x
+			li		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, mapa.y
+			li 		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, horizontal_alucard
+			li		t1, 220
+			sw		t1, (t0)
+			
+			la		t0, vertical_alucard
+			li		t1, 95
+			sw		t1, (t0)
+			
+			la		t0, moveX
+			sb		zero, (t0)
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			la		t0, velocidadeY_alucard
+			fcvt.s.w 	ft1, zero
+			fsw		ft1, (t0)
+			
+			la		t0, sentido
+			li		t1, -1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+	
+			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 10 para 7
+TELA_10.PARA.TELA_7:	
+			jal		CONFIG.TELA_7
+			
+			la 		t0, mapa.x
+			li		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, mapa.y
+			li 		t1, 528
+			sh		t1, 0(t0)
+			
+			la		t0, horizontal_alucard
+			li		t1, 220
+			sw		t1, (t0)
+			
+			la		t0, vertical_alucard
+			li		t1, 75
+			sw		t1, (t0)
+			
+			la		t0, moveX
+			sb		zero, (t0)
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			la		t0, velocidadeY_alucard
+			fcvt.s.w 	ft1, zero
+			fsw		ft1, (t0)
+			
+			la		t0, sentido
+			li		t1, -1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+	
+			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 10 para 2
+TELA_10.PARA.TELA_2:	
+			jal		CONFIG.TELA_2
+			
+			la 		t0, mapa.x
+			li		t1, 447
+			sh		t1, 0(t0)
+			
+			la		t0, mapa.y
+			li 		t1, 0
+			sh		t1, 0(t0)
+			
+			la		t0, horizontal_alucard
+			li		t1, 205
+			sw		t1, (t0)
+			
+			la		t0, vertical_alucard
+			li		t1, 95
+			sw		t1, (t0)
+			
+			la		t0, moveX
+			sb		zero, (t0)
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			la		t0, velocidadeY_alucard
+			fcvt.s.w 	ft1, zero
+			fsw		ft1, (t0)
+			
+			la		t0, sentido
+			li		t1, -1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+	
+			tail		LOOP_JOGO
+
 
 # Configuracoes ao iniciar o jogo
 config_tela_1:		jal		CONFIG.TELA_1
@@ -655,7 +907,7 @@ CONFIG.TELA_5:		la		t0, TELA.DESCRITORES
 			
 			ret
 
-# Constantes ao mudar para tela 5
+# Constantes ao mudar para tela 6
 CONFIG.TELA_6:		la		t0, TELA.DESCRITORES
 			lw		s9, 20(t0)
 			
@@ -686,6 +938,76 @@ CONFIG.TELA_6:		la		t0, TELA.DESCRITORES
 			
 			la 		t0, mapa_hitbox
 			la 		t1, tela_6_hitboxes
+			sw		t1, 0(t0)
+			
+			ret
+
+# Constantes para tela 7
+CONFIG.TELA_7:		la		t0, TELA.DESCRITORES
+			lw		s9, 24(t0)
+			
+			
+			la		t1, mapa.imagem.largura
+			li 		t2, T7.LARGURA
+			sh 		t2, 0(t1)
+		
+			la		t1, mapa.hitbox.largura 
+			li 		t2, T7.LARGURA
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.max.x
+			li 		t2, T7.MAX.X
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.min.x
+			li		t2, T7.MIN.X
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.max.y
+			li		t2, T7.MAX.Y
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.min.y
+			li		t2, T7.MIN.Y
+			sh		t2, 0(t1)
+			
+			la 		t0, mapa_hitbox
+			la 		t1, tela_7_hitboxes
+			sw		t1, 0(t0)
+			
+			ret
+
+# Constantes para tela 10
+CONFIG.TELA_10:		la		t0, TELA.DESCRITORES
+			lw		s9, 28(t0)
+			
+			
+			la		t1, mapa.imagem.largura
+			li 		t2, T10.LARGURA
+			sh 		t2, 0(t1)
+		
+			la		t1, mapa.hitbox.largura 
+			li 		t2, T10.LARGURA
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.max.x
+			li 		t2, T10.MAX.X
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.min.x
+			li		t2, T10.MIN.X
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.max.y
+			li		t2, T10.MAX.Y
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.min.y
+			li		t2, T10.MIN.Y
+			sh		t2, 0(t1)
+			
+			la 		t0, mapa_hitbox
+			la 		t1, tela_10_hitboxes
 			sw		t1, 0(t0)
 			
 			ret

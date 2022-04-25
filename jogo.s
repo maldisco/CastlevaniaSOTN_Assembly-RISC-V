@@ -60,13 +60,21 @@
 			ecall
 			sw		a0, 20(t0)
 			
-			# Carrega o arquivo da sexta tela do jogo
+			# Carrega o arquivo da setima tela do jogo
 			la		a0, tela7
 			li		a1, 0
 			li		a2, 0
 			li		a7, 1024
 			ecall
 			sw		a0, 24(t0)
+			
+			# Carrega o arquivo da decima tela do jogo
+			la		a0, tela10
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 28(t0)
 			
 			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
 			jal		OST.SETUP
