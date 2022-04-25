@@ -3,6 +3,13 @@
 # - Vida
 # - Arma equipada 
 
+# ATENÇÃO=============================
+# IDÉIA PARA COLOCAR O HP NA TELA
+# SPRITE COM OS ALGARISMOS 0-9
+# PEGA O HP ATUAL // 10 -> PRIMEIRO DIGITO
+# PEGA O HP ATUAL % 10  -> SEGUNDO DIGITO
+
+
 HUD.RENDER:		addi		sp, sp, -4
 			sw		ra, (sp)
 			

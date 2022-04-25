@@ -1,7 +1,8 @@
 
+
 #  Retorna o endereço da frame atual para um registrador escolhido	
 .macro frame_address(%reg)
-loadw(%reg,frame_atual)
+loadw(%reg,frame_atual)		# PARA DE USAR ESSA MEMORIA
 li t0,0xff0
 add %reg,t0,%reg
 slli %reg,%reg,20

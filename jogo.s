@@ -93,7 +93,11 @@
 			# S10 = Descritor do arquivo de sprites do alucard
 			# S9 = Descritor do arquivo da tela atual
 			# S8 = Descritor do arquivo de sprites da HUD
-	
+			# S7 = Frame atual
+			# OW, COMEÇA A USAR A VELOCIDADEY COMO UM REGISTRADOR FLOAT
+			# PENSA NAS POSIÇÕES DO MAPA E PERSONAGEM TBM
+			# E NA SPRITE ATUAL			
+
 LOOP_JOGO:		csrr 		t0, 3073
 			sub 		t0, t0, s11
 			li 		t1, 16
