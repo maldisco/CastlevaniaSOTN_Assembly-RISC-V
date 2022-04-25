@@ -11,13 +11,14 @@
 			ecall
 			mv 		s10, a0 		# Salva em s10 
 			
+			la		t0, TELA.DESCRITORES
 			# Carrega o arquivo da primeira tela do jogo
 			la 		a0, tela1
 			li		a1, 0
 			li		a2, 0
 			li 		a7, 1024
 			ecall
-			mv 		s8, a0			# Salva em s8
+			sw		a0, 0(t0)		
 			
 			# Carrega o arquivo da segunda tela do jogo
 			la		a0, tela2
@@ -25,7 +26,7 @@
 			li		a2, 0
 			li		a7, 1024
 			ecall
-			mv		s7, a0			# Salva em s7
+			sw		a0, 4(t0)		
 			
 			# Carrega o arquivo da terceira tela do jogo
 			la		a0, tela3
@@ -33,7 +34,7 @@
 			li		a2, 0
 			li		a7, 1024
 			ecall
-			mv		s6, a0			# Salva em s6
+			sw		a0, 8(t0)		
 			
 			# Carrega o arquivo da quarta tela do jogo
 			la		a0, tela4
@@ -41,7 +42,31 @@
 			li		a2, 0
 			li		a7, 1024
 			ecall
-			mv		s5, a0			# Salva em s5
+			sw		a0, 12(t0)		
+			
+			# Carrega o arquivo da quinta tela do jogo
+			la		a0, tela5
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 16(t0)		
+			
+			# Carrega o arquivo da sexta tela do jogo
+			la		a0, tela6
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 20(t0)
+			
+			# Carrega o arquivo da sexta tela do jogo
+			la		a0, tela7
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 24(t0)
 			
 			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
 			jal		OST.SETUP
@@ -54,6 +79,8 @@
 			# S8 = Descritor do arquivo da tela 1
 			# S7 = Descritor do arquivo da tela 2
 			# S6 = Descritor do arquivo da tela 3
+			# S5 = Descritor do arquivo da tela 4
+			# S4 = Descritor do arquivo da tela 5
 	
 LOOP_JOGO:		csrr 		t0, 3073
 			sub 		t0, t0, s11
@@ -445,12 +472,7 @@ LS.MOVE_Y:		# Movimenta o mapa em Y
 			
 			la		t0, mapa.min.y
 			lhu		t3, 0(t0)
-			blt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa
-			
-			la		t0, vertical_alucard		# Se o personagem está acima da metade da tela, move o personagem ao invés do mapa
-			lw		t3, (t0)	
-			li 		t4, 130
-			blt		t3, t4, LS.MOVE_Y.CHAR		
+			blt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
 												
 			sh		t2, (t1)			# Se não, move mapa
 			j		LS.COLIDIU.BAIXO

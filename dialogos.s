@@ -19,7 +19,7 @@ D1.LOOP:		li		a1, 20			# X na VGA
 			li 		a2, 140			# Y na VGA
 			li		a3, 1120		# Largura da imagem
 			li 		a4, 280	
-			li 		a7, 80
+			li 		a7, 79
 			mv		a6, s3		
 			troca_tela()
 			frame_address(a5)
