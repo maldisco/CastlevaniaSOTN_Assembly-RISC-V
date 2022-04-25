@@ -92,6 +92,7 @@ CD.LOOP:		lb 		t1, 0(t2)
 			
 CD.COLIDIU: 		beqz		t1, COLISAO.VERDADEIRO		# Se for = 0, colidiu
 			
+			addi		sp, sp, 4
 			mv 		a0, t1			
 			j 		TELA.TROCA			# Se for < 0, trocou de tela
 	 		
@@ -129,6 +130,7 @@ CE.LOOP:		lb 		t1, 0(t2)
 			
 CE.COLIDIU: 		beqz		t1, COLISAO.VERDADEIRO		# Se for = 0, colidiu
 			
+			addi		sp, sp, 4
 			mv 		a0, t1			
 			j 		TELA.TROCA			# Se for < 0, trocou de tela
 	 		
@@ -171,6 +173,7 @@ CB.COLIDIU: 		# Zera a velocidade vertical
 			
 			bgez		t2, COLISAO.VERDADEIRO
 			
+			addi		sp, sp, 4
 			mv 		a0, t2
 			j 		TELA.TROCA
 	 		
@@ -212,6 +215,7 @@ CC.NAO_COLIDIU:		li 		a0, 0
 			 			 			 
 CC.COLIDIU:		beqz		t2, COLISAO.VERDADEIRO
 			
+			addi		sp, sp, 4
 			mv 		a0, t2
 			j 		TELA.TROCA
 		

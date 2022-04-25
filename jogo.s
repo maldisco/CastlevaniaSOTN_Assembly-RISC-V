@@ -11,6 +11,14 @@
 			ecall
 			mv 		s10, a0 		# Salva em s10 
 			
+			# Carrega arquivo de sprites da HUD
+			la		a0, hud
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			mv		s8, a0			# Salva em s8
+			
 			la		t0, TELA.DESCRITORES
 			# Carrega o arquivo da primeira tela do jogo
 			la 		a0, tela1
@@ -82,13 +90,9 @@
 			
 			# ===================== NÃO DEVE MUDAR ===============================
 			# S11 = Tempo da ultima atualizacao de tela
-			# S10 = Descritor do arquivo de sprites do Luffy
+			# S10 = Descritor do arquivo de sprites do alucard
 			# S9 = Descritor do arquivo da tela atual
-			# S8 = Descritor do arquivo da tela 1
-			# S7 = Descritor do arquivo da tela 2
-			# S6 = Descritor do arquivo da tela 3
-			# S5 = Descritor do arquivo da tela 4
-			# S4 = Descritor do arquivo da tela 5
+			# S8 = Descritor do arquivo de sprites da HUD
 	
 LOOP_JOGO:		csrr 		t0, 3073
 			sub 		t0, t0, s11
@@ -521,6 +525,8 @@ LS.SENTIDO.DIREITA:
 
 # Chama a função de renderizar o personagem
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
+
+			jal 		HUD.RENDER
 			
 			atualiza_tela()							# Atualiza a tela para o usuário ver as atualizações
 			
@@ -535,3 +541,4 @@ ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 .include "render.s"
 .include "ost.s"
 .include "dialogos.s"
+.include "hud.s"

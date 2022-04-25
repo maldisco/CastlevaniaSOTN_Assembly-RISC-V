@@ -34,12 +34,8 @@ ENTRADA.RET:		ret
 PARA:			loadb(t1, pulando)
 			bnez 		t1, NAO_PODE_PARAR	
 			loadb(t1, moveX)
-			li 		t2, 1
-			bgtz 		t1, PARA.SENTIDO.DIREITA
-			li 		t2, -1
-PARA.SENTIDO.DIREITA:	li 		t1, 0
+			li 		t1, 0
 			saveb(t1, moveX)
-			saveb(t2, sentido)
 NAO_PODE_PARAR:		ret
 		
 		
