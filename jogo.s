@@ -84,8 +84,13 @@
 			ecall
 			sw		a0, 28(t0)
 			
-			li		s7, 0
+			li		s7, 0				# Frame atual
+			
 			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
+			
+			la		t0, GRAVIDADE
+			flw		fs1, (t0)			# Aceleração da gravidade (constante)
+			
 			jal		OST.SETUP
 			jal 		config_tela_1	
 			

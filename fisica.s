@@ -6,9 +6,7 @@
 FISICA:			addi		sp, sp, -4
 			sw		ra, (sp)
 
-			la 		t2, GRAVIDADE
-			flw 		ft0, (t2)
-			fadd.s 		fs2, fs2, ft0			# Incrementa velocidade vertical
+			fadd.s 		fs2, fs2, fs1			# Incrementa velocidade vertical (FSI = gravidade)
 			fcvt.w.s	s2, fs2				# s2 = Nova velocidade Y = velocidade + gravidade
 			
 			loadw(t2, vertical_alucard)
