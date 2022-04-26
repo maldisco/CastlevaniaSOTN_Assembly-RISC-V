@@ -100,11 +100,16 @@
 			# S9 = Descritor do arquivo da tela atual
 			# S8 = Descritor do arquivo de sprites da HUD
 			# S7 = Frame atual
+			# S4 = Posição X do mapa
+			# S3 = Posição Y do mapa
 			# OW, COMEÇA A USAR A VELOCIDADEY COMO UM REGISTRADOR FLOAT
 			# PENSA NAS POSIÇÕES DO MAPA E PERSONAGEM TBM
 			# E NA SPRITE ATUAL	
 			# FS1 = Gravidade
 			# FS2 = VelocidadeY
+			
+			# ==================== CONSTANTE NO LOOP DE ATUALIZAÇÃO DO PERSONAGEM
+			# S2 = VelocidadeY (INTEIRO)
 							
 
 LOOP_JOGO:		csrr 		t0, 3073
@@ -148,14 +153,12 @@ ALUCARD.ATUALIZA:	loadb(t1, socando)
 ALUCARD.PARADO:		bnez 		a4, LP.COLIDIU.BAIXO		# Checa se colidiu com o chão
 			
 						
-LP.MOVE.MAPA:		la 		t1, mapa.y
-			lhu 		t2, (t1)
-			add 		t2, t2, s2			# desce 2 pixels
+LP.MOVE.MAPA:		add 		t2, s3, s2			# desce 2 pixels
 			la 		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LP.MOVE.CHAR		# Se passar do Limite inferior do mapa, move o personagem ao invés do mapa
 			
-			sh		t2, (t1)			# Se não, move mapa
+			mv		s3, t2				# Se não, move mapa
 			j 		LP.COLIDIU.BAIXO
 
 LP.MOVE.CHAR:		# Movimenta o personagem em Y
@@ -212,9 +215,7 @@ LPU.SUBINDO:		# Checa se bateu no teto
 			j 		LPU.ATUALIZA_X	
 				
 LPU.MOVE_Y:		# Movimenta o mapa em Y
-			la 		t1, mapa.y
-			lhu 		t2, 0(t1)
-			add 		t2, t2, s2
+			add 		t2, s3, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
@@ -228,7 +229,7 @@ LPU.MOVE_Y:		# Movimenta o mapa em Y
 			li 		t4, 130
 			bgt		t3, t4, LPU.MOVE_Y.CHAR		
 												
-			sh		t2, (t1)			# Se não, move mapa
+			mv		s3, t2				# Se não, move mapa
 			j		LPU.ATUALIZA_X
 					
 LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
@@ -354,14 +355,12 @@ LCD.COLIDIU:		bnez 		a4, LCD.COLIDIU.BAIXO
 		
 LCD.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
-			la 		t1, mapa.y
-			lhu 		t2, (t1)
-			add 		t2, t2, s2			# desce 2 pixels
+			add 		t2, s3, s2			# desce velocidadeY pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCD.MOVE_Y.CHAR		# Se chegou ao limite inferior do mapa, move o personagem ao invés do mapa
 			
-			sh		t2, (t1)
+			mv		s3, t2				# Se não, move o mapa
 			j 		LCD.COLIDIU.BAIXO
 
 LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
@@ -430,14 +429,12 @@ LCE.COLIDIU:		# Checa colisão baixo
 
 LCE.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
-			la 		t1, mapa.y
-			lhu 		t2, (t1)
-			add 		t2, t2, s2			# desce 2 pixels
+			add 		t2, s3, s2			# desce 2 pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LCE.MOVE_Y.CHAR		# Se tiver chegado no limite inferior do mapa, move o personagem ao invés do mapa
 			
-			sh		t2, (t1)
+			mv		s3, t2
 			j 		LCE.COLIDIU.BAIXO
 
 LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
@@ -480,9 +477,7 @@ ALUCARD.SOCANDO:	# checa colisão abaixo
 			bnez		a4, LS.COLIDIU.BAIXO		
 	
 LS.MOVE_Y:		# Movimenta o mapa em Y
-			la 		t1, mapa.y
-			lhu 		t2, 0(t1)
-			add 		t2, t2, s2
+			add 		t2, s3, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
 			bgt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
@@ -491,10 +486,10 @@ LS.MOVE_Y:		# Movimenta o mapa em Y
 			lhu		t3, 0(t0)
 			blt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
 												
-			sh		t2, (t1)			# Se não, move mapa
+			mv		s3, t2			# Se não, move mapa
 			j		LS.COLIDIU.BAIXO
 					
-LS.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+LS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
 			la		t0, vertical_alucard
 			lw		t1, 0(t0)
 			add 		t1, t1, s2

@@ -15,8 +15,7 @@ FISICA:			addi		sp, sp, -4
 			# Calculo das posições do personagem relativas ao mapa
 			la 		t1, mapa.x
 			lh 		t1, (t1)
-			la 		t2, mapa.y
-			lh 		t2, (t2)
+			mv 		t2, s3
 			la 		t3, horizontal_alucard
 			lw 		t3, (t3)
 			li 		t4, ALUCARD.HITBOX_OFFSET.X

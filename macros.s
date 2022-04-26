@@ -41,8 +41,7 @@ lw %reg,(%reg)
 .macro offset_mapa(%reg)
 la t1, mapa.imagem.largura
 lhu t1, 0(t1)
-la t2, mapa.y
-lhu t2, 0(t2)
+mv t2, s3
 la t3, mapa.x
 lhu t3, 0(t3)
 mul t1, t1, t2

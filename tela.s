@@ -58,9 +58,7 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			li		t1, T2.X_INI
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, T2.Y_INI
-			sh		t1, 0(t0)
+			li 		s3, T2.Y_INI	
 			
 			la		t0, horizontal_alucard
 			li		t1, 110
@@ -97,9 +95,7 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			li		t1, 212
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 120
@@ -133,9 +129,7 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			li		t1, T3.X_INI
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, T3.Y_INI
-			sh		t1, 0(t0)
+			li 		s3, T3.Y_INI	
 			
 			la		t0, horizontal_alucard
 			li		t1, 240
@@ -169,10 +163,8 @@ TELA_2.PARA.TELA_10:
 			la 		t0, mapa.x
 			li		t1, 0
 			sh		t1, 0(t0)
-			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+		
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 20
@@ -207,9 +199,7 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			li		t1, 0
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 0
@@ -242,10 +232,8 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 			la 		t0, mapa.x
 			li		t1, T4.X_INI
 			sh		t1, 0(t0)
-			
-			la		t0, mapa.y
-			li 		t1, T4.Y_INI
-			sh		t1, 0(t0)
+		
+			li 		s3, T4.Y_INI
 			
 			la		t0, horizontal_alucard
 			li		t1, 0
@@ -280,9 +268,7 @@ TELA_3.PARA.TELA_5_CIMA:
 			li		t1, 191
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 220
@@ -317,9 +303,7 @@ TELA_3.PARA.TELA_5_BAIXO:
 			li		t1, 193
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 222
-			sh		t1, 0(t0)
+			li 		s3, 222
 			
 			la		t0, horizontal_alucard
 			li		t1, 225
@@ -354,9 +338,7 @@ TELA_5.PARA.TELA_3_BAIXO:
 			li		t1, T3.X_INI
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, T3.Y_INI
-			sh		t1, 0(t0)
+			li 		s3, T3.Y_INI
 			
 			la		t0, horizontal_alucard
 			li		t1, 10
@@ -391,9 +373,7 @@ TELA_5.PARA.TELA_3_CIMA:
 			li		t1, 0
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 236
-			sh		t1, 0(t0)
+			li 		s3, 236
 			
 			la		t0, horizontal_alucard
 			li		t1, 10
@@ -427,9 +407,7 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			li		t1, T6.X_INI
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, T6.Y_INI
-			sh		t1, 0(t0)
+			li 		s3, T6.Y_INI
 			
 			la		t0, horizontal_alucard
 			li		t1, 223
@@ -464,9 +442,7 @@ TELA_6.PARA.TELA_5:
 			li		t1, 0
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 20
@@ -501,9 +477,7 @@ TELA_4.PARA.TELA_7:
 			li		t1, 0
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 528
-			sh		t1, 0(t0)
+			li 		s3, 528
 			
 			la		t0, horizontal_alucard
 			li		t1, 20
@@ -538,9 +512,7 @@ TELA_7.PARA.TELA_4:
 			li		t1, 704
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 222
-			sh		t1, 0(t0)
+			li 		s3, 222
 			
 			la		t0, horizontal_alucard
 			li		t1, 220
@@ -575,9 +547,7 @@ TELA_7.PARA.TELA_10:
 			li		t1, 0
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 220
@@ -612,9 +582,7 @@ TELA_10.PARA.TELA_7:
 			li		t1, 0
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 528
-			sh		t1, 0(t0)
+			li 		s3, 528
 			
 			la		t0, horizontal_alucard
 			li		t1, 220
@@ -649,9 +617,7 @@ TELA_10.PARA.TELA_2:
 			li		t1, 447
 			sh		t1, 0(t0)
 			
-			la		t0, mapa.y
-			li 		t1, 0
-			sh		t1, 0(t0)
+			li 		s3, 0
 			
 			la		t0, horizontal_alucard
 			li		t1, 205
@@ -686,10 +652,7 @@ config_tela_1:		jal		CONFIG.TELA_1
 			li		t1, T1.X_INI
 			sh		t1, 0(t0)
 	
-			la		t0, mapa.y
-			li 		t1, T1.Y_INI
-			sh		t1, 0(t0)
-
+			li 		s3, T1.Y_INI
 	
 			# Inicia velocidade Y como 0
 			fcvt.s.w	fs2, zero
