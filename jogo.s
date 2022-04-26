@@ -128,7 +128,8 @@ LOOP_JOGO:		csrr 		t0, 3073
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
 			xori 		s0, s0, 1				# Troca a frame para o usuário não ver as atualizações
-			#jal		OST.TOCA
+			jal		OST.TOCA
+			jal		OST.TOCA_2
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa

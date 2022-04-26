@@ -38,7 +38,7 @@ D1.POLL_LOOP:		li		t0, MMIO_set
 			
 			addi		t3, t3, 1
 			addi		t4, t4, 280
-			blt		t3, t3, D1.LOOP		# Se ainda não terminou o diálogo, volta pro loop
+			blt		t3, t2, D1.LOOP		# Se ainda não terminou o diálogo, volta pro loop
 			
 			lw		ra, (sp)
 			addi		sp, sp, 4
