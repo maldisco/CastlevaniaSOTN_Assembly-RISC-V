@@ -10,6 +10,11 @@ hud.atual:			.byte 0
 .eqv HUD.LARGURA		105
 .eqv HUD.ALTURA			35
 
+numeros:			.string "sprites/numeros.bin"
+.eqv NUMEROS.IMAGEM.LARGURA	80
+.eqv NUMEROS.LARGURA		8
+.eqv NUMEROS.ALTURA		12
+
 dialogo1:			.string "dialogos/dialogo1.bin"
 
 TELA.DESCRITORES:		.word 	0,0,0,0,0,0,0,0,0,0

@@ -3,7 +3,7 @@
 #  Retorna o endereço da frame atual para um registrador escolhido	
 .macro frame_address(%reg)
 li t0,0xff0
-add t0,t0,s7
+add t0,t0,s0
 slli %reg,t0,20
 .end_macro
 

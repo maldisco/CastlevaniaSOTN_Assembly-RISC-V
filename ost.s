@@ -15,10 +15,10 @@ OST_STATUS:		.word 0, 0
 .text
 
 # Define o estado inicial da soundtrack do jogo
-OST.SETUP:		la 		t0, DANCE_OF_PALES				# Carrega o endereço da musica
-			la 		t1, OST_STATUS					# Carrega o endereço do buffer do estado da musica
-			sw 		t0, 4(t1)					# Guarda na primeira word do estado o endereço da musica
-			sw 		zero,0(t1)					# Guarda zero no segundo estado (servirá para calcular o tempo da nota)
+OST.SETUP:		la 		t0, MEGALOVANIA				# Carrega o endereço da musica
+			la 		t1, OST_STATUS				# Carrega o endereço do buffer do estado da musica
+			sw 		t0, 4(t1)				# Guarda na primeira word do estado o endereço da musica
+			sw 		zero,0(t1)				# Guarda zero no segundo estado (servirá para calcular o tempo da nota)
 			
 			ret
 

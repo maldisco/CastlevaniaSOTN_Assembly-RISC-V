@@ -9,8 +9,6 @@ FISICA:			addi		sp, sp, -4
 			fadd.s 		fs2, fs2, fs1			# Incrementa velocidade vertical (FSI = gravidade)
 			fcvt.w.s	s2, fs2				# s2 = Nova velocidade Y = velocidade + gravidade
 			
-			add		s1, s2, s5			# s1 = Nova posição Y
-			
 			# Calculo das posições do personagem relativas ao mapa
 			mv 		t1, s4				# s4 = Posição X do mapa
 			mv 		t2, s3				# s3 = Posição Y do mapa

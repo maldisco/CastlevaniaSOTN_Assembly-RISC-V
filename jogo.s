@@ -19,6 +19,14 @@
 			ecall
 			mv		s8, a0			# Salva em s8
 			
+			# Carrega arquivo de sprites de numeros
+			la		a0, numeros
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			mv		s7, a0			# Salva em s7
+			
 			la		t0, TELA.DESCRITORES
 			# Carrega o arquivo da primeira tela do jogo
 			la 		a0, tela1
@@ -84,8 +92,9 @@
 			ecall
 			sw		a0, 28(t0)
 			
-			li		s7, 0				# Frame atual
-			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
+			li		s0, 0				# Frame atual
+			li		s1, 99				# HP do personagem
+			csrr 		s11, 3073			# Guarda tempo atual em s11 (usado para controle de FPS)
 
 			la		t0, GRAVIDADE
 			flw		fs1, (t0)			# Aceleração da gravidade (constante)
@@ -93,23 +102,24 @@
 			jal		OST.SETUP
 			jal 		config_tela_1	
 			
-			# ===================== NÃO DEVE MUDAR ===============================
-			# S11 = Tempo da ultima atualizacao de tela
-			# S10 = Descritor do arquivo de sprites do alucard
-			# S9 = Descritor do arquivo da tela atual
-			# S8 = Descritor do arquivo de sprites da HUD
-			# S7 = Frame atual
-			# S6 = Posição X do personagem
-			# S5 = Posição Y do personagem
-			# S4 = Posição X do mapa
-			# S3 = Posição Y do mapa
-			# 
-			# E NA SPRITE ATUAL	
-			# FS1 = Gravidade
-			# FS2 = VelocidadeY
-			
-			# ==================== CONSTANTE NO LOOP DE ATUALIZAÇÃO DO PERSONAGEM
-			# S2 = VelocidadeY (INTEIRO)
+			# # # # # # # # # # # # # # NÃO DEVE MUDAR # # # # # # # # # # # # #  #
+			# S11 = Tempo da ultima atualizacao de tela                           #
+			# S10 = Descritor do arquivo de sprites do alucard                    #
+			# S9 = Descritor do arquivo da tela atual                             #
+			# S8 = Descritor do arquivo de sprites da HUD                         #
+			# S7 = Descritor do arquivo de sprites de números                     #
+			# S6 = Posição X do personagem					      #
+			# S5 = Posição Y do personagem					      #
+			# S4 = Posição X do mapa					      #
+			# S3 = Posição Y do mapa					      #
+			# S1 = HP do personagem                                               #
+			# S0 = Frame atual						      #
+			# ------------------------------------------------------------------- #
+			# FS1 = Gravidade						      #
+			# FS2 = VelocidadeY						      #
+			# ==== CONSTANTE NO LOOP DE ATUALIZAÇÃO DO PERSONAGEM =============== #
+			# S2 = VelocidadeY (INTEIRO)					      #
+			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
 LOOP_JOGO:		csrr 		t0, 3073
@@ -117,7 +127,7 @@ LOOP_JOGO:		csrr 		t0, 3073
 			li 		t1, 16
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
-			xori 		s7, s7, 1				# Troca a frame para o usuário não ver as atualizações
+			xori 		s0, s0, 1				# Troca a frame para o usuário não ver as atualizações
 			#jal		OST.TOCA
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
@@ -272,7 +282,7 @@ LPU.DIREITA.MOVE.CHAR:	addi 		s6, s6, 2
 LPU.PARADO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
 			mv		a1, s6					# X na tela
-			mv		a2, s5				# Y na tela 
+			mv		a2, s5				    	# Y na tela 
 			li 		a3, ALUCARD.OFFSET			# Largura da imagem
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
@@ -480,7 +490,7 @@ ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 			jal 		HUD.RENDER
 			
 			li 		t0,FRAME_SELECT
-			sw 		s7,(t0)						# Atualiza a tela para o usuário ver as atualizações
+			sw 		s0,(t0)						# Atualiza a tela para o usuário ver as atualizações
 			
 			csrr		s11, 3073					# Guarda o horário da atualização de frame			
 			

@@ -2,23 +2,23 @@
 ENTRADA:		li		s11, MMIO_set
 			lw 		t1, (s11)			# carrega para t1 o estado do teclado
 			beqz 		t1, ENTRADA.RET	# se for igual a 0 (nada digitado), volta ao loop
-			li 		s0, MMIO_add			# carrega para s0 o endereço armazenando a tecla digitada
-			lw 		s0, (s0)			# carrega para s0 a tecla digitada
+			li 		t0, MMIO_add			# carrega para t0 o endereço armazenando a tecla digitada
+			lw 		t0, (t0)			# carrega para t0 a tecla digitada
 	
 			li 		t1, 'd'
-			beq 		s0, t1, DIREITA		# checa se a tecla 'D' foi apertada
+			beq 		t0, t1, DIREITA		# checa se a tecla 'D' foi apertada
 			
 			li 		t1, 'a'
-			beq 		s0, t1, ESQUERDA		# checa se a tecla 'A' foi apertada
+			beq 		t0, t1, ESQUERDA		# checa se a tecla 'A' foi apertada
 			
 			li 		t1, 'w'
-			beq 		s0, t1, PULA		# checa se a tecla 'W' foi apertada
+			beq 		t0, t1, PULA		# checa se a tecla 'W' foi apertada
 			
 			li		t1, 's'
-			beq 		s0, t1, PARA		# checa se a tecla 'S' foi apertada
+			beq 		t0, t1, PARA		# checa se a tecla 'S' foi apertada
 			
 			li 		t1, 'z'
-			beq 		s0, t1, SOCA
+			beq 		t0, t1, SOCA
 		
 ENTRADA.RET:		ret
 		
