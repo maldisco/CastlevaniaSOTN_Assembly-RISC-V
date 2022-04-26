@@ -2,36 +2,9 @@
 
 #  Retorna o endereço da frame atual para um registrador escolhido	
 .macro frame_address(%reg)
-loadw(%reg,frame_atual)		# PARA DE USAR ESSA MEMORIA
 li t0,0xff0
-add %reg,t0,%reg
-slli %reg,%reg,20
-.end_macro
-
-#  Retorna o endereço da outra frame (não sendo mostrada) para um registrador escolhido
-.macro other_frame_address(%reg)
-loadw(%reg,frame_atual)
-xori %reg, %reg, 1
-li t0,0xff0
-add %reg,t0,%reg
-slli %reg,%reg,20
-.end_macro
-
-
-# Troca o estado da frame armazenado na memória 
-# PS: não troca a frame no bitmap		
-.macro troca_tela()
-loadw(t1,frame_atual)
-xori t1,t1,0x001
-savew(t1,frame_atual)
-.end_macro
-
-
-# Troca a frame no bitmap para o estado armazenado na memória
-.macro atualiza_tela()
-loadw(t1,frame_atual)
-li t0,FRAME_SELECT
-sw t1,(t0)
+add t0,t0,s7
+slli %reg,t0,20
 .end_macro
 
 # Salva na memória a word  de um registrador 

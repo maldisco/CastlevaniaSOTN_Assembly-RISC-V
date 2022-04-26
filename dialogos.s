@@ -21,10 +21,11 @@ D1.LOOP:		li		a1, 20			# X na VGA
 			li 		a4, 280	
 			li 		a7, 79
 			mv		a6, s3		
-			troca_tela()
+			xori 		s7, s7, 1		# S7 = Frame atual
 			frame_address(a5)
 			jal		RENDER
-			atualiza_tela()
+			li 		t0,FRAME_SELECT	
+			sw 		s7,(t0)			
 
 			# Para a execução enquanto o usuário não apertar nada
 D1.POLL_LOOP:		li		t0, MMIO_set

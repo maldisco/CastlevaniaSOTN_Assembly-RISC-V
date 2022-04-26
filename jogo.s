@@ -84,6 +84,7 @@
 			ecall
 			sw		a0, 28(t0)
 			
+			li		s7, 0
 			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
 			jal		OST.SETUP
 			jal 		config_tela_1	
@@ -103,7 +104,7 @@ LOOP_JOGO:		csrr 		t0, 3073
 			li 		t1, 16
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
-			troca_tela()						# Troca a tela para o usuário não ver as atualizações
+			xori 		s7, s7, 1				# Troca a frame para o usuário não ver as atualizações
 			#jal		OST.TOCA
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
@@ -532,7 +533,8 @@ ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 
 			jal 		HUD.RENDER
 			
-			atualiza_tela()							# Atualiza a tela para o usuário ver as atualizações
+			li 		t0,FRAME_SELECT
+			sw 		s7,(t0)						# Atualiza a tela para o usuário ver as atualizações
 			
 			csrr		s11, 3073					# Guarda o horário da atualização de frame			
 			

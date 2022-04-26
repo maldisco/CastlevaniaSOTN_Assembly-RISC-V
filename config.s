@@ -2,7 +2,6 @@
 .eqv FRAME_SELECT		0xff200604
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
-frame_atual:			.word 0
 
 hud:				.string "sprites/hud.bin"
 hud.offsets:			.word 0, 0, 0, 0, 107, 107, 107, 107, 214, 214, 214, 214, 321, 321, 321, 321, 428, 428, 428, 428, 535, 535, 535, 535, 642, 642, 642, 642
