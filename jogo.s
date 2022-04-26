@@ -97,7 +97,10 @@
 			# S7 = Frame atual
 			# OW, COMEÇA A USAR A VELOCIDADEY COMO UM REGISTRADOR FLOAT
 			# PENSA NAS POSIÇÕES DO MAPA E PERSONAGEM TBM
-			# E NA SPRITE ATUAL			
+			# E NA SPRITE ATUAL	
+			# FS1 = Gravidade
+			# FS2 = VelocidadeY
+							
 
 LOOP_JOGO:		csrr 		t0, 3073
 			sub 		t0, t0, s11
@@ -188,9 +191,7 @@ LP.SENTIDO.DIREITA:
 # LPU	
 ALUCARD.PULANDO:		# Atualiza a posição Y
 			fcvt.s.w 	ft0, zero
-			la 		t1, velocidadeY_alucard
-			flw 		ft1, 0(t1)
-			flt.s		t1, ft1, ft0			# t1 = 1 if ft1 < ft0 else 0
+			flt.s		t1, fs2, ft0			# t1 = 1 if ft1 < ft0 else 0
 					
 			bnez		t1, LPU.SUBINDO
 			
@@ -198,17 +199,11 @@ LPU.DESCENDO:		# Checa se já caiu no chão
 			beqz 		a4, LPU.MOVE_Y
 			
 			saveb(zero, pulando)
-			# Salva nova velocidade Y
-			la 		t1, velocidadeY_alucard
-			fsw		fs2, (t1)
 			j 		LPU.ATUALIZA_X	
 				
 LPU.SUBINDO:		# Checa se bateu no teto
 			beqz 		a3, LPU.MOVE_Y
 			
-			# Salva nova velocidade Y
-			la 		t1, velocidadeY_alucard
-			fsw		fs2, (t1)
 			j 		LPU.ATUALIZA_X	
 				
 LPU.MOVE_Y:		# Movimenta o mapa em Y

@@ -78,10 +78,8 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			li		t1, 1
 			sb		t1, (t0)
 			
-			la		t0, velocidadeY_alucard
 			li 		t1, -6		
-			fcvt.s.w 	ft1, t1	
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, t1				
 			
 			la		t0, sentido
 			li		t1, -1
@@ -117,9 +115,7 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard	
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -155,9 +151,7 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard	
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -194,9 +188,7 @@ TELA_2.PARA.TELA_10:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -233,9 +225,7 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard	
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -271,9 +261,7 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -310,9 +298,7 @@ TELA_3.PARA.TELA_5_CIMA:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -349,9 +335,7 @@ TELA_3.PARA.TELA_5_BAIXO:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -388,9 +372,7 @@ TELA_5.PARA.TELA_3_BAIXO:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard	
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -427,9 +409,7 @@ TELA_5.PARA.TELA_3_CIMA:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard	
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -465,9 +445,7 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard	
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -504,9 +482,7 @@ TELA_6.PARA.TELA_5:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -543,9 +519,7 @@ TELA_4.PARA.TELA_7:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, 1
@@ -582,9 +556,7 @@ TELA_7.PARA.TELA_4:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -621,9 +593,7 @@ TELA_7.PARA.TELA_10:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -660,9 +630,7 @@ TELA_10.PARA.TELA_7:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -699,9 +667,7 @@ TELA_10.PARA.TELA_2:
 			la		t0, pulando
 			sb		zero, (t0)
 			
-			la		t0, velocidadeY_alucard
-			fcvt.s.w 	ft1, zero
-			fsw		ft1, (t0)
+			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
 			li		t1, -1
@@ -726,9 +692,7 @@ config_tela_1:		jal		CONFIG.TELA_1
 
 	
 			# Inicia velocidade Y como 0
-			la 		t1, velocidadeY_alucard
-			fcvt.s.w	ft1, zero
-			fsw		ft1, (t1)
+			fcvt.s.w	fs2, zero
 			
 			# Dialogo inicial do jogo
 			# jal		DIALOGO_1.START

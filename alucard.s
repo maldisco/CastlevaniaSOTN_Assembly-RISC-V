@@ -29,8 +29,6 @@ alucard.hellfire.esquerda.offsets: 	.word 1368864,1368864,1368767,1368767,136867
 horizontal_alucard:			.word 120
 vertical_alucard:			.word 135
 
-velocidadeY_alucard:			.float 0
-
 # booleano para indicar se o personagem está em animação de pulo
 moveX:					.byte 0
 pulando:				.byte 0

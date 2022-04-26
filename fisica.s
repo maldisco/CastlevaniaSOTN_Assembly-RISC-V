@@ -6,13 +6,9 @@
 FISICA:			addi		sp, sp, -4
 			sw		ra, (sp)
 
-			la	 	t1, velocidadeY_alucard
-			flw 		ft1, (t1)
-			
 			la 		t2, GRAVIDADE
 			flw 		ft0, (t2)
-			fadd.s 		fs2, ft1, ft0	
-			fsw		fs2, (t1)			# Guarda nova velocidade Y		
+			fadd.s 		fs2, fs2, ft0			# Incrementa velocidade vertical
 			fcvt.w.s	s2, fs2				# s2 = Nova velocidade Y = velocidade + gravidade
 			
 			loadw(t2, vertical_alucard)
@@ -167,9 +163,7 @@ CB.LOOP:		lb		t2, 0(t3)
 			beq 		t2, t0, CB.NAO_COLIDIU		# Se o byte do mapa de hitboxes != 1, colidiu
 			
 CB.COLIDIU: 		# Zera a velocidade vertical
-			la		t0, velocidadeY_alucard
-			fcvt.s.w	ft0, zero
-			fsw		ft0, (t0)
+			fcvt.s.w	fs2, zero
 			
 			bgez		t2, COLISAO.VERDADEIRO
 			
