@@ -9,8 +9,7 @@ FISICA:			addi		sp, sp, -4
 			fadd.s 		fs2, fs2, fs1			# Incrementa velocidade vertical (FSI = gravidade)
 			fcvt.w.s	s2, fs2				# s2 = Nova velocidade Y = velocidade + gravidade
 			
-			loadw(t2, vertical_alucard)
-			add		s1, s2, t2			# s1 = Nova posição Y
+			add		s1, s2, s5			# s1 = Nova posição Y
 			
 			# Calculo das posições do personagem relativas ao mapa
 			mv 		t1, s4				# s4 = Posição X do mapa
@@ -18,8 +17,7 @@ FISICA:			addi		sp, sp, -4
 			mv		t3, s6				# s6 = Posição X do personagem
 			li 		t4, ALUCARD.HITBOX_OFFSET.X
 			add 		t3, t3, t4
-			la 		t4, vertical_alucard
-			lw 		t4, (t4)
+			mv		t4, s5				# s5 = Posição Y do personagem
 			li 		t5, ALUCARD.HITBOX_OFFSET.Y
 			add 		t4, t4, t5
 			add 		a1, t1, t3			 # X do personagem relativo ao mapa

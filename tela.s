@@ -55,14 +55,9 @@ TELA.TROCA:		li		t0, -1
 TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			
 			li		s4, T2.X_INI
-			
 			li 		s3, T2.Y_INI	
-			
 			li		s6, 110
-			
-			la		t0, vertical_alucard
-			li		t1, 150
-			sw		t1, (t0)
+			li		s5, 150
 			
 			la		t0, moveX
 			li		t1, -14
@@ -88,14 +83,9 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			
 			li		s4, 212
-			
 			li 		s3, 0
-			
 			li		s6, 120
-			
-			la		t0, vertical_alucard
-			li		t1, 30
-			sw		t1, (t0)
+			li		s5, 30
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -118,14 +108,9 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			
 			li		s4, T3.X_INI
-			
 			li 		s3, T3.Y_INI	
-			
 			li		s6, 240
-			
-			la		t0, vertical_alucard
-			li		t1, 115
-			sw		t1, (t0)
+			li		s5, 115
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -149,14 +134,9 @@ TELA_2.PARA.TELA_10:
 			jal		CONFIG.TELA_10
 			
 			li		s4, 0
-		
 			li 		s3, 0
-			
 			li		s6, 20
-			
-			la		t0, vertical_alucard
-			li		t1, 95
-			sw		t1, (t0)
+			li		s5, 95
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -180,14 +160,9 @@ TELA_2.PARA.TELA_10:
 TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			
 			li		s4, 0
-			
 			li 		s3, 0
-			
 			li		s6, 0
-			
-			la		t0, vertical_alucard
-			li		t1, 95
-			sw		t1, (t0)
+			li		s5, 95
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -210,14 +185,9 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 			
 			li		s4, T4.X_INI
-		
 			li 		s3, T4.Y_INI
-			
 			li		s6, 0
-			
-			la		t0, vertical_alucard
-			li		t1, 72
-			sw		t1, (t0)
+			li		s5, 72
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -241,14 +211,9 @@ TELA_3.PARA.TELA_5_CIMA:
 			jal		CONFIG.TELA_5
 			
 			li		s4, 191
-			
 			li 		s3, 0
-			
 			li		s6, 220
-			
-			la		t0, vertical_alucard
-			li		t1, 70
-			sw		t1, (t0)
+			li		s5, 70
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -272,14 +237,9 @@ TELA_3.PARA.TELA_5_BAIXO:
 			jal		CONFIG.TELA_5
 			
 			li		s4, 193
-			
 			li 		s3, 222
-			
 			li		s6, 225
-			
-			la		t0, vertical_alucard
-			li		t1, 100
-			sw		t1, (t0)
+			li		s5, 100
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -303,14 +263,9 @@ TELA_5.PARA.TELA_3_BAIXO:
 			jal		CONFIG.TELA_3
 			
 			li		s4, T3.X_INI
-			
 			li 		s3, T3.Y_INI
-			
 			li		s6, 10
-			
-			la		t0, vertical_alucard
-			li		t1, 115
-			sw		t1, (t0)
+			li		s5, 115
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -334,14 +289,9 @@ TELA_5.PARA.TELA_3_CIMA:
 			jal		CONFIG.TELA_3
 			
 			li		s4, 0
-			
 			li 		s3, 236
-			
 			li		s6, 10
-			
-			la		t0, vertical_alucard
-			li		t1, 90
-			sw		t1, (t0)
+			li		s5, 90
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -364,14 +314,9 @@ TELA_5.PARA.TELA_3_CIMA:
 TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			
 			li		s4, T6.X_INI
-			
 			li 		s3, T6.Y_INI
-			
 			li		s6, 223
-			
-			la		t0, vertical_alucard
-			li		t1, 88
-			sw		t1, (t0)
+			li		s5, 88
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -395,14 +340,9 @@ TELA_6.PARA.TELA_5:
 			jal		CONFIG.TELA_5
 			
 			li		s4, 0
-			
 			li 		s3, 0
-			
 			li		s6, 20
-			
-			la		t0, vertical_alucard
-			li		t1, 70
-			sw		t1, (t0)
+			li		s5, 70
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -426,14 +366,9 @@ TELA_4.PARA.TELA_7:
 			jal		CONFIG.TELA_7
 			
 			li		s4, 0
-			
 			li 		s3, 528
-			
 			li		s6, 20
-			
-			la		t0, vertical_alucard
-			li		t1, 70
-			sw		t1, (t0)
+			li		s5, 70
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -457,14 +392,9 @@ TELA_7.PARA.TELA_4:
 			jal		CONFIG.TELA_4
 			
 			li		s4, 704
-			
-			li 		s3, 222
-			
+			li		s3, 222
 			li		s6, 220
-			
-			la		t0, vertical_alucard
-			li		t1, 90
-			sw		t1, (t0)
+			li		s5, 90
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -488,14 +418,9 @@ TELA_7.PARA.TELA_10:
 			jal		CONFIG.TELA_10
 			
 			li		s4, 0
-			
 			li 		s3, 0
-			
 			li		s6, 220
-			
-			la		t0, vertical_alucard
-			li		t1, 95
-			sw		t1, (t0)
+			li		s5, 95
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -519,14 +444,9 @@ TELA_10.PARA.TELA_7:
 			jal		CONFIG.TELA_7
 			
 			li		s4, 0
-			
 			li 		s3, 528
-			
 			li		s6, 220
-			
-			la		t0, vertical_alucard
-			li		t1, 75
-			sw		t1, (t0)
+			li		s5, 75
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -550,14 +470,9 @@ TELA_10.PARA.TELA_2:
 			jal		CONFIG.TELA_2
 			
 			li		s4, 447
-			
 			li 		s3, 0
-			
 			li		s6, 205
-			
-			la		t0, vertical_alucard
-			li		t1, 95
-			sw		t1, (t0)
+			li		s5, 95
 			
 			la		t0, moveX
 			sb		zero, (t0)
@@ -580,9 +495,10 @@ TELA_10.PARA.TELA_2:
 # Configuracoes ao iniciar o jogo
 config_tela_1:		jal		CONFIG.TELA_1
 	
-			li		s4, T1.X_INI
-	
-			li 		s3, T1.Y_INI
+			li		s4, T1.X_INI			# s4 = Posição X do mapa
+			li 		s3, T1.Y_INI			# s3 = Posição Y do mapa
+			li		s6, 120				# s6 = Posição X do personagem
+			li		s5, 135				# s5 = Posição Y do personagem
 	
 			# Inicia velocidade Y como 0
 			fcvt.s.w	fs2, zero

@@ -104,7 +104,6 @@
 			# S4 = Posição X do mapa
 			# S3 = Posição Y do mapa
 			# 
-			# PENSA NAS POSIÇÕES DO MAPA E PERSONAGEM TBM
 			# E NA SPRITE ATUAL	
 			# FS1 = Gravidade
 			# FS2 = VelocidadeY
@@ -163,15 +162,12 @@ LP.MOVE.MAPA:		add 		t2, s3, s2			# desce 2 pixels
 			j 		LP.COLIDIU.BAIXO
 
 LP.MOVE.CHAR:		# Movimenta o personagem em Y
-			la		t0, vertical_alucard
-			lw		t1, 0(t0)
-			add 		t1, t1, s2
-			sw		t1, 0(t0)
+			add 		s5, s5, s2
 					
 LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10				# Descritor
 			mv		a1, s6				# X na tela
-			loadw(a2, vertical_alucard)			# Y na tela
+			mv		a2, s5				# Y na tela
 			li 		a3, ALUCARD.OFFSET		# Largura da imagem
 			li 		a4, ALUCARD.LARGURA		# Largura da sprite
 			frame_address(a5)				# Endereço da frame
@@ -192,8 +188,7 @@ LP.NAORESETA:
 			
 			la 		t2 alucard.parado.esquerda.offsets
 			
-LP.SENTIDO.DIREITA:
-			add 		t2, t2, t1
+LP.SENTIDO.DIREITA:	add 		t2, t2, t1
 			lw 		a6, (t2)			# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
 			j 		ALUCARD.RENDER
@@ -224,21 +219,15 @@ LPU.MOVE_Y:		# Movimenta o mapa em Y
 			la		t0, mapa.min.y
 			lhu		t3, 0(t0)
 			blt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa
-			
-			la		t0, vertical_alucard		# Se o personagem está acima da metade da tela, move o personagem ao invés do mapa
-			lw		t3, (t0)	
+							
 			li 		t4, 130
-			bgt		t3, t4, LPU.MOVE_Y.CHAR		
+			bgt		s5, t4, LPU.MOVE_Y.CHAR		# Se o personagem está acima da metade da tela, move o personagem ao invés do mapa
 												
 			mv		s3, t2				# Se não, move mapa
 			j		LPU.ATUALIZA_X
 					
 LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
-			la		t0, vertical_alucard
-			lw		t1, 0(t0)
-			add 		t1, t1, s2
-			sw		t1, 0(t0)	
-	
+			add 		s5, s5, s2	
 															
 # Atualiza a posição X
 LPU.ATUALIZA_X:		loadb(t1, moveX)
@@ -261,7 +250,6 @@ LPU.ESQUERDA.MOVE.MAPA:	# Movimenta o mapa em X
 			j 		LPU.PARADO
 			
 LPU.ESQUERDA.MOVE.CHAR:	addi 		s6, s6, -2
-						
 			j 		LPU.PARADO
 			
 LPU.DIREITA:		# Calcula colisão
@@ -284,7 +272,7 @@ LPU.DIREITA.MOVE.CHAR:	addi 		s6, s6, 2
 LPU.PARADO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
 			mv		a1, s6					# X na tela
-			loadw(a2, vertical_alucard)				# Y na tela 
+			mv		a2, s5				# Y na tela 
 			li 		a3, ALUCARD.OFFSET			# Largura da imagem
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
@@ -343,10 +331,7 @@ LCD.MOVE_Y.MAPA:
 			j 		LCD.COLIDIU.BAIXO
 
 LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
-			la		t0, vertical_alucard
-			lw		t1, 0(t0)
-			add 		t1, t1, s2
-			sw		t1, 0(t0)
+			add 		s5, s5, s2
 			
 LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			la 		t1, moveX
@@ -356,7 +341,7 @@ LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			mv		a1, s6						# X na tela
-			loadw(a2, vertical_alucard)					# Y na tela
+			mv		a2, s5						# Y na tela
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
 			frame_address(a5)						# Endereço da frame
@@ -410,10 +395,7 @@ LCE.MOVE_Y.MAPA:
 			j 		LCE.COLIDIU.BAIXO
 
 LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
-			la		t0, vertical_alucard
-			lw		t1, 0(t0)
-			add 		t1, t1, s2
-			sw		t1, 0(t0)
+			add 		s5, s5, s2
 			
 LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			la 		t1, moveX
@@ -423,7 +405,7 @@ LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			mv		a1, s6						# X na tela
-			loadw(a2, vertical_alucard)					# Y na tela
+			mv		a2, s5						# Y na tela
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
 			frame_address(a5)						# Endereço da frame
@@ -462,15 +444,12 @@ LS.MOVE_Y:		# Movimenta o mapa em Y
 			j		LS.COLIDIU.BAIXO
 					
 LS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
-			la		t0, vertical_alucard
-			lw		t1, 0(t0)
-			add 		t1, t1, s2
-			sw		t1, 0(t0)	
+			add 		s5, s5, s2	
 			
 LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			mv		a1, s6						# X na tela
-			loadw(a2, vertical_alucard)					# Y na tela
+			mv		a2, s5						# Y na tela
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
 			frame_address(a5)						# Endereço da frame
