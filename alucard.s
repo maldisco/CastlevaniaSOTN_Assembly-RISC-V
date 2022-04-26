@@ -23,7 +23,6 @@ alucard.hellfire.direita.offsets: 	.word 1365760,1365857,1365954,1366051,1366148
 alucard.hellfire.esquerda.offsets: 	.word 1368864,1368864,1368767,1368767,1368670,1368670,1368573,1368573,1368476,1368476,1368379,1368379,1368282,1368282,1368185,1368185,1368088,1368088,1367991,1367991,1367894,1367894,1367797,1367797
 
 # Posiçoes atuais do personagem
-horizontal_alucard:			.word 120
 vertical_alucard:			.word 135
 
 # booleano para indicar se o personagem está em animação de pulo

@@ -58,9 +58,7 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			
 			li 		s3, T2.Y_INI	
 			
-			la		t0, horizontal_alucard
-			li		t1, 110
-			sw		t1, (t0)
+			li		s6, 110
 			
 			la		t0, vertical_alucard
 			li		t1, 150
@@ -93,9 +91,7 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 120
-			sw		t1, (t0)
+			li		s6, 120
 			
 			la		t0, vertical_alucard
 			li		t1, 30
@@ -125,9 +121,7 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			
 			li 		s3, T3.Y_INI	
 			
-			la		t0, horizontal_alucard
-			li		t1, 240
-			sw		t1, (t0)
+			li		s6, 240
 			
 			la		t0, vertical_alucard
 			li		t1, 115
@@ -158,9 +152,7 @@ TELA_2.PARA.TELA_10:
 		
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 20
-			sw		t1, (t0)
+			li		s6, 20
 			
 			la		t0, vertical_alucard
 			li		t1, 95
@@ -191,9 +183,7 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 0
-			sw		t1, (t0)
+			li		s6, 0
 			
 			la		t0, vertical_alucard
 			li		t1, 95
@@ -223,9 +213,7 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 		
 			li 		s3, T4.Y_INI
 			
-			la		t0, horizontal_alucard
-			li		t1, 0
-			sw		t1, (t0)
+			li		s6, 0
 			
 			la		t0, vertical_alucard
 			li		t1, 72
@@ -256,9 +244,7 @@ TELA_3.PARA.TELA_5_CIMA:
 			
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 220
-			sw		t1, (t0)
+			li		s6, 220
 			
 			la		t0, vertical_alucard
 			li		t1, 70
@@ -289,9 +275,7 @@ TELA_3.PARA.TELA_5_BAIXO:
 			
 			li 		s3, 222
 			
-			la		t0, horizontal_alucard
-			li		t1, 225
-			sw		t1, (t0)
+			li		s6, 225
 			
 			la		t0, vertical_alucard
 			li		t1, 100
@@ -322,9 +306,7 @@ TELA_5.PARA.TELA_3_BAIXO:
 			
 			li 		s3, T3.Y_INI
 			
-			la		t0, horizontal_alucard
-			li		t1, 10
-			sw		t1, (t0)
+			li		s6, 10
 			
 			la		t0, vertical_alucard
 			li		t1, 115
@@ -355,9 +337,7 @@ TELA_5.PARA.TELA_3_CIMA:
 			
 			li 		s3, 236
 			
-			la		t0, horizontal_alucard
-			li		t1, 10
-			sw		t1, (t0)
+			li		s6, 10
 			
 			la		t0, vertical_alucard
 			li		t1, 90
@@ -387,9 +367,7 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			
 			li 		s3, T6.Y_INI
 			
-			la		t0, horizontal_alucard
-			li		t1, 223
-			sw		t1, (t0)
+			li		s6, 223
 			
 			la		t0, vertical_alucard
 			li		t1, 88
@@ -420,9 +398,7 @@ TELA_6.PARA.TELA_5:
 			
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 20
-			sw		t1, (t0)
+			li		s6, 20
 			
 			la		t0, vertical_alucard
 			li		t1, 70
@@ -453,9 +429,7 @@ TELA_4.PARA.TELA_7:
 			
 			li 		s3, 528
 			
-			la		t0, horizontal_alucard
-			li		t1, 20
-			sw		t1, (t0)
+			li		s6, 20
 			
 			la		t0, vertical_alucard
 			li		t1, 70
@@ -486,9 +460,7 @@ TELA_7.PARA.TELA_4:
 			
 			li 		s3, 222
 			
-			la		t0, horizontal_alucard
-			li		t1, 220
-			sw		t1, (t0)
+			li		s6, 220
 			
 			la		t0, vertical_alucard
 			li		t1, 90
@@ -519,9 +491,7 @@ TELA_7.PARA.TELA_10:
 			
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 220
-			sw		t1, (t0)
+			li		s6, 220
 			
 			la		t0, vertical_alucard
 			li		t1, 95
@@ -552,9 +522,7 @@ TELA_10.PARA.TELA_7:
 			
 			li 		s3, 528
 			
-			la		t0, horizontal_alucard
-			li		t1, 220
-			sw		t1, (t0)
+			li		s6, 220
 			
 			la		t0, vertical_alucard
 			li		t1, 75
@@ -585,9 +553,7 @@ TELA_10.PARA.TELA_2:
 			
 			li 		s3, 0
 			
-			la		t0, horizontal_alucard
-			li		t1, 205
-			sw		t1, (t0)
+			li		s6, 205
 			
 			la		t0, vertical_alucard
 			li		t1, 95

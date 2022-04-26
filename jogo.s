@@ -170,7 +170,7 @@ LP.MOVE.CHAR:		# Movimenta o personagem em Y
 					
 LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10				# Descritor
-			loadw(a1, horizontal_alucard)			# X na tela
+			mv		a1, s6				# X na tela
 			loadw(a2, vertical_alucard)			# Y na tela
 			li 		a3, ALUCARD.OFFSET		# Largura da imagem
 			li 		a4, ALUCARD.LARGURA		# Largura da sprite
@@ -212,7 +212,7 @@ LPU.DESCENDO:		# Checa se já caiu no chão
 				
 LPU.SUBINDO:		# Checa se bateu no teto
 			beqz 		a3, LPU.MOVE_Y
-			
+	
 			j 		LPU.ATUALIZA_X	
 				
 LPU.MOVE_Y:		# Movimenta o mapa em Y
@@ -253,19 +253,14 @@ LPU.ESQUERDA:		# Testa colisão a esquerda
 			lhu 		t3, 0(t0)
 			blt		t2, t3, LPU.ESQUERDA.MOVE.CHAR	
 			
-			la		t0, horizontal_alucard
-			lw		t4, (t0)
 			li		t5, 120
-			bgt 		t4, t5, LPU.ESQUERDA.MOVE.CHAR		
+			bgt 		s6, t5, LPU.ESQUERDA.MOVE.CHAR		
 						
 LPU.ESQUERDA.MOVE.MAPA:	# Movimenta o mapa em X			
 			mv 		s4, t2
 			j 		LPU.PARADO
 			
-LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_alucard
-			lw 		t2, 0(t1)
-			addi 		t2, t2, -2
-			sw 		t2, 0(t1)
+LPU.ESQUERDA.MOVE.CHAR:	addi 		s6, s6, -2
 						
 			j 		LPU.PARADO
 			
@@ -277,23 +272,18 @@ LPU.DIREITA:		# Calcula colisão
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LPU.DIREITA.MOVE.CHAR
 			
-			la		t0, horizontal_alucard
-			lw		t4, (t0)
 			li		t5, 120
-			blt		t4, t5, LPU.DIREITA.MOVE.CHAR
+			blt		s6, t5, LPU.DIREITA.MOVE.CHAR
 				
 LPU.DIREITA.MOVE.MAPA:	# Movimenta o mapa em X			
 			mv 		s4, t2
 			j 		LPU.PARADO
 			
-LPU.DIREITA.MOVE.CHAR:	la 		t1, horizontal_alucard
-			lw 		t2, 0(t1)
-			addi 		t2, t2, 2
-			sw 		t2, 0(t1)
+LPU.DIREITA.MOVE.CHAR:	addi 		s6, s6, 2
 						
 LPU.PARADO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
-			loadw(a1, horizontal_alucard)				# X na tela
+			mv		a1, s6					# X na tela
 			loadw(a2, vertical_alucard)				# Y na tela 
 			li 		a3, ALUCARD.OFFSET			# Largura da imagem
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
@@ -332,18 +322,13 @@ LCD.MOVE.MAPA:		# Se tiver chegado no final do mapa OU o personagem está à esque
 			lhu		t3, (t0)
 			bgt		t2, t3 LCD.MOVE.CHAR
 			
-			la		t0, horizontal_alucard
-			lw		t4, (t0)
 			li		t5, 120
-			blt 		t4, t5, LCD.MOVE.CHAR
+			blt 		s6, t5, LCD.MOVE.CHAR
 			
 			mv 		s4, t2
 			j 		LCD.COLIDIU
 			
-LCD.MOVE.CHAR:		la 		t1, horizontal_alucard
-			lw 		t2, 0(t1)
-			addi 		t2, t2, 2
-			sw 		t2, 0(t1)
+LCD.MOVE.CHAR:		addi 		s6, s6, 2
 			
 LCD.COLIDIU:		bnez 		a4, LCD.COLIDIU.BAIXO		
 		
@@ -370,7 +355,7 @@ LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			sb 		t2, (t1)
 			# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
-			loadw(a1, horizontal_alucard)					# X na tela
+			mv		a1, s6						# X na tela
 			loadw(a2, vertical_alucard)					# Y na tela
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
@@ -403,18 +388,13 @@ ALUCARD.MOVE.MAPA:	# Se tiver chegado no inicio do mapa OU o personagem está à d
 			lhu		t3, 0(t0)
 			blt		t2, t3, LCE.MOVE.CHAR
 			
-			la		t0, horizontal_alucard
-			lw		t4, (t0)
 			li		t5, 120
-			bgt		t4, t5, LCE.MOVE.CHAR			
+			bgt		s6, t5, LCE.MOVE.CHAR			
 		
 			mv 		s4, t2
 			j 		LCE.COLIDIU
 			
-LCE.MOVE.CHAR:		la 		t1, horizontal_alucard
-			lw 		t2, 0(t1)
-			addi 		t2, t2, -2
-			sw 		t2, 0(t1)
+LCE.MOVE.CHAR:		addi 		s6, s6, -2
 			
 LCE.COLIDIU:		# Checa colisão baixo 
 			bnez 		a4, LCE.COLIDIU.BAIXO
@@ -442,7 +422,7 @@ LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			sb 		t2, (t1)
 			# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
-			loadw(a1, horizontal_alucard)					# X na tela
+			mv		a1, s6						# X na tela
 			loadw(a2, vertical_alucard)					# Y na tela
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
@@ -489,7 +469,7 @@ LS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
 			
 LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
-			loadw(a1, horizontal_alucard)					# X na tela
+			mv		a1, s6						# X na tela
 			loadw(a2, vertical_alucard)					# Y na tela
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
