@@ -85,9 +85,8 @@
 			sw		a0, 28(t0)
 			
 			li		s7, 0				# Frame atual
-			
 			csrr 		s11, 3073			# Guarda tempo atual em s7 (usado para controle de FPS)
-			
+
 			la		t0, GRAVIDADE
 			flw		fs1, (t0)			# Aceleração da gravidade (constante)
 			
@@ -100,9 +99,11 @@
 			# S9 = Descritor do arquivo da tela atual
 			# S8 = Descritor do arquivo de sprites da HUD
 			# S7 = Frame atual
+			# S6 = Posição X do personagem
+			# S5 = Posição Y do personagem
 			# S4 = Posição X do mapa
 			# S3 = Posição Y do mapa
-			# OW, COMEÇA A USAR A VELOCIDADEY COMO UM REGISTRADOR FLOAT
+			# 
 			# PENSA NAS POSIÇÕES DO MAPA E PERSONAGEM TBM
 			# E NA SPRITE ATUAL	
 			# FS1 = Gravidade
@@ -247,10 +248,7 @@ LPU.ATUALIZA_X:		loadb(t1, moveX)
 LPU.ESQUERDA:		# Testa colisão a esquerda			
 			bnez 		a2, LPU.PARADO	
 			 
-			
-			la 		t1, mapa.x
-			lhu 		t2, (t1)
-			addi 		t2, t2, -2
+			addi 		t2, s4, -2
 			la		t0, mapa.min.x
 			lhu 		t3, 0(t0)
 			blt		t2, t3, LPU.ESQUERDA.MOVE.CHAR	
@@ -261,7 +259,7 @@ LPU.ESQUERDA:		# Testa colisão a esquerda
 			bgt 		t4, t5, LPU.ESQUERDA.MOVE.CHAR		
 						
 LPU.ESQUERDA.MOVE.MAPA:	# Movimenta o mapa em X			
-			sh 		t2, (t1)
+			mv 		s4, t2
 			j 		LPU.PARADO
 			
 LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_alucard
@@ -274,9 +272,7 @@ LPU.ESQUERDA.MOVE.CHAR:	la 		t1, horizontal_alucard
 LPU.DIREITA:		# Calcula colisão
 			bnez 		a1, LPU.PARADO				# Se bateu em algo, não move
 								
-			la	 	t1, mapa.x
-			lhu 		t2, (t1)
-			addi 		t2, t2, 2
+			addi 		t2, s4, 2
 			la		t0, mapa.max.x
 			lhu		t3, 0(t0)
 			bgt 		t2, t3, LPU.DIREITA.MOVE.CHAR
@@ -287,7 +283,7 @@ LPU.DIREITA:		# Calcula colisão
 			blt		t4, t5, LPU.DIREITA.MOVE.CHAR
 				
 LPU.DIREITA.MOVE.MAPA:	# Movimenta o mapa em X			
-			sh 		t2, (t1)
+			mv 		s4, t2
 			j 		LPU.PARADO
 			
 LPU.DIREITA.MOVE.CHAR:	la 		t1, horizontal_alucard
@@ -331,9 +327,7 @@ ALUCARD.CORRENDO.DIREITA:	# Calcula colisão
 								
 LCD.MOVE.MAPA:		# Se tiver chegado no final do mapa OU o personagem está à esquerda do centro da tela, move o personagem
 			# Se não, move a tela/mapa
-			la 		t1, mapa.x
-			lhu 		t2, (t1)
-			addi 		t2, t2, 2
+			addi 		t2, s4, 2
 			la		t0, mapa.max.x
 			lhu		t3, (t0)
 			bgt		t2, t3 LCD.MOVE.CHAR
@@ -343,7 +337,7 @@ LCD.MOVE.MAPA:		# Se tiver chegado no final do mapa OU o personagem está à esque
 			li		t5, 120
 			blt 		t4, t5, LCD.MOVE.CHAR
 			
-			sh 		t2, (t1)
+			mv 		s4, t2
 			j 		LCD.COLIDIU
 			
 LCD.MOVE.CHAR:		la 		t1, horizontal_alucard
@@ -404,9 +398,7 @@ ALUCARD.CORRENDO.ESQUERDA:# checa colisão
 
 ALUCARD.MOVE.MAPA:	# Se tiver chegado no inicio do mapa OU o personagem está à direita do centro da tela, move o personagem
 			# Se não, move a tela/mapa		 					 		
-			la 		t1, mapa.x
-			lhu		t2, (t1)
-			addi 		t2, t2, -2
+			addi 		t2, s4, -2
 			la		t0, mapa.min.x
 			lhu		t3, 0(t0)
 			blt		t2, t3, LCE.MOVE.CHAR
@@ -416,7 +408,7 @@ ALUCARD.MOVE.MAPA:	# Se tiver chegado no inicio do mapa OU o personagem está à d
 			li		t5, 120
 			bgt		t4, t5, LCE.MOVE.CHAR			
 		
-			sh 		t2, (t1)
+			mv 		s4, t2
 			j 		LCE.COLIDIU
 			
 LCE.MOVE.CHAR:		la 		t1, horizontal_alucard

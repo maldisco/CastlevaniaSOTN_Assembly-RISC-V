@@ -13,9 +13,8 @@ FISICA:			addi		sp, sp, -4
 			add		s1, s2, t2			# s1 = Nova posição Y
 			
 			# Calculo das posições do personagem relativas ao mapa
-			la 		t1, mapa.x
-			lh 		t1, (t1)
-			mv 		t2, s3
+			mv 		t1, s4				# s4 = Posição X do mapa
+			mv 		t2, s3				# S3 = Posição Y do mapa
 			la 		t3, horizontal_alucard
 			lw 		t3, (t3)
 			li 		t4, ALUCARD.HITBOX_OFFSET.X

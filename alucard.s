@@ -1,8 +1,6 @@
 GRAVIDADE:				.float 0.35
 SALTO:					.float -7.4
 
-mapa.x:					.half 52
-
 .eqv ALUCARD.OFFSET			4268
 .eqv ALUCARD.HITBOX.ALTURA		47
 .eqv ALUCARD.HITBOX.LARGURA		20

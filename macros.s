@@ -42,8 +42,7 @@ lw %reg,(%reg)
 la t1, mapa.imagem.largura
 lhu t1, 0(t1)
 mv t2, s3
-la t3, mapa.x
-lhu t3, 0(t3)
+mv t3, s4
 mul t1, t1, t2
 add t1, t1, t3
 mv %reg, t1

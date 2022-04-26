@@ -54,9 +54,7 @@ TELA.TROCA:		li		t0, -1
 # Configurações para mudar da tela 1 para 2
 TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			
-			la 		t0, mapa.x
-			li		t1, T2.X_INI
-			sh		t1, 0(t0)
+			li		s4, T2.X_INI
 			
 			li 		s3, T2.Y_INI	
 			
@@ -91,9 +89,7 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 # Configurações para mudar da tela 2 para 1
 TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			
-			la 		t0, mapa.x
-			li		t1, 212
-			sh		t1, 0(t0)
+			li		s4, 212
 			
 			li 		s3, 0
 			
@@ -125,9 +121,7 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 # Configurações para mudar da tela 2 para 3
 TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			
-			la 		t0, mapa.x
-			li		t1, T3.X_INI
-			sh		t1, 0(t0)
+			li		s4, T3.X_INI
 			
 			li 		s3, T3.Y_INI	
 			
@@ -160,9 +154,7 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 TELA_2.PARA.TELA_10:	
 			jal		CONFIG.TELA_10
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 		
 			li 		s3, 0
 			
@@ -195,9 +187,7 @@ TELA_2.PARA.TELA_10:
 # Configurações para mudar da tela 3 para 2
 TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 			
 			li 		s3, 0
 			
@@ -229,9 +219,7 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 # Configurações ao mudar da tela 3 para 4
 TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 			
-			la 		t0, mapa.x
-			li		t1, T4.X_INI
-			sh		t1, 0(t0)
+			li		s4, T4.X_INI
 		
 			li 		s3, T4.Y_INI
 			
@@ -264,9 +252,7 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 TELA_3.PARA.TELA_5_CIMA:	
 			jal		CONFIG.TELA_5
 			
-			la 		t0, mapa.x
-			li		t1, 191
-			sh		t1, 0(t0)
+			li		s4, 191
 			
 			li 		s3, 0
 			
@@ -299,9 +285,7 @@ TELA_3.PARA.TELA_5_CIMA:
 TELA_3.PARA.TELA_5_BAIXO:	
 			jal		CONFIG.TELA_5
 			
-			la 		t0, mapa.x
-			li		t1, 193
-			sh		t1, 0(t0)
+			li		s4, 193
 			
 			li 		s3, 222
 			
@@ -334,9 +318,7 @@ TELA_3.PARA.TELA_5_BAIXO:
 TELA_5.PARA.TELA_3_BAIXO:	
 			jal		CONFIG.TELA_3
 			
-			la 		t0, mapa.x
-			li		t1, T3.X_INI
-			sh		t1, 0(t0)
+			li		s4, T3.X_INI
 			
 			li 		s3, T3.Y_INI
 			
@@ -369,9 +351,7 @@ TELA_5.PARA.TELA_3_BAIXO:
 TELA_5.PARA.TELA_3_CIMA:	
 			jal		CONFIG.TELA_3
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 			
 			li 		s3, 236
 			
@@ -403,9 +383,7 @@ TELA_5.PARA.TELA_3_CIMA:
 # Configurações para mudar da tela 5 para 6
 TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			
-			la 		t0, mapa.x
-			li		t1, T6.X_INI
-			sh		t1, 0(t0)
+			li		s4, T6.X_INI
 			
 			li 		s3, T6.Y_INI
 			
@@ -438,9 +416,7 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 TELA_6.PARA.TELA_5:	
 			jal		CONFIG.TELA_5
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 			
 			li 		s3, 0
 			
@@ -473,9 +449,7 @@ TELA_6.PARA.TELA_5:
 TELA_4.PARA.TELA_7:	
 			jal		CONFIG.TELA_7
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 			
 			li 		s3, 528
 			
@@ -508,9 +482,7 @@ TELA_4.PARA.TELA_7:
 TELA_7.PARA.TELA_4:	
 			jal		CONFIG.TELA_4
 			
-			la 		t0, mapa.x
-			li		t1, 704
-			sh		t1, 0(t0)
+			li		s4, 704
 			
 			li 		s3, 222
 			
@@ -543,9 +515,7 @@ TELA_7.PARA.TELA_4:
 TELA_7.PARA.TELA_10:	
 			jal		CONFIG.TELA_10
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 			
 			li 		s3, 0
 			
@@ -578,9 +548,7 @@ TELA_7.PARA.TELA_10:
 TELA_10.PARA.TELA_7:	
 			jal		CONFIG.TELA_7
 			
-			la 		t0, mapa.x
-			li		t1, 0
-			sh		t1, 0(t0)
+			li		s4, 0
 			
 			li 		s3, 528
 			
@@ -613,9 +581,7 @@ TELA_10.PARA.TELA_7:
 TELA_10.PARA.TELA_2:	
 			jal		CONFIG.TELA_2
 			
-			la 		t0, mapa.x
-			li		t1, 447
-			sh		t1, 0(t0)
+			li		s4, 447
 			
 			li 		s3, 0
 			
@@ -648,9 +614,7 @@ TELA_10.PARA.TELA_2:
 # Configuracoes ao iniciar o jogo
 config_tela_1:		jal		CONFIG.TELA_1
 	
-			la 		t0, mapa.x
-			li		t1, T1.X_INI
-			sh		t1, 0(t0)
+			li		s4, T1.X_INI
 	
 			li 		s3, T1.Y_INI
 	
