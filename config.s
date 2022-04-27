@@ -11,7 +11,7 @@ hud.offsets:			.word 0, 0, 0, 0, 107, 107, 107, 107, 214, 214, 214, 214, 321, 32
 hud.atual:			.byte 0
 .eqv HUD.IMAGEM.LARGURA		748
 .eqv HUD.LARGURA		105
-.eqv HUD.ALTURA			35
+.eqv HUD.ALTURA			34
 
 numeros:			.string "sprites/numeros.bin"
 .eqv NUMEROS.IMAGEM.LARGURA	80

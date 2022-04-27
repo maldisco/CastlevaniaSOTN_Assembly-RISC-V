@@ -535,6 +535,22 @@ OBJETO.RENDER:		la		t0, objeto
 			la		t0, faca.habilitada
 			li		t1, 1
 			sb		t1, (t0)
+			
+			la		t0, hud.offsets
+			li		t1, 28
+			li		t2, 0
+			li		t3, 4
+			
+OBJETO.LOOP:		mul		t4, t3, t2
+			add		t4, t4, t0
+			lw		t5, (t4)
+			li		t6, 26180
+			add		t5, t5, t6
+			sw		t5, (t4)
+			
+			addi		t2, t2, 1
+			blt		t2, t1, OBJETO.LOOP
+			
 			jal		OST.OBJETO
 			
 OBJETO.NAO_PEGOU:
