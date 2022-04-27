@@ -49,6 +49,43 @@ FISICA.SUBINDO:
 			addi		sp, sp, 4
 			ret
 
+FISICA.HIT:		addi		s1, s1, -3			# Desce a vida
+
+			la		t0, moveX
+			lb		t1, (t0)
+			li		t2, 8
+			bltz		t1, FISICA.HIT.STAGGER_DIREITA
+			li		t2, -8
+FISICA.HIT.STAGGER_DIREITA:
+			sb		t2, (t0)
+			
+			li		t2, -5
+			fcvt.s.w	fs2, t2				# Pula
+			
+			mv		t1, a0
+			mv		t2, a1
+			mv		t3, a2
+			mv		t4, a3
+			mv		t5, a4
+			mv		t6, a5
+			
+			li 		a0, 102				# pitch
+			li 		a1, 1000			# duracao
+			li 		a2, 116				# instrumento
+			li 		a3, 50				# volume
+			li 		a7, 31				# define a chamada de syscall
+			ecall
+			
+			mv		a0,t1
+			mv		a1,t2
+			mv		a2,t3
+			mv		a3,t4
+			mv		a4,t5
+			mv		a5,t6
+			
+			j		COLISAO.VERDADEIRO
+			
+
 # Checa colisão à direita do personagem
 # Param  a1 = Posição X do personagem relativa ao mapa
 # Param  a2 = Posição Y do personagem relativa ao mapa
@@ -78,6 +115,9 @@ CD.LOOP:		lb 		t1, 0(t2)
 			bgtz 		t1, CD.NAO_COLIDIU		# Se o byte for > zero, não colidiu
 			
 CD.COLIDIU: 		beqz		t1, COLISAO.VERDADEIRO		# Se for = 0, colidiu
+			
+			li		t0, -69
+			beq		t1, t0, FISICA.HIT
 			
 			addi		sp, sp, 4
 			mv 		a0, t1			
@@ -117,6 +157,9 @@ CE.LOOP:		lb 		t1, 0(t2)
 			
 CE.COLIDIU: 		beqz		t1, COLISAO.VERDADEIRO		# Se for = 0, colidiu
 			
+			li		t0, -69
+			beq		t1, t0, FISICA.HIT
+			
 			addi		sp, sp, 4
 			mv 		a0, t1			
 			j 		TELA.TROCA			# Se for < 0, trocou de tela
@@ -153,7 +196,10 @@ CB.LOOP:		lb		t2, 0(t3)
 			li		t0, 1
 			beq 		t2, t0, CB.NAO_COLIDIU		# Se o byte do mapa de hitboxes != 1, colidiu
 			
-CB.COLIDIU: 		# Zera a velocidade vertical
+CB.COLIDIU:		li		t0, -69
+			beq		t2, t0, FISICA.HIT 		
+
+			# Zera a velocidade vertical
 			fcvt.s.w	fs2, zero
 			
 			bgez		t2, COLISAO.VERDADEIRO

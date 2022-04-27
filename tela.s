@@ -50,6 +50,7 @@ TELA.TROCA:		li		t0, -1
 			
 			li		t0, -13
 			beq		a0, t0, TELA_10.PARA.TELA_2
+			
 
 # Configurações para mudar da tela 1 para 2
 TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões

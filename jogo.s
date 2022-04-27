@@ -112,13 +112,12 @@
 			# S5 = Posição Y do personagem					      #
 			# S4 = Posição X do mapa					      #
 			# S3 = Posição Y do mapa					      #
+			# S2 = VelocidadeY (INTEIRO)					      #
 			# S1 = HP do personagem                                               #
 			# S0 = Frame atual						      #
 			# ------------------------------------------------------------------- #
 			# FS1 = Gravidade						      #
 			# FS2 = VelocidadeY						      #
-			# ==== CONSTANTE NO LOOP DE ATUALIZAÇÃO DO PERSONAGEM =============== #
-			# S2 = VelocidadeY (INTEIRO)					      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -487,8 +486,65 @@ LS.SENTIDO.DIREITA:
 
 # Chama a função de renderizar o personagem
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
-
-			jal 		HUD.RENDER
+		
+HUD.RENDER:		# Renderização da barra de status
+			mv		a0, s8
+			li		a1, 0		
+			li 		a2, 0
+			li		a3, HUD.IMAGEM.LARGURA
+			li 		a4, HUD.LARGURA		
+			frame_address(a5)
+			la		t0, hud.atual
+			lb		t1, (t0)
+			li		t2, 4
+			mul		t2, t2, t1
+			la		t3, hud.offsets
+			add		t3, t3, t2
+			lw		a6, (t3)				# Offset atual na imagem da HUD
+			
+			addi		t1, t1, 1
+			li		t2, 28
+			blt		t1, t2, HUD.NAO_RESETA
+			
+			li		t1, 0
+HUD.NAO_RESETA:
+			sw 		t1, (t0)
+			
+			li 		a7, HUD.ALTURA
+			jal		RENDER
+		
+			# Renderização do HP
+			li		t0, 10
+			div		t1, s1, t0				# t1 = primeiro digito do HP
+			
+			li		t0, 8
+			mul		t1, t1, t0				# t1 = Offset da sprite do primeiro digito
+	
+			mv		a0, s7
+			li		a1, 7		
+			li 		a2, 20
+			li		a3, NUMEROS.IMAGEM.LARGURA
+			li 		a4, NUMEROS.LARGURA		
+			frame_address(a5)
+			mv		a6, t1
+			li		a7, NUMEROS.ALTURA
+			jal		RENDER
+			
+			li		t0, 10
+			rem		t2, s1, t0				# t2 = segundo digito do HP
+			
+			li		t0, 8
+			mul		t2, t2, t0				# t2 = Offset da sprite do segundo digito				
+															
+			mv		a0, s7
+			li		a1, 14		
+			li 		a2, 20
+			li		a3, NUMEROS.IMAGEM.LARGURA
+			li 		a4, NUMEROS.LARGURA		
+			frame_address(a5)
+			mv		a6, t2
+			li		a7, NUMEROS.ALTURA
+			jal		RENDER
 			
 			li 		t0,FRAME_SELECT
 			sw 		s0,(t0)						# Atualiza a tela para o usuário ver as atualizações
@@ -504,4 +560,3 @@ ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 .include "render.s"
 .include "ost.s"
 .include "dialogos.s"
-.include "hud.s"
