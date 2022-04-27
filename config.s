@@ -3,6 +3,9 @@
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
 
+faca:				.string "sprites/faca.bin"
+faca.descritor:			.word 0
+
 hud:				.string "sprites/hud.bin"
 hud.offsets:			.word 0, 0, 0, 0, 107, 107, 107, 107, 214, 214, 214, 214, 321, 321, 321, 321, 428, 428, 428, 428, 535, 535, 535, 535, 642, 642, 642, 642
 hud.atual:			.byte 0
@@ -16,6 +19,14 @@ numeros:			.string "sprites/numeros.bin"
 .eqv NUMEROS.ALTURA		12
 
 dialogo1:			.string "dialogos/dialogo1.bin"
+
+objeto:				.byte 1
+objeto.x:			.half 56
+objeto.y:			.half 151
+.eqv OBJETO.IMAGEM.LARGURA	30
+.eqv OBJETO.LARGURA		30
+.eqv OBJETO.ALTURA		8
+
 
 TELA.DESCRITORES:		.word 	0,0,0,0,0,0,0,0,0,0
 tela1:				.string "mapa/tela_1.bin"

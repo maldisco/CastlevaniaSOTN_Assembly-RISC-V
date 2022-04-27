@@ -97,8 +97,7 @@ OST.TERMINOU_2:		beqz 		t2, OST.SETUP				# Se a duração for = 0, recomeça a musi
 			
 			j		OST.RET
 		
-				
-								
+											
 OST.SLASH:		li 		a0, 22					# nota
 			li 		a1, 1000				# duracao
 			li 		a2, 118					# instrumento
@@ -107,4 +106,12 @@ OST.SLASH:		li 		a0, 22					# nota
 			ecall							# Toca
 			
 			ret
-	
+			
+OST.OBJETO:		li		a0, 102					# pitch
+			li		a1, 1000				# duracao
+			li 		a2, 114					# instrumento
+			li 		a3, 90					# volume
+			li		a7, 31					# define a chamada de syscall
+			ecall
+			
+			ret

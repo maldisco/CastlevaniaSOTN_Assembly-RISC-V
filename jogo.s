@@ -27,6 +27,15 @@
 			ecall
 			mv		s7, a0			# Salva em s7
 			
+			# Carrega arquivo de sprite da faca
+			la		a0, faca
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			la		t0, faca.descritor
+			sw		a0, (t0)
+			
 			la		t0, TELA.DESCRITORES
 			# Carrega o arquivo da primeira tela do jogo
 			la 		a0, tela1
@@ -135,8 +144,8 @@ LOOP_JOGO:		csrr 		t0, 3073
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
 			xori 		s0, s0, 1				# Troca a frame para o usuário não ver as atualizações
-			jal		OST.TOCA
-			jal		OST.TOCA_2
+			#jal		OST.TOCA
+			#jal		OST.TOCA_2
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
@@ -494,6 +503,57 @@ LS.SENTIDO.DIREITA:
 # Chama a função de renderizar o personagem
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 
+# Renderiza um objeto na tela (se tiver)
+OBJETO.RENDER:		la		t0, objeto
+			lb		t1, (t0)
+			beqz		t1, HUD.RENDER					# Se não tiver objeto na tela, pula
+			
+			la		t0, objeto.x
+			lhu		t1, (t0)
+			addi		t2, t1, 30
+			
+			blt		t2, s4, HUD.RENDER				# Se o objeto estiver à esquerda da camera, pula
+			
+			la		t0, objeto.y
+			lhu		t2, (t0)
+			
+			addi		t3, s3, 240
+			bgt		t2, t3, HUD.RENDER				# Se o objeto estiver abaixo da camera, pula
+			
+			sub		t1, t1, s4					# Posição X do objeto na tela
+			sub		t2, t2, s3					# Posição Y do objeto na tela
+			
+			addi		t4, s5, 64					# Posição Y do pé do personagem na tela
+			addi		t5, s6, 38					# Posição X da esquerda do personagem na tela
+			
+			addi		t3, t1, 22
+			blt		t3, t5, OBJETO.NAO_PEGOU
+			bgt		t2, t4, OBJETO.NAO_PEGOU	
+			
+			la		t0, objeto
+			sb		zero, (t0)
+			la		t0, faca.habilitada
+			li		t1, 1
+			sb		t1, (t0)
+			jal		OST.OBJETO
+			
+OBJETO.NAO_PEGOU:
+			mv		a1, t1
+			li		a2, 22
+			jal 		MIN
+			mv		t3, a0
+
+			la		t0, faca.descritor
+			lw		a0, (t0)
+			mv		a1, t1
+			mv		a2, t2
+			li		a3, OBJETO.IMAGEM.LARGURA
+			li		a4, OBJETO.LARGURA
+			frame_address(a5)
+			li		a6, 0
+			li		a7, OBJETO.ALTURA
+			jal 		RENDER
+			
 # Renderiza os elementos da HUD 		
 HUD.RENDER:		# Barra de status
 			mv		a0, s8
@@ -570,3 +630,4 @@ HUD.NAO_RESETA:
 .include "render.s"
 .include "ost.s"
 .include "dialogos.s"
+.include "common.s"

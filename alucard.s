@@ -9,6 +9,9 @@ SALTO:					.float -7.4
 .eqv ALUCARD.LARGURA 			97
 .eqv ALUCARD.ALTURA			64
 
+faca.habilitada:			.byte 0
+faca.arremesa:				.byte 0
+
 alucard:				.string "sprites/alucard.bin"
 alucard.animacao:			.byte 0
 alucard.parado.direita.offsets: 	.word 0,0,0,0,0,0,0,0,97,97,97,97,97,97,97,97,194,194,194,194,194,194,194,194,291,291,291,291,291,291,291,291,388,388,388,388,388,388,388,388,485,485,485,485,485,485,485,485
