@@ -21,22 +21,41 @@ FISICA:			addi		sp, sp, -4
 			add 		a1, t1, t3			 # X do personagem relativo ao mapa
 			add 		a2, t2, t4			 # Y do personagem relativo ao mapa
 			
-			jal		COLISAO.DIREITA
-			mv		a3, a0
+			# Teste de colisões
+			# Se o personagem está indo pra direita, não testa a esquerda
+			# e vice-versa
+FISICA.HORIZONTAL:	fcvt.w.s	t1, fs3				# Fs3 = moveX
+			bgtz		t1, FISICA.HORIZONTAL.DIREITA
 			
+FISICA.HORIZONTAL.ESQUERDA:
+			li		a3, 0
 			jal		COLISAO.ESQUERDA
 			mv		a4, a0
+			j 		FISICA.VERTICAL
 			
-			jal		COLISAO.CIMA
-			mv		a5, a0
+FISICA.HORIZONTAL.DIREITA:
+			li		a4, 0
+			jal 		COLISAO.DIREITA
+			mv		a3, a0
 			
-			li		a6, 0
-			bltz		s2, FISICA.SUBINDO		# Se estiver subindo, não calcula colisão baixo
-			
-			jal		COLISAO.BAIXO
-			mv		a6, a0	
+			# Se o personagem está subindo, não testa colisão abaixo
+			# e vice-versa
+FISICA.VERTICAL:	bltz		s2, FISICA.VERTICAL.SUBINDO	# s2 = Velocidade Y
 
-FISICA.SUBINDO:		mv		a1, a3
+FISICA.VERTICAL.DESCENDO:
+			li		a5, 0
+			jal		COLISAO.BAIXO
+			mv		a6, a0
+			j		FISICA.RET
+
+FISICA.VERTICAL.SUBINDO:
+			li		a6, 0
+			jal		COLISAO.CIMA
+			mv		a5, a0	
+			
+FISICA.RET:		# Move os resultados para os registradores 1-4
+			# não usei direto pois os procedimentos de colisão os utilizam
+			mv		a1, a3
 			mv		a2, a4
 			mv		a3, a5
 			mv		a4, a6	
@@ -62,6 +81,9 @@ FISICA.HIT:		li		t0, -3
 FISICA.HIT.STAGGER_DIREITA:
 			fcvt.s.w	fs3, t2
 			
+			la		t0, pulando
+			li		t1, 1
+			sb		t1, (t0)		
 			li		t2, -6
 			fcvt.s.w	fs2, t2				# Pula
 			

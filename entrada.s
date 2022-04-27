@@ -78,10 +78,8 @@ PULA:			la		t0, pulando
 			
 			li		t1, 1
 			sb		t1, (t0)
-			saveb(zero, alucard.animacao) 	
-			la		t1, SALTO
-			flw		ft0, (t1)		
-			fmv.s		fs2, ft0
+			saveb(zero, alucard.animacao) 			
+			fmv.s		fs2, fs5
 NAO_PULA:		ret
 	
 # Se a tecla Z foi apertada

@@ -97,6 +97,9 @@
 			li		t0, 99
 			fcvt.s.w	fs4, t0				# HP do personagem
 			
+			la		t0, SALTO
+			flw		fs5, (t0)			
+			
 			csrr 		s11, 3073			# Guarda tempo atual em s11 (usado para controle de FPS)
 
 			la		t0, GRAVIDADE
@@ -120,8 +123,9 @@
 			# ------------------------------------------------------------------- #
 			# FS1 = Gravidade						      #
 			# FS2 = VelocidadeY						      #
-			# FS3 = VelocidadeX						      #
+			# FS3 = move X (Quantidade de movimentos no eixo X)		      #
 			# FS4 = HP do personagem					      #
+			# FS5 = Salto (Movido para fs2 sempre que pular)(Constante)           #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -519,6 +523,7 @@ HUD.NAO_RESETA:
 		
 			# HP
 			fcvt.w.s	t6, fs4					# t6 = HP (inteiro)
+
 			li		t0, 10
 			div		t1, t6, t0				# t1 = primeiro digito do HP
 			
