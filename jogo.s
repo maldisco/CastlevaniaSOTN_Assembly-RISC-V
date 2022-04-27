@@ -93,9 +93,10 @@
 			sw		a0, 28(t0)
 			
 			li		s0, 0				# Frame atual
-			li		s1, 99				# HP do personagem
+			
 			li		t0, 99
 			fcvt.s.w	fs4, t0				# HP do personagem
+			
 			csrr 		s11, 3073			# Guarda tempo atual em s11 (usado para controle de FPS)
 
 			la		t0, GRAVIDADE
@@ -119,6 +120,7 @@
 			# ------------------------------------------------------------------- #
 			# FS1 = Gravidade						      #
 			# FS2 = VelocidadeY						      #
+			# FS3 = VelocidadeX						      #
 			# FS4 = HP do personagem					      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
@@ -157,7 +159,7 @@ ALUCARD.ATUALIZA:	loadb(t1, socando)
 			bnez 		t1, ALUCARD.SOCANDO
 			loadb(t1, pulando)
 			bnez 		t1, ALUCARD.PULANDO
-			loadb(t1, moveX)
+			fcvt.w.s	t1, fs3				
 			bgtz 		t1, ALUCARD.CORRENDO.DIREITA
 			
 			bltz 		t1, ALUCARD.CORRENDO.ESQUERDA
@@ -214,7 +216,8 @@ ALUCARD.PULANDO:		# Atualiza a posição Y
 LPU.DESCENDO:		# Checa se já caiu no chão
 			beqz 		a4, LPU.MOVE_Y
 			
-			saveb(zero, pulando)
+			la		t0, pulando
+			sb		zero, (t0) 
 			j 		LPU.ATUALIZA_X	
 				
 LPU.SUBINDO:		# Checa se bateu no teto
@@ -242,7 +245,7 @@ LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2	
 															
 # Atualiza a posição X
-LPU.ATUALIZA_X:		loadb(t1, moveX)
+LPU.ATUALIZA_X:		fcvt.w.s	t1, fs3				
 			beqz 		t1, LPU.PARADO
 			bgtz 		t1, LPU.DIREITA
 
@@ -346,10 +349,9 @@ LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2
 			
 LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
-			la 		t1, moveX
-			lb 		t2, (t1)
-			addi 		t2, t2, -1
-			sb 		t2, (t1)
+			li		t0, -1
+			fcvt.s.w	ft0, t0
+			fadd.s		fs3, fs3, ft0
 			# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			mv		a1, s6						# X na tela
@@ -410,10 +412,9 @@ LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2
 			
 LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
-			la 		t1, moveX
-			lb 		t2, (t1)
-			addi 		t2, t2, 1
-			sb 		t2, (t1)
+			li		t0, 1
+			fcvt.s.w	ft0, t0
+			fadd.s		fs3, fs3, ft0
 			# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			mv		a1, s6						# X na tela

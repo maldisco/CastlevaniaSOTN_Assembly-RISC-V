@@ -49,14 +49,18 @@ FISICA.SUBINDO:		mv		a1, a3
 FISICA.HIT:		li		t0, -3
 			fcvt.s.w	ft0, t0
 			fadd.s		fs4, fs4, ft0			# Perde 3 pontos de vida
-
-			la		t0, moveX
-			lb		t1, (t0)
+			
+			# Se estiver indo pra direita, stagger pra esquerda
+			# Senão, stagger pra direita
+			# ps: Fs3 = move X
+			fcvt.w.s	t1, fs3
 			li		t2, 8
 			bltz		t1, FISICA.HIT.STAGGER_DIREITA
+			
 			li		t2, -8
+			
 FISICA.HIT.STAGGER_DIREITA:
-			sb		t2, (t0)
+			fcvt.s.w	fs3, t2
 			
 			li		t2, -6
 			fcvt.s.w	fs2, t2				# Pula

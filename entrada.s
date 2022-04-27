@@ -26,15 +26,11 @@ ENTRADA.RET:		ret
 # - Se pulando > 0
 # - - nada
 # - Senão
-# - - Se moveX > 0
-# - - - sentido = 1 (direita)
-# - - Senão
-# - - - sentido = -1 (esquerda)
 # - - moveX = 0
 PARA:			loadb(t1, pulando)
 			bnez 		t1, NAO_PODE_PARAR	
-			li 		t1, 0
-			saveb(t1, moveX)
+			fcvt.s.w	ft0, zero
+			fmv.s		fs3, ft0		# Fs3 = move X
 NAO_PODE_PARAR:		ret
 		
 		
@@ -43,13 +39,13 @@ NAO_PODE_PARAR:		ret
 # - sentido = 1 (direita)
 # - Se o personagem estiver parado
 # - - Reseta animação para 0
-DIREITA:		loadb(t1, moveX)
+DIREITA:		fcvt.w.s	t1, fs3			# Fs3 = move X
 			bgtz 		t1, DIREITA.TURN
 			
 			saveb(zero, alucard.animacao)
 			
 DIREITA.TURN:		li 		t1, 16
-			saveb(t1, moveX)
+			fcvt.s.w	fs3, t1
 			li 		t1, 1
 			saveb(t1, sentido) 
 			ret
@@ -59,13 +55,13 @@ DIREITA.TURN:		li 		t1, 16
 # - sentido = -1 (esquerda)
 # - Se o personagem estiver parado
 # - - Reseta animação para 0
-ESQUERDA:		loadb(t1, moveX)
+ESQUERDA:		fcvt.w.s	t1, fs3	
 			bltz 		t1, ESQUERDA.TURN
 						
 			saveb(zero, alucard.animacao)
 			
 ESQUERDA.TURN:		li 		t1, -16
-			saveb(t1, moveX)
+			fcvt.s.w	fs3, t1
 			li		 t1, -1
 			saveb(t1, sentido)
 			ret
