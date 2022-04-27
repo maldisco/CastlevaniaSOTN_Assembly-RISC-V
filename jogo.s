@@ -94,6 +94,8 @@
 			
 			li		s0, 0				# Frame atual
 			li		s1, 99				# HP do personagem
+			li		t0, 99
+			fcvt.s.w	fs4, t0				# HP do personagem
 			csrr 		s11, 3073			# Guarda tempo atual em s11 (usado para controle de FPS)
 
 			la		t0, GRAVIDADE
@@ -113,11 +115,11 @@
 			# S4 = Posição X do mapa					      #
 			# S3 = Posição Y do mapa					      #
 			# S2 = VelocidadeY (INTEIRO)					      #
-			# S1 = HP do personagem                                               #
 			# S0 = Frame atual						      #
 			# ------------------------------------------------------------------- #
 			# FS1 = Gravidade						      #
 			# FS2 = VelocidadeY						      #
+			# FS4 = HP do personagem					      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -486,8 +488,9 @@ LS.SENTIDO.DIREITA:
 
 # Chama a função de renderizar o personagem
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
-		
-HUD.RENDER:		# Renderização da barra de status
+
+# Renderiza os elementos da HUD 		
+HUD.RENDER:		# Barra de status
 			mv		a0, s8
 			li		a1, 0		
 			li 		a2, 0
@@ -513,9 +516,10 @@ HUD.NAO_RESETA:
 			li 		a7, HUD.ALTURA
 			jal		RENDER
 		
-			# Renderização do HP
+			# HP
+			fcvt.w.s	t6, fs4					# t6 = HP (inteiro)
 			li		t0, 10
-			div		t1, s1, t0				# t1 = primeiro digito do HP
+			div		t1, t6, t0				# t1 = primeiro digito do HP
 			
 			li		t0, 8
 			mul		t1, t1, t0				# t1 = Offset da sprite do primeiro digito
@@ -531,7 +535,7 @@ HUD.NAO_RESETA:
 			jal		RENDER
 			
 			li		t0, 10
-			rem		t2, s1, t0				# t2 = segundo digito do HP
+			rem		t2, t6, t0				# t2 = segundo digito do HP
 			
 			li		t0, 8
 			mul		t2, t2, t0				# t2 = Offset da sprite do segundo digito				

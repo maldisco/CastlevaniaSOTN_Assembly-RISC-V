@@ -36,20 +36,19 @@ FISICA:			addi		sp, sp, -4
 			jal		COLISAO.BAIXO
 			mv		a6, a0	
 
-FISICA.SUBINDO:
-			
-			
-			mv		a1, a3
+FISICA.SUBINDO:		mv		a1, a3
 			mv		a2, a4
 			mv		a3, a5
 			mv		a4, a6	
 			
-		
 			lw		ra, (sp)
 			addi		sp, sp, 4
 			ret
 
-FISICA.HIT:		addi		s1, s1, -3			# Desce a vida
+# Consequências para o personagem tomar dano do terreno
+FISICA.HIT:		li		t0, -3
+			fcvt.s.w	ft0, t0
+			fadd.s		fs4, fs4, ft0			# Perde 3 pontos de vida
 
 			la		t0, moveX
 			lb		t1, (t0)
@@ -59,9 +58,10 @@ FISICA.HIT:		addi		s1, s1, -3			# Desce a vida
 FISICA.HIT.STAGGER_DIREITA:
 			sb		t2, (t0)
 			
-			li		t2, -5
+			li		t2, -6
 			fcvt.s.w	fs2, t2				# Pula
 			
+			# Guarda os registradores
 			mv		t1, a0
 			mv		t2, a1
 			mv		t3, a2
@@ -69,6 +69,7 @@ FISICA.HIT.STAGGER_DIREITA:
 			mv		t5, a4
 			mv		t6, a5
 			
+			# Som de dano
 			li 		a0, 102				# pitch
 			li 		a1, 1000			# duracao
 			li 		a2, 116				# instrumento
@@ -76,6 +77,7 @@ FISICA.HIT.STAGGER_DIREITA:
 			li 		a7, 31				# define a chamada de syscall
 			ecall
 			
+			# Recupera os registradores
 			mv		a0,t1
 			mv		a1,t2
 			mv		a2,t3

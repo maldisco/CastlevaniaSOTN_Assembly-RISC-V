@@ -33,7 +33,6 @@ ENTRADA.RET:		ret
 # - - moveX = 0
 PARA:			loadb(t1, pulando)
 			bnez 		t1, NAO_PODE_PARAR	
-			loadb(t1, moveX)
 			li 		t1, 0
 			saveb(t1, moveX)
 NAO_PODE_PARAR:		ret
@@ -46,12 +45,6 @@ NAO_PODE_PARAR:		ret
 # - - Reseta animação para 0
 DIREITA:		loadb(t1, moveX)
 			bgtz 		t1, DIREITA.TURN
-			
-			loadb(t1, pulando)
-			bnez 		t1, DIREITA.TURN
-			
-			loadb(t1, socando)
-			bnez 		t1, DIREITA.TURN
 			
 			saveb(zero, alucard.animacao)
 			
@@ -68,13 +61,7 @@ DIREITA.TURN:		li 		t1, 16
 # - - Reseta animação para 0
 ESQUERDA:		loadb(t1, moveX)
 			bltz 		t1, ESQUERDA.TURN
-			
-			loadb(t1, pulando)
-			bnez 		t1, ESQUERDA.TURN
-			
-			loadb(t1, socando)
-			bnez 		t1, ESQUERDA.TURN
-			
+						
 			saveb(zero, alucard.animacao)
 			
 ESQUERDA.TURN:		li 		t1, -16
