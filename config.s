@@ -4,7 +4,8 @@
 .eqv MMIO_add			0xff200004
 
 faca:				.string "sprites/faca.bin"
-faca.descritor:			.word 0
+faca2:				.string "sprites/faca2.bin"
+faca.descritor:			.word 0, 0
 
 hud:				.string "sprites/hud.bin"
 hud.offsets:			.word 0, 0, 0, 0, 107, 107, 107, 107, 214, 214, 214, 214, 321, 321, 321, 321, 428, 428, 428, 428, 535, 535, 535, 535, 642, 642, 642, 642

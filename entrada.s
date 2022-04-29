@@ -19,6 +19,9 @@ ENTRADA:		li		s11, MMIO_set
 			
 			li 		t1, 'z'
 			beq 		t0, t1, SOCA
+			
+			li		t1, 'x'
+			beq		t0, t1, ARREMESSA
 		
 ENTRADA.RET:		ret
 		
@@ -100,3 +103,45 @@ SOCA:			loadb(t1, socando)
 			li		t1, 1
 			saveb(t1, socando)
 JA_ESTA_SOCANDO:	ret
+
+# Se a tecla X foi apertada
+# - Se faca.habilitada = 1
+# - - faca.arremessa = 1 (animação do personagem)
+# - - faca.renderiza = 1 (animação da faca)
+# - Senão
+# - - nada
+ARREMESSA:		la		t0, faca.habilitada
+			lb		t1, (t0)
+			beqz		t1, ENTRADA.RET
+			
+			la		t2, faca.arremessa
+			lb		t1, (t2)
+			bnez		t1, ENTRADA.RET
+			
+			la		t3, faca.renderiza
+			lb		t1, (t3)
+			bnez		t1, ENTRADA.RET
+			
+			li		t1, 1
+			sb		t1, (t2)
+			sb		t1, (t3)
+			
+			la		t0, alucard.animacao
+			sb		zero, (t0)
+			
+			addi		t2, s6, 58
+			fcvt.s.w	fs6, t2					# fs6 = Posição X da faca
+			
+			la		t0, sentido
+			lb		t1, (t0)
+			bgez		t1, ARREMESA.DIREITA
+			
+			fcvt.s.w	fs6, s6
+
+ARREMESA.DIREITA:	addi		t2, s5, 27
+			fcvt.s.w	fs7, t2					# fs7 = Posição Y da faca
+			
+			fcvt.s.w	fs3, zero				# fs3 = move X
+			
+			ret
+			

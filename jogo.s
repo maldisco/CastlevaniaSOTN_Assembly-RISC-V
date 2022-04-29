@@ -36,6 +36,14 @@
 			la		t0, faca.descritor
 			sw		a0, (t0)
 			
+			# Carrega arquivos de sprite da segunda faca
+			la		a0, faca2
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 4(t0)
+			
 			la		t0, TELA.DESCRITORES
 			# Carrega o arquivo da primeira tela do jogo
 			la 		a0, tela1
@@ -135,6 +143,8 @@
 			# FS3 = move X (Quantidade de movimentos no eixo X)		      #
 			# FS4 = HP do personagem					      #
 			# FS5 = Salto (Movido para fs2 sempre que pular)(Constante)           #
+			# FS6 = Posição X da faca					      #
+			# FS7 = Posição Y da faca					      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -170,12 +180,17 @@ MAPA.RENDER:		mv		a0, s9
 # Atualiza a posição da personagem 	
 ALUCARD.ATUALIZA:	loadb(t1, socando)
 			bnez 		t1, ALUCARD.SOCANDO
+			la		t0, faca.arremessa
+			lb		t1, (t0)
+			bgtz		t1, ALUCARD.FACA
 			loadb(t1, pulando)
 			bnez 		t1, ALUCARD.PULANDO
 			fcvt.w.s	t1, fs3				
 			bgtz 		t1, ALUCARD.CORRENDO.DIREITA
-			
+	
 			bltz 		t1, ALUCARD.CORRENDO.ESQUERDA
+			
+			
 			
 ALUCARD.PARADO:		bnez 		a4, LP.COLIDIU.BAIXO		# Checa se colidiu com o chão
 			
@@ -454,7 +469,8 @@ LCE.NAO_RESETA:
 
 # LS	
 ALUCARD.SOCANDO:	# checa colisão abaixo
-			bnez		a4, LS.COLIDIU.BAIXO		
+			bnez		a4, LS.COLIDIU.BAIXO	
+			bnez		a3, LS.COLIDIU.BAIXO	
 	
 LS.MOVE_Y:		# Movimenta o mapa em Y
 			add 		t2, s3, s2
@@ -499,9 +515,128 @@ LS.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)					# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
-
+			j		ALUCARD.RENDER
+			
+# LF	
+ALUCARD.FACA:	# checa colisão abaixo
+			bnez		a4, LF.COLIDIU.BAIXO	
+			
+			bnez		a3, LF.COLIDIU.BAIXO	
+	
+LF.MOVE_Y:		# Movimenta o mapa em Y
+			add 		t2, s3, s2
+			la		t0, mapa.max.y
+			lhu		t3, 0(t0)
+			bgt		t2, t3, LF.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
+			
+			la		t0, mapa.min.y
+			lhu		t3, 0(t0)
+			blt		t2, t3, LF.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
+												
+			mv		s3, t2			# Se não, move mapa
+			j		LF.COLIDIU.BAIXO
+					
+LF.MOVE_Y.CHAR:		# Movimenta o personagem em Y
+			add 		s5, s5, s2	
+			
+LF.COLIDIU.BAIXO:	# Gera os valores para renderizar
+			mv 		a0, s10						# Descritor
+			mv		a1, s6						# X na tela
+			mv		a2, s5						# Y na tela
+			li 		a3, ALUCARD.OFFSET				# Largura da imagem
+			li 		a4, ALUCARD.LARGURA				# Largura da sprite
+			frame_address(a5)						# Endereço da frame
+		
+			loadb(t1, alucard.animacao)
+			li 		t2, 7
+			blt 		t1, t2,LF.RENDER				# Se tiver chegado na ultima animação, para de socar
+			
+			saveb(zero, faca.arremessa)
+				
+LF.RENDER:		addi 		t3, t1, 1					# Avança um movimento na animação
+			saveb(t3, alucard.animacao)
+			li 		t2, 4
+			mul 		t1, t1, t2
+			la 		t2, alucard.faca.direita.offsets
+			loadb(t3, sentido)
+			bgtz 		t3, LF.SENTIDO.DIREITA
+			
+			la 		t2, alucard.faca.esquerda.offsets			
+LF.SENTIDO.DIREITA:
+			add 		t2, t2, t1
+			lw 		a6, (t2)					# Offset na imagem
+			li 		a7, ALUCARD.ALTURA
+			
 # Chama a função de renderizar o personagem
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
+
+# Renderiza a faca arremessada, se houver
+FACA.RENDER:		la		t0, faca.renderiza
+			lb		t1, (t0)
+			beqz		t1, OBJETO.RENDER
+			
+			la		t0, sentido
+			lb		t1, (t0)
+			bltz		t1, FACA.RENDER.ESQUERDA
+			
+			fcvt.w.s	t1, fs6
+			
+			li		a1, 320
+			sub		a1, a1, t1
+			li		a2, OBJETO.LARGURA
+			call		MIN
+			mv		a4, a0						# Largura da faca
+			
+			blez		a4, FACA.PARA					# Se a largura < 0, para de renderizar
+			
+			li		a6, 0						# Offset na imagem
+			
+			mv		a1, t1						# Posição X da faca			
+			addi		t1, t1, 8
+			fcvt.s.w	fs6, t1						# Atualiza posição da faca
+			
+			
+			la		t0, faca.descritor
+			lw		a0, (t0)
+			j		FACA.RENDERIZA
+			
+FACA.RENDER.ESQUERDA:	fcvt.w.s	t1, fs6
+			
+			addi		t2, t1, 30					
+			blez		t2, FACA.PARA
+			
+			mv		a1, t1
+			addi		t1, t1, -8
+			fcvt.s.w	fs6, t1						# Guarda nova posição X da faca
+			li		a2, 0
+			call		MAX
+			mv		t1, a0						# Posição X da faca
+			
+			li		a1, -1
+			mul		a1, a1, t1
+			li		a2, 0
+			call		MAX
+			mv		a6, a0						# Offset na imagem
+			
+			li		a4, 30
+			sub		a4, a4, a6					# Largura 
+			
+			mv		a1, t1
+			
+			la		t0, faca.descritor
+			lw		a0, 4(t0)
+
+FACA.RENDERIZA:		fcvt.w.s	a2, fs7
+			li		a3, OBJETO.IMAGEM.LARGURA
+			frame_address(a5)
+			li		a7, OBJETO.ALTURA
+			jal 		RENDER
+			
+			j		OBJETO.RENDER
+
+FACA.PARA:		la		t0, faca.renderiza				# Se a faca ja chegou no limite da tela, para de renderizar
+			sb		zero, (t0)
+			
 
 # Renderiza um objeto na tela (se tiver)
 OBJETO.RENDER:		la		t0, objeto
@@ -541,6 +676,7 @@ OBJETO.RENDER:		la		t0, objeto
 			li		t2, 0
 			li		t3, 4
 			
+# Adiciona o objeto à HUD
 OBJETO.LOOP:		mul		t4, t3, t2
 			add		t4, t4, t0
 			lw		t5, (t4)
@@ -553,20 +689,25 @@ OBJETO.LOOP:		mul		t4, t3, t2
 			
 			jal		OST.OBJETO
 			
-OBJETO.NAO_PEGOU:
+OBJETO.NAO_PEGOU:	li		a1, -1
+			mul		a1, a1, t1	
+			li		a2, 0
+			jal 		MAX
+			mv		a6, a0
+			
+			li		a4, 30
+			sub		a4, a4, a6
+			
 			mv		a1, t1
-			li		a2, 22
-			jal 		MIN
-			mv		t3, a0
-
+			li		a2, 0
+			jal		MAX
+			mv		a1, a0
+			
 			la		t0, faca.descritor
 			lw		a0, (t0)
-			mv		a1, t1
 			mv		a2, t2
 			li		a3, OBJETO.IMAGEM.LARGURA
-			li		a4, OBJETO.LARGURA
 			frame_address(a5)
-			li		a6, 0
 			li		a7, OBJETO.ALTURA
 			jal 		RENDER
 			
