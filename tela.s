@@ -61,17 +61,13 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			li		s5, 150
 			li		t1, -14
 			fcvt.s.w	fs3, t1
+			fcvt.s.w	fa1, zero
 			li		t1, 1
 			fcvt.s.w	fa2, t1
 			li 		t1, -6		
-			fcvt.s.w 	fs2, t1				
-			
-			la		t0, sentido
+			fcvt.s.w 	fs2, t1	
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO			
 
@@ -83,15 +79,11 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			li		s6, 120
 			li		s5, 30
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO
 
@@ -103,15 +95,11 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			li		s6, 240
 			li		s5, 115
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO
 
@@ -124,15 +112,11 @@ TELA_2.PARA.TELA_10:
 			li		s6, 20
 			li		s5, 95
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -145,15 +129,11 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			li		s6, 0
 			li		s5, 95
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO
 
@@ -165,15 +145,11 @@ TELA_3.PARA.TELA_4_antigo:	jal		CONFIG.TELA_4
 			li		s6, 0
 			li		s5, 72
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -185,18 +161,13 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_BF
 			li		s6, 10
 			li		s5, 160
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
 			li		t1, 1
 			fcvt.s.w	fa0, t1
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 			
 			jal		OST.SETUP_MEGALO
 			
@@ -211,15 +182,11 @@ TELA_3.PARA.TELA_5_CIMA:
 			li		s6, 220
 			li		s5, 70
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero				
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -232,15 +199,11 @@ TELA_3.PARA.TELA_5_BAIXO:
 			li		s6, 225
 			li		s5, 100
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -253,15 +216,11 @@ TELA_5.PARA.TELA_3_BAIXO:
 			li		s6, 10
 			li		s5, 115
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO
 
@@ -274,15 +233,11 @@ TELA_5.PARA.TELA_3_CIMA:
 			li		s6, 10
 			li		s5, 90
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO
 
@@ -294,15 +249,11 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			li		s6, 223
 			li		s5, 88
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)
+			fcvt.s.w	fa4, t1	
 			
 			tail		LOOP_JOGO
 
@@ -315,15 +266,11 @@ TELA_6.PARA.TELA_5:
 			li		s6, 20
 			li		s5, 70
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -336,15 +283,11 @@ TELA_4.PARA.TELA_7:
 			li		s6, 20
 			li		s5, 70
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, 1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 			
@@ -358,15 +301,11 @@ TELA_7.PARA.TELA_4:
 			li		s6, 220
 			li		s5, 90
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -379,15 +318,11 @@ TELA_7.PARA.TELA_10:
 			li		s6, 220
 			li		s5, 95
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -400,15 +335,11 @@ TELA_10.PARA.TELA_7:
 			li		s6, 220
 			li		s5, 75
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -421,15 +352,11 @@ TELA_10.PARA.TELA_2:
 			li		s6, 205
 			li		s5, 95
 			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
-			
-			la		t0, sentido
 			li		t1, -1
-			sb		t1, (t0)
-			
-			la		t0, socando
-			sb		zero, (t0)			
+			fcvt.s.w	fa4, t1				
 	
 			tail		LOOP_JOGO
 
@@ -444,6 +371,8 @@ config_tela_1:		jal		CONFIG.TELA_1
 	
 			# Inicia velocidade Y como 0
 			fcvt.s.w	fs2, zero
+			li		t1, 1
+			fcvt.s.w	fa7, t1
 			
 			la		t0, faca.descritor
 			lw		t1, (t0)

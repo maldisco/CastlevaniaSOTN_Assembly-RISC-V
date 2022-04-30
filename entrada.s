@@ -32,8 +32,7 @@ ENTRADA.RET:		ret
 # - - moveX = 0
 PARA:			fcvt.w.s	t1, fa2
 			bnez 		t1, ENTRADA.RET	
-			fcvt.s.w	ft0, zero
-			fmv.s		fs3, ft0		# Fs3 = move X
+			fcvt.s.w	fs3, zero		# Fs3 = move X
 			ret
 		
 		
@@ -45,12 +44,12 @@ PARA:			fcvt.w.s	t1, fa2
 DIREITA:		fcvt.w.s	t1, fs3			# Fs3 = move X
 			bgtz 		t1, DIREITA.TURN
 			
-			saveb(zero, alucard.animacao)
+			fcvt.s.w	ft11, zero
 			
 DIREITA.TURN:		li 		t1, 16
 			fcvt.s.w	fs3, t1
 			li 		t1, 1
-			saveb(t1, sentido) 
+			fcvt.s.w	fa4, t1	
 			ret
 		
 # Se a tecla A foi apertada
@@ -61,12 +60,12 @@ DIREITA.TURN:		li 		t1, 16
 ESQUERDA:		fcvt.w.s	t1, fs3	
 			bltz 		t1, ESQUERDA.TURN
 						
-			saveb(zero, alucard.animacao)
+			fcvt.s.w	ft11, zero
 			
 ESQUERDA.TURN:		li 		t1, -16
 			fcvt.s.w	fs3, t1
-			li		 t1, -1
-			saveb(t1, sentido)
+			li		t1, -1
+			fcvt.s.w	fa4, t1	
 			ret
 		
 # Se a tecla W foi apertada
@@ -80,7 +79,7 @@ PULA:			fcvt.w.s	t1, fa2
 			
 			li		t1, 1
 			fcvt.s.w	fa2, t1
-			saveb(zero, alucard.animacao) 			
+			fcvt.s.w	ft11, zero			
 			fmv.s		fs2, fs5
 			ret
 	
@@ -89,7 +88,7 @@ PULA:			fcvt.w.s	t1, fa2
 # - - nada
 # - Senão
 # - - socando = 1	
-SOCA:			loadb(t1, socando)
+SOCA:			fcvt.w.s	t1, fa1
 			bnez 		t1, ENTRADA.RET
 			
 			addi		sp, sp, -4
@@ -98,9 +97,9 @@ SOCA:			loadb(t1, socando)
 			lw		ra, (sp)
 			addi		sp, sp, 4
 			
-			saveb(zero, alucard.animacao) 
+			fcvt.s.w	ft11, zero
 			li		t1, 1
-			saveb(t1, socando)
+			fcvt.s.w	fa1, t1
 			ret
 
 # Se a tecla X foi apertada
@@ -109,30 +108,25 @@ SOCA:			loadb(t1, socando)
 # - - faca.renderiza = 1 (animação da faca)
 # - Senão
 # - - nada
-ARREMESSA:		la		t0, faca.habilitada
-			lb		t1, (t0)
+ARREMESSA:		fcvt.w.s	t1, fa6	
 			beqz		t1, ENTRADA.RET
 			
-			la		t2, faca.arremessa
-			lb		t1, (t2)
+			fcvt.w.s	t1, fa3
 			bnez		t1, ENTRADA.RET
 			
-			la		t3, faca.renderiza
-			lb		t1, (t3)
+			fcvt.w.s	t1, fa5
 			bnez		t1, ENTRADA.RET
 			
 			li		t1, 1
-			sb		t1, (t2)
-			sb		t1, (t3)
+			fcvt.s.w	fa3, t1
+			fcvt.s.w	fa5, t1
 			
-			la		t0, alucard.animacao
-			sb		zero, (t0)
+			fcvt.s.w	ft11, zero
 			
 			addi		t2, s6, 58
 			fcvt.s.w	fs6, t2					# fs6 = Posição X da faca
 			
-			la		t0, sentido
-			lb		t1, (t0)
+			fcvt.w.s	t1, fa4					# fa4 = Sentido do personagem
 			bgez		t1, ARREMESA.DIREITA
 			
 			fcvt.s.w	fs6, s6

@@ -131,6 +131,9 @@
 			li		t0, 99
 			fcvt.s.w	fs4, t0				# HP do personagem
 			
+			li		t0, 1
+			fcvt.s.w	fa4, t0
+			
 			la		t0, SALTO			# Aceleração inicial do salto
 			flw		fs5, (t0)			
 			
@@ -142,7 +145,7 @@
 			jal		OST.SETUP
 			jal 		config_tela_1	
 			
-			# # # # # # # # # # # # # # NÃO DEVE MUDAR # # # # # # # # # # # # #  #
+			# # # # # # # # # # # # # # # # GLOBAIS # # # # # # # # # # # # # # # #
 			# S11 = Tempo da ultima atualizacao de tela                           #
 			# S10 = Descritor do arquivo de sprites do alucard                    #
 			# S9 = Descritor do arquivo da tela atual                             #
@@ -167,7 +170,14 @@
 			# FA0 = Sinal de controle SANS					      #
 			# FA1 = Sinal de controle corte Alucard				      #
 			# FA2 = Sinal de controle pulo Alucard				      #
-			# FA3 = Sinal de controle animacao Alucard			      #
+			# FA3 = Sinal de controle faca Alucard			     	      #
+			# FA4 = Sinal de controle sentido (direita/esquerda) Alucard          #
+			# FA5 = Sinal de controle faca					      #
+			# FA6 = Sinal de controle faca habilitada	 		      #
+			# FA7 = Sinal de controle objeto				      #
+			# ------------------------------------------------------------------- #
+			# FT11 = Contador de animação Alucard				      #
+			# FT10 = Contador de animação HUD				      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -221,20 +231,17 @@ ALUCARD.ATUALIZA:	jal 		FISICA
 			#		a3 = Colisão acima
 			#		a4 = Colisão abaixo
 			 	
-			loadb(t1, socando)
+			fcvt.w.s	t1, fa1
 			bnez 		t1, ALUCARD.SOCANDO
-			la		t0, faca.arremessa
-			lb		t1, (t0)
+			fcvt.w.s	t1, fa3
 			bgtz		t1, ALUCARD.FACA
 			fcvt.w.s	t1, fa2
 			bnez 		t1, ALUCARD.PULANDO
 			fcvt.w.s	t1, fs3				
 			bgtz 		t1, ALUCARD.CORRENDO.DIREITA
-	
-			bltz 		t1, ALUCARD.CORRENDO.ESQUERDA
+			bltz 		t1, ALUCARD.CORRENDO.ESQUERDA			
 			
-			
-			
+# LP
 ALUCARD.PARADO:		bnez 		a4, LP.COLIDIU.BAIXO		# Checa se colidiu com o chão
 			
 						
@@ -256,7 +263,7 @@ LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			li 		a3, ALUCARD.OFFSET		# Largura da imagem
 			li 		a4, ALUCARD.LARGURA		# Largura da sprite
 			frame_address(a5)				# Endereço da frame
-			loadb(t1, alucard.animacao)
+			fcvt.w.s	t1, ft11			# ft11 =  Contador de animação Alucard
 			li 		t2, 48
 			blt 		t1, t2,LP.NAORESETA
 			
@@ -264,11 +271,11 @@ LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			
 LP.NAORESETA:
 			addi 		t3, t1, 1			# Avança um movimento na animação
-			saveb(t3, alucard.animacao)
+			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.parado.direita.offsets
-			loadb(t3, sentido)
+			fcvt.w.s	t3, fa4				
 			bgtz 		t3, LP.SENTIDO.DIREITA
 			
 			la 		t2 alucard.parado.esquerda.offsets
@@ -314,8 +321,8 @@ LPU.MOVE_Y:		# Movimenta o mapa em Y
 LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2	
 															
-# Atualiza a posição X
-LPU.ATUALIZA_X:		fcvt.w.s	t1, fs3				
+LPU.ATUALIZA_X:		# Atualiza a posição X
+			fcvt.w.s	t1, fs3				
 			beqz 		t1, LPU.PARADO
 			bgtz 		t1, LPU.DIREITA
 
@@ -361,7 +368,7 @@ LPU.PARADO:	# Gera os valores para renderizar
 			li 		a3, ALUCARD.OFFSET			# Largura da imagem
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
-			loadb(t1, alucard.animacao)
+			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
 			li 		t2, 88
 			blt 		t1, t2,LPU.NAO_RESETA			# Se tiver chegado na ultima animação, reseta
 			
@@ -369,11 +376,11 @@ LPU.PARADO:	# Gera os valores para renderizar
 			
 LPU.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação
-			saveb(t3, alucard.animacao)
+			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.pulando.direita.offsets
-			loadb(t3, sentido)
+			fcvt.w.s	t3, fa4	
 			bgtz 		t3, LPU.SENTIDO.DIREITA
 			
 			la 		t2 alucard.pulando.esquerda.offsets
@@ -407,12 +414,12 @@ LCD.COLIDIU:		bnez 		a4, LCD.COLIDIU.BAIXO
 		
 LCD.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
-			add 		t2, s3, s2			# desce velocidadeY pixels
+			add 		t2, s3, s2				# desce velocidadeY pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt 		t2, t3, LCD.MOVE_Y.CHAR		# Se chegou ao limite inferior do mapa, move o personagem ao invés do mapa
+			bgt 		t2, t3, LCD.MOVE_Y.CHAR			# Se chegou ao limite inferior do mapa, move o personagem ao invés do mapa
 			
-			mv		s3, t2				# Se não, move o mapa
+			mv		s3, t2					# Se não, move o mapa
 			j 		LCD.COLIDIU.BAIXO
 
 LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
@@ -423,13 +430,13 @@ LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			fcvt.s.w	ft0, t0
 			fadd.s		fs3, fs3, ft0
 			# Gera os valores para renderizar
-			mv 		a0, s10						# Descritor
-			mv		a1, s6						# X na tela
-			mv		a2, s5						# Y na tela
-			li 		a3, ALUCARD.OFFSET				# Largura da imagem
-			li 		a4, ALUCARD.LARGURA				# Largura da sprite
-			frame_address(a5)						# Endereço da frame
-			loadb(t1, alucard.animacao)
+			mv 		a0, s10					# Descritor
+			mv		a1, s6					# X na tela
+			mv		a2, s5					# Y na tela
+			li 		a3, ALUCARD.OFFSET			# Largura da imagem
+			li 		a4, ALUCARD.LARGURA			# Largura da sprite
+			frame_address(a5)					# Endereço da frame
+			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
 			li 		t2, 62
 			
 			blt 		t1, t2,LCD.NAO_RESETA
@@ -437,13 +444,13 @@ LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			li 		t1, 32
 			
 LCD.NAO_RESETA:
-			addi 		t3, t1, 1					# Avança um movimento na animação
-			saveb(t3, alucard.animacao)
+			addi 		t3, t1, 1				# Avança um movimento na animação
+			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.correndo.direita.offsets
 			add 		t2, t2, t1
-			lw 		a6, (t2)					# Offset na imagem
+			lw 		a6, (t2)				# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
 			j 		ALUCARD.RENDER
 # LCE	
@@ -486,26 +493,26 @@ LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			fcvt.s.w	ft0, t0
 			fadd.s		fs3, fs3, ft0
 			# Gera os valores para renderizar
-			mv 		a0, s10						# Descritor
-			mv		a1, s6						# X na tela
-			mv		a2, s5						# Y na tela
-			li 		a3, ALUCARD.OFFSET				# Largura da imagem
-			li 		a4, ALUCARD.LARGURA				# Largura da sprite
-			frame_address(a5)						# Endereço da frame
-			loadb(t1, alucard.animacao)
+			mv 		a0, s10					# Descritor
+			mv		a1, s6					# X na tela
+			mv		a2, s5					# Y na tela
+			li 		a3, ALUCARD.OFFSET			# Largura da imagem
+			li 		a4, ALUCARD.LARGURA			# Largura da sprite
+			frame_address(a5)					# Endereço da frame
+			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
 			li 		t2, 62
-			blt 		t1, t2,LCE.NAO_RESETA				# Se tiver chegado na última animação, recicla
+			blt 		t1, t2,LCE.NAO_RESETA			# Se tiver chegado na última animação, recicla
 			
 			li 		t1, 32
 			
 LCE.NAO_RESETA:
-			addi 		t3, t1, 1					# Avança um movimento na animação
-			saveb(t3, alucard.animacao)
+			addi 		t3, t1, 1				# Avança um movimento na animação
+			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.correndo.esquerda.offsets
 			add 		t2, t2, t1
-			lw 		a6, (t2)					# Offset na imagem
+			lw 		a6, (t2)				# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
 			j		ALUCARD.RENDER	
 
@@ -518,38 +525,37 @@ LS.MOVE_Y:		# Movimenta o mapa em Y
 			add 		t2, s3, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
+			bgt		t2, t3, LS.MOVE_Y.CHAR			# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
 			
 			la		t0, mapa.min.y
 			lhu		t3, 0(t0)
-			blt		t2, t3, LS.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
+			blt		t2, t3, LS.MOVE_Y.CHAR			# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
 												
-			mv		s3, t2			# Se não, move mapa
+			mv		s3, t2					# Se não, move mapa
 			j		LS.COLIDIU.BAIXO
 					
 LS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
 			add 		s5, s5, s2	
 			
 LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
-			mv 		a0, s10						# Descritor
-			mv		a1, s6						# X na tela
-			mv		a2, s5						# Y na tela
-			li 		a3, ALUCARD.OFFSET				# Largura da imagem
-			li 		a4, ALUCARD.LARGURA				# Largura da sprite
-			frame_address(a5)						# Endereço da frame
-		
-			loadb(t1, alucard.animacao)
+			mv 		a0, s10					# Descritor
+			mv		a1, s6					# X na tela
+			mv		a2, s5					# Y na tela
+			li 		a3, ALUCARD.OFFSET			# Largura da imagem
+			li 		a4, ALUCARD.LARGURA			# Largura da sprite
+			frame_address(a5)					# Endereço da frame
+			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
 			li 		t2, 33
-			blt 		t1, t2,LS.RENDER				# Se tiver chegado na ultima animação, para de socar
+			blt 		t1, t2,LS.RENDER			# Se tiver chegado na ultima animação, para de socar
 			
-			saveb(zero, socando)
+			fcvt.s.w	fa1, zero
 				
-LS.RENDER:		addi 		t3, t1, 1					# Avança um movimento na animação
-			saveb(t3, alucard.animacao)
+LS.RENDER:		addi 		t3, t1, 1				# Avança um movimento na animação
+			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.socando.direita.offsets
-			loadb(t3, sentido)
+			fcvt.w.s	t3, fa4	
 			bgtz 		t3, LS.SENTIDO.DIREITA
 			
 			la 		t2, alucard.socando.esquerda.offsets			
@@ -560,7 +566,7 @@ LS.SENTIDO.DIREITA:
 			j		ALUCARD.RENDER
 			
 # LF	
-ALUCARD.FACA:	# checa colisão abaixo
+ALUCARD.FACA:		# checa colisão abaixo
 			bnez		a4, LF.COLIDIU.BAIXO	
 			
 			bnez		a3, LF.COLIDIU.BAIXO	
@@ -588,19 +594,18 @@ LF.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			li 		a3, ALUCARD.OFFSET				# Largura da imagem
 			li 		a4, ALUCARD.LARGURA				# Largura da sprite
 			frame_address(a5)						# Endereço da frame
-		
-			loadb(t1, alucard.animacao)
+			fcvt.w.s	t1, ft11					# ft11 =  Contador de animação Alucard
 			li 		t2, 7
 			blt 		t1, t2,LF.RENDER				# Se tiver chegado na ultima animação, para de socar
 			
-			saveb(zero, faca.arremessa)
+			fcvt.s.w	fa3, zero
 				
 LF.RENDER:		addi 		t3, t1, 1					# Avança um movimento na animação
-			saveb(t3, alucard.animacao)
+			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.faca.direita.offsets
-			loadb(t3, sentido)
+			fcvt.w.s	t3, fa4	
 			bgtz 		t3, LF.SENTIDO.DIREITA
 			
 			la 		t2, alucard.faca.esquerda.offsets			
@@ -613,12 +618,10 @@ LF.SENTIDO.DIREITA:
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 
 # Renderiza a faca arremessada, se houver
-FACA.RENDER:		la		t0, faca.renderiza
-			lb		t1, (t0)
+FACA.RENDER:		fcvt.w.s	t1, fa5
 			beqz		t1, OBJETO.RENDER
 			
-			la		t0, sentido
-			lb		t1, (t0)
+			fcvt.w.s	t1, fa4	
 			bltz		t1, FACA.RENDER.ESQUERDA
 			
 			fcvt.w.s	t1, fs6
@@ -676,13 +679,11 @@ FACA.RENDERIZA:		fcvt.w.s	a2, fs7
 			
 			j		OBJETO.RENDER
 
-FACA.PARA:		la		t0, faca.renderiza				# Se a faca ja chegou no limite da tela, para de renderizar
-			sb		zero, (t0)
+FACA.PARA:		fcvt.s.w	fa5, zero					# Desliga o sinal de renderização da faca
 			
 
 # Renderiza um objeto na tela (se tiver)
-OBJETO.RENDER:		la		t0, objeto
-			lb		t1, (t0)
+OBJETO.RENDER:		fcvt.w.s	t1, fa7
 			beqz		t1, HUD.RENDER					# Se não tiver objeto na tela, pula
 			
 			la		t0, objeto.x
@@ -707,11 +708,9 @@ OBJETO.RENDER:		la		t0, objeto
 			blt		t3, t5, OBJETO.NAO_PEGOU
 			bgt		t2, t4, OBJETO.NAO_PEGOU	
 			
-			la		t0, objeto
-			sb		zero, (t0)
-			la		t0, faca.habilitada
+			fcvt.s.w	fa7, zero		
 			li		t1, 1
-			sb		t1, (t0)
+			fcvt.s.w	fa6, t1	
 			
 			la		t0, hud.offsets
 			li		t1, 28
@@ -762,8 +761,7 @@ HUD.RENDER:		# Barra de status
 			li		a3, HUD.IMAGEM.LARGURA
 			li 		a4, HUD.LARGURA		
 			frame_address(a5)
-			la		t0, hud.atual
-			lb		t1, (t0)
+			fcvt.w.s	t1, ft10				# ft10 = Contador de animação da HUD
 			li		t2, 4
 			mul		t2, t2, t1
 			la		t3, hud.offsets
@@ -775,8 +773,8 @@ HUD.RENDER:		# Barra de status
 			blt		t1, t2, HUD.NAO_RESETA
 			
 			li		t1, 0
-HUD.NAO_RESETA:
-			sw 		t1, (t0)
+			
+HUD.NAO_RESETA:		fcvt.s.w	ft10, t1
 			
 			li 		a7, HUD.ALTURA
 			jal		RENDER

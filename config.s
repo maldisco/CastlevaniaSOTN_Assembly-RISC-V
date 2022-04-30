@@ -9,7 +9,6 @@ faca.descritor:			.word 0, 0
 
 hud:				.string "sprites/hud.bin"
 hud.offsets:			.word 0, 0, 0, 0, 107, 107, 107, 107, 214, 214, 214, 214, 321, 321, 321, 321, 428, 428, 428, 428, 535, 535, 535, 535, 642, 642, 642, 642
-hud.atual:			.byte 0
 .eqv HUD.IMAGEM.LARGURA		748
 .eqv HUD.LARGURA		105
 .eqv HUD.ALTURA			34
@@ -21,7 +20,6 @@ numeros:			.string "sprites/numeros.bin"
 
 dialogo1:			.string "dialogos/dialogo1.bin"
 
-objeto:				.byte 1
 objeto.x:			.half 56
 objeto.y:			.half 151
 objeto.descritor:		.word 0
