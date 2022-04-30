@@ -81,9 +81,8 @@ FISICA.HIT:		li		t0, -3
 FISICA.HIT.STAGGER_DIREITA:
 			fcvt.s.w	fs3, t2
 			
-			la		t0, pulando
 			li		t1, 1
-			sb		t1, (t0)		
+			fcvt.s.w	fa2, t1			
 			li		t2, -6
 			fcvt.s.w	fs2, t2				# Pula
 			

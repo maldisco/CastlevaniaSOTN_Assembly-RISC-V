@@ -29,6 +29,15 @@ objeto.descritor:		.word 0
 .eqv OBJETO.LARGURA		30
 .eqv OBJETO.ALTURA		8
 
+sans:				.string "sprites/SANS.bin"
+blaster_h:			.string "sprites/blaster_h.bin"
+blaster_v:			.string "sprites/blaster_v.bin"
+.eqv SANS.LARGURA		62	
+.eqv SANS.ALTURA		71
+.eqv SANS.IMAGEM.LARGURA	312
+.eqv SANS.X			129
+.eqv SANS.Y			54
+
 
 TELA.DESCRITORES:		.word 	0,0,0,0,0,0,0,0,0,0,0
 tela1:				.string "mapa/tela_1.bin"

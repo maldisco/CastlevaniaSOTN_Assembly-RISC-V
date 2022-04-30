@@ -30,11 +30,11 @@ ENTRADA.RET:		ret
 # - - nada
 # - Senão
 # - - moveX = 0
-PARA:			loadb(t1, pulando)
-			bnez 		t1, NAO_PODE_PARAR	
+PARA:			fcvt.w.s	t1, fa2
+			bnez 		t1, ENTRADA.RET	
 			fcvt.s.w	ft0, zero
 			fmv.s		fs3, ft0		# Fs3 = move X
-NAO_PODE_PARAR:		ret
+			ret
 		
 		
 # Se a tecla D foi apertada,
@@ -75,15 +75,14 @@ ESQUERDA.TURN:		li 		t1, -16
 # - - velocidadeY = -6.5 (subindo)
 # - Senão
 # - - nada
-PULA:			la		t0, pulando
-			lb 		t1, (t0)
-			bgtz 		t1, NAO_PULA	
+PULA:			fcvt.w.s	t1, fa2
+			bgtz 		t1, ENTRADA.RET	
 			
 			li		t1, 1
-			sb		t1, (t0)
+			fcvt.s.w	fa2, t1
 			saveb(zero, alucard.animacao) 			
 			fmv.s		fs2, fs5
-NAO_PULA:		ret
+			ret
 	
 # Se a tecla Z foi apertada
 # - Se socando > 0
@@ -91,7 +90,7 @@ NAO_PULA:		ret
 # - Senão
 # - - socando = 1	
 SOCA:			loadb(t1, socando)
-			bnez 		t1, JA_ESTA_SOCANDO
+			bnez 		t1, ENTRADA.RET
 			
 			addi		sp, sp, -4
 			sw		ra, (sp)
@@ -102,7 +101,7 @@ SOCA:			loadb(t1, socando)
 			saveb(zero, alucard.animacao) 
 			li		t1, 1
 			saveb(t1, socando)
-JA_ESTA_SOCANDO:	ret
+			ret
 
 # Se a tecla X foi apertada
 # - Se faca.habilitada = 1

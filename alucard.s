@@ -29,6 +29,5 @@ alucard.faca.direita.offsets: 		.word 3492,3492,3589,3589,3686,3686,3783,3783
 alucard.faca.esquerda.offsets: 		.word 4171,4171,4074,4074,3977,3977,3880,3880
 
 # booleano para indicar se o personagem está em animação de pulo
-pulando:				.byte 0
 sentido:				.byte 1
 socando:				.byte 0

@@ -20,6 +20,14 @@
 			ecall
 			mv		s8, a0			# Salva em s8
 			
+			# Carrega arquivo de sprites do SANS
+			la		a0, sans
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			mv		s1, a0
+			
 			# Carrega arquivo de sprites de numeros
 			la		a0, numeros
 			li		a1, 0
@@ -123,7 +131,7 @@
 			li		t0, 99
 			fcvt.s.w	fs4, t0				# HP do personagem
 			
-			la		t0, SALTO
+			la		t0, SALTO			# Aceleração inicial do salto
 			flw		fs5, (t0)			
 			
 			csrr 		s11, 3073			# Guarda tempo atual em s11 (usado para controle de FPS)
@@ -145,6 +153,7 @@
 			# S4 = Posição X do mapa					      #
 			# S3 = Posição Y do mapa					      #
 			# S2 = VelocidadeY (INTEIRO)					      #
+			# S1 = Descritor do arquivo de sprites do SANS			      #
 			# S0 = Frame atual						      #
 			# ------------------------------------------------------------------- #
 			# FS1 = Gravidade						      #
@@ -154,6 +163,11 @@
 			# FS5 = Salto (Movido para fs2 sempre que pular)(Constante)           #
 			# FS6 = Posição X da faca					      #
 			# FS7 = Posição Y da faca					      #
+			# ------------------------------------------------------------------- # 
+			# FA0 = Sinal de controle SANS					      #
+			# FA1 = Sinal de controle corte Alucard				      #
+			# FA2 = Sinal de controle pulo Alucard				      #
+			# FA3 = Sinal de controle animacao Alucard			      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -179,20 +193,40 @@ MAPA.RENDER:		mv		a0, s9
 			li 		a7, MAPA.ALTURA
 			jal		RENDER
 
-			jal 		FISICA
+# Atualiza a animação do SANS (se ele existir)
+SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle SANS
+			beqz		t0, ALUCARD.ATUALIZA
+			mv		a0, s1
+			li		a1, SANS.X
+			li		a2, SANS.Y
+			li		a3, SANS.IMAGEM.LARGURA
+			li		a4, SANS.LARGURA
+			frame_address(a5)
+			li		a6, 0
+			li		a7, SANS.ALTURA
+			jal		RENDER
+			
+			li		t1, ALUCARD.HITBOX_OFFSET.X
+			li		t2, 20
+			add		t1, t1, s6
+			add		t1, t1, t2
+			
+			li		t2, ALUCARD.HITBOX_OFFSET.Y
+
+# Atualiza a posição da personagem
+ALUCARD.ATUALIZA:	jal 		FISICA
 			# Retorna booleanos (1 = True, 0 = False)
 			#		a1 = Colisão à direita
 			#		a2 = Colisão à esquerda
 			#		a3 = Colisão acima
 			#		a4 = Colisão abaixo
-
-# Atualiza a posição da personagem 	
-ALUCARD.ATUALIZA:	loadb(t1, socando)
+			 	
+			loadb(t1, socando)
 			bnez 		t1, ALUCARD.SOCANDO
 			la		t0, faca.arremessa
 			lb		t1, (t0)
 			bgtz		t1, ALUCARD.FACA
-			loadb(t1, pulando)
+			fcvt.w.s	t1, fa2
 			bnez 		t1, ALUCARD.PULANDO
 			fcvt.w.s	t1, fs3				
 			bgtz 		t1, ALUCARD.CORRENDO.DIREITA
@@ -253,8 +287,7 @@ ALUCARD.PULANDO:		# Atualiza a posição Y
 LPU.DESCENDO:		# Checa se já caiu no chão
 			beqz 		a4, LPU.MOVE_Y
 			
-			la		t0, pulando
-			sb		zero, (t0) 
+			fcvt.s.w	fa2, zero 			# Zera o sinal de controle de pulo
 			j 		LPU.ATUALIZA_X	
 				
 LPU.SUBINDO:		# Checa se bateu no teto

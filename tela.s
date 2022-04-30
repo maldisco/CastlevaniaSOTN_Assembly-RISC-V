@@ -59,14 +59,10 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			li 		s3, T2.Y_INI	
 			li		s6, 110
 			li		s5, 150
-			
 			li		t1, -14
 			fcvt.s.w	fs3, t1
-			
-			la		t0, pulando
 			li		t1, 1
-			sb		t1, (t0)
-			
+			fcvt.s.w	fa2, t1
 			li 		t1, -6		
 			fcvt.s.w 	fs2, t1				
 			
@@ -86,12 +82,8 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			li 		s3, 0
 			li		s6, 120
 			li		s5, 30
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -110,12 +102,8 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			li 		s3, T3.Y_INI	
 			li		s6, 240
 			li		s5, 115
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -135,12 +123,8 @@ TELA_2.PARA.TELA_10:
 			li 		s3, 0
 			li		s6, 20
 			li		s5, 95
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -160,12 +144,8 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			li 		s3, 0
 			li		s6, 0
 			li		s5, 95
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -184,12 +164,8 @@ TELA_3.PARA.TELA_4_antigo:	jal		CONFIG.TELA_4
 			li 		s3, T4.Y_INI
 			li		s6, 0
 			li		s5, 72
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -207,14 +183,13 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_BF
 			li		s4, 0
 			li		s3, 0
 			li		s6, 10
-			li		s7, 17
-			
+			li		s5, 160
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
+			
+			li		t1, 1
+			fcvt.s.w	fa0, t1
 			
 			la		t0, sentido
 			li		t1, 1
@@ -235,12 +210,8 @@ TELA_3.PARA.TELA_5_CIMA:
 			li 		s3, 0
 			li		s6, 220
 			li		s5, 70
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero				
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -260,12 +231,8 @@ TELA_3.PARA.TELA_5_BAIXO:
 			li 		s3, 222
 			li		s6, 225
 			li		s5, 100
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -285,12 +252,8 @@ TELA_5.PARA.TELA_3_BAIXO:
 			li 		s3, T3.Y_INI
 			li		s6, 10
 			li		s5, 115
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -310,12 +273,8 @@ TELA_5.PARA.TELA_3_CIMA:
 			li 		s3, 236
 			li		s6, 10
 			li		s5, 90
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -334,12 +293,8 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			li 		s3, T6.Y_INI
 			li		s6, 223
 			li		s5, 88
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -359,12 +314,8 @@ TELA_6.PARA.TELA_5:
 			li 		s3, 0
 			li		s6, 20
 			li		s5, 70
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -384,12 +335,8 @@ TELA_4.PARA.TELA_7:
 			li 		s3, 528
 			li		s6, 20
 			li		s5, 70
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -410,12 +357,8 @@ TELA_7.PARA.TELA_4:
 			li		s3, 222
 			li		s6, 220
 			li		s5, 90
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -435,12 +378,8 @@ TELA_7.PARA.TELA_10:
 			li 		s3, 0
 			li		s6, 220
 			li		s5, 95
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -460,12 +399,8 @@ TELA_10.PARA.TELA_7:
 			li 		s3, 528
 			li		s6, 220
 			li		s5, 75
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
@@ -485,12 +420,8 @@ TELA_10.PARA.TELA_2:
 			li 		s3, 0
 			li		s6, 205
 			li		s5, 95
-			
 			fcvt.s.w	fs3, zero
-			
-			la		t0, pulando
-			sb		zero, (t0)
-			
+			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			
 			la		t0, sentido
