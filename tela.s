@@ -178,7 +178,7 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 3 para 4
-TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
+TELA_3.PARA.TELA_4_antigo:	jal		CONFIG.TELA_4
 			
 			li		s4, T4.X_INI
 			li 		s3, T4.Y_INI
@@ -199,6 +199,32 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_4
 			la		t0, socando
 			sb		zero, (t0)			
 	
+			tail		LOOP_JOGO
+
+# Configracoes ao mudar da tela 3 para 4
+TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_BF
+			
+			li		s4, 0
+			li		s3, 0
+			li		s6, 10
+			li		s7, 17
+			
+			fcvt.s.w	fs3, zero
+			
+			la		t0, pulando
+			sb		zero, (t0)
+			
+			fcvt.s.w 	fs2, zero
+			
+			la		t0, sentido
+			li		t1, 1
+			sb		t1, (t0)
+			
+			la		t0, socando
+			sb		zero, (t0)			
+			
+			jal		OST.SETUP_MEGALO
+			
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 3 para 5
@@ -374,6 +400,7 @@ TELA_4.PARA.TELA_7:
 			sb		zero, (t0)			
 	
 			tail		LOOP_JOGO
+			
 
 # Configurações ao mudar da tela 7 para 4
 TELA_7.PARA.TELA_4:	
@@ -486,6 +513,11 @@ config_tela_1:		jal		CONFIG.TELA_1
 	
 			# Inicia velocidade Y como 0
 			fcvt.s.w	fs2, zero
+			
+			la		t0, faca.descritor
+			lw		t1, (t0)
+			la		t0, objeto.descritor
+			sw		t1, (t0)
 			
 			# Dialogo inicial do jogo
 			# jal		DIALOGO_1.START
@@ -765,6 +797,40 @@ CONFIG.TELA_10:		la		t0, TELA.DESCRITORES
 			
 			la 		t0, mapa_hitbox
 			la 		t1, tela_10_hitboxes
+			sw		t1, 0(t0)
+			
+			ret
+
+# Constantes para a tela de bossfight
+CONFIG.TELA_BF:		la		t0, TELA.DESCRITORES
+			lw		s9, 32(t0)
+			
+			la		t1, mapa.imagem.largura
+			li 		t2, TBF.LARGURA
+			sh 		t2, 0(t1)
+		
+			la		t1, mapa.hitbox.largura 
+			li 		t2, TBF.LARGURA
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.max.x
+			li 		t2, TBF.MAX.X
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.min.x
+			li		t2, TBF.MIN.X
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.max.y
+			li		t2, TBF.MAX.Y
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.min.y
+			li		t2, TBF.MIN.Y
+			sh		t2, 0(t1)
+			
+			la 		t0, mapa_hitbox
+			la 		t1, tela_bf_hitboxes
 			sw		t1, 0(t0)
 			
 			ret

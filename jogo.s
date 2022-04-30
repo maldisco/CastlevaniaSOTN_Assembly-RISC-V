@@ -1,6 +1,7 @@
 .data
 .include "config.s"
 .include "alucard.s"
+.include "inimigos.s"
 .include "macros.s"
 .text
 			# Carrega arquivo de sprites do personagem principal 
@@ -109,6 +110,14 @@
 			ecall
 			sw		a0, 28(t0)
 			
+			# Carrega o arquivo da tela de bossfight
+			la		a0, telabf
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall		
+			sw		a0, 32(t0)
+			
 			li		s0, 0				# Frame atual
 			
 			li		t0, 99
@@ -154,8 +163,8 @@ LOOP_JOGO:		csrr 		t0, 3073
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
 			xori 		s0, s0, 1				# Troca a frame para o usuário não ver as atualizações
-			#jal		OST.TOCA
-			#jal		OST.TOCA_2
+			jal		OST.TOCA
+			jal		OST.TOCA_2
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
@@ -688,6 +697,7 @@ OBJETO.LOOP:		mul		t4, t3, t2
 			blt		t2, t1, OBJETO.LOOP
 			
 			jal		OST.OBJETO
+			j		HUD.RENDER
 			
 OBJETO.NAO_PEGOU:	li		a1, -1
 			mul		a1, a1, t1	
@@ -703,7 +713,7 @@ OBJETO.NAO_PEGOU:	li		a1, -1
 			jal		MAX
 			mv		a1, a0
 			
-			la		t0, faca.descritor
+			la		t0, objeto.descritor
 			lw		a0, (t0)
 			mv		a2, t2
 			li		a3, OBJETO.IMAGEM.LARGURA
