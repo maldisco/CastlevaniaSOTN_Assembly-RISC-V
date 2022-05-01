@@ -16,7 +16,7 @@ TELA.TROCA:		li		t0, -1
 			beq		a0, t0, TELA_2.PARA.TELA_10
 			
 			li		t0, -5
-			beq 		a0, t0, TELA_3.PARA.TELA_4
+			beq 		a0, t0, TELA_3.PARA.TELA_BF
 			
 			li		t0, -8
 			beq		a0, t0, TELA_3.PARA.TELA_5_CIMA
@@ -138,7 +138,8 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 3 para 4
-TELA_3.PARA.TELA_4_antigo:	jal		CONFIG.TELA_4
+TELA_BF.PARA.TELA_4:	
+			jal		CONFIG.TELA_4
 			
 			li		s4, T4.X_INI
 			li 		s3, T4.Y_INI
@@ -148,13 +149,16 @@ TELA_3.PARA.TELA_4_antigo:	jal		CONFIG.TELA_4
 			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
+			fcvt.s.w	fa0, zero
 			li		t1, 1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1	
+			
+			jal 		OST.SETUP			
 	
 			tail		LOOP_JOGO
 
 # Configracoes ao mudar da tela 3 para 4
-TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_BF
+TELA_3.PARA.TELA_BF:	jal		CONFIG.TELA_BF
 			
 			li		s4, 0
 			li		s3, 0
@@ -167,7 +171,13 @@ TELA_3.PARA.TELA_4:	jal		CONFIG.TELA_BF
 			li		t1, 1
 			fcvt.s.w	fa0, t1
 			li		t1, 1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1	
+			li		t0, 100
+			fcvt.s.w	fs0, t0
+			li		t0, SANS.X
+			fcvt.s.w	fs11, t0
+			li		t0, SANS.Y
+			fcvt.s.w	fs10, t0			
 			
 			jal		OST.SETUP_MEGALO
 			

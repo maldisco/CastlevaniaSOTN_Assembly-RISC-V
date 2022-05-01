@@ -177,6 +177,7 @@
 			# S1 = Descritor do arquivo de sprites do SANS			      #
 			# S0 = Frame atual						      #
 			# ------------------------------------------------------------------- #
+			# FS0 = HP do inimigo						      #
 			# FS1 = Gravidade						      #
 			# FS2 = VelocidadeY						      #
 			# FS3 = move X (Quantidade de movimentos no eixo X)		      #
@@ -186,6 +187,8 @@
 			# FS7 = Posição Y da faca					      #
 			# FS8 = Posição Y do BlasterH					      #
 			# FS9 = Posição X do BlasterV					      #
+			# FS10 = Posição Y do inimigo					      #
+			# FS11 = Posição X do inimigo					      #
 			# ------------------------------------------------------------------- # 
 			# FA0 = Sinal de controle SANS					      #
 			# FA1 = Sinal de controle corte Alucard				      #
@@ -227,7 +230,7 @@ MAPA.RENDER:		mv		a0, s9
 			offset_mapa(a6)
 			li 		a7, MAPA.ALTURA
 			jal		RENDER
-
+			
 # Atualiza a animação do SANS (se ele existir)
 SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle SANS
 			beqz		t0, ALUCARD.ATUALIZA
@@ -278,7 +281,9 @@ SANS.SOBE:		mv		a0, s1
 			
 			li		t1, 1
 			fcvt.s.w	ft5, t1				# Ativa o blaster vertical
-			fcvt.s.w	fs9, s6				# Posição X do blaster = X do personagem
+			li		t1, ALUCARD.HITBOX_OFFSET.X
+			add		t1,s6,t1
+			fcvt.s.w	fs9,t1				# Posição X do blaster = X do personagem + offset
 			li		t1, 0
 			la		t0, sans.acao
 			addi		t4,t4,1
@@ -303,7 +308,9 @@ SANS.DESCE:		mv		a0, s1
 			
 			li		t1, 1
 			fcvt.s.w	ft6, t1				# Ativa o blaster horizontal
-			fcvt.s.w	fs8, s5				# Posição Y do blaster = Y do personagem
+			li		t1, ALUCARD.HITBOX_OFFSET.Y
+			add		t1, s5, t1
+			fcvt.s.w	fs8, t1				# Posição Y do blaster = Y do personagem + offset
 			li		t1, 0
 			la		t0, sans.acao
 			li		t4, -1
@@ -342,6 +349,28 @@ BLASTER_H.ATUALIZA:	fcvt.w.s	t1, ft6
 BLASTER_H.RENDER:	fcvt.s.w	ft8, t1
 			li		a7, BLASTER_H.ALTURA
 			jal 		RENDER
+			
+			# A partir da animação 60 (começou o raio branco)
+			fcvt.w.s	t1, ft8
+			li		t2, 60
+			blt		t1, t2, BLASTER_V.ATUALIZA
+			
+			# Se o limite superior do blaster está acima do limite inferior da hitbox do personagem
+			fcvt.w.s	t1, fs8
+			li		t2, ALUCARD.HITBOX_OFFSET.Y
+			add		t2, s5, t2
+			addi		t3, t2, 47				# Pé do alucard
+			bgt		t1, t3, BLASTER_V.ATUALIZA
+			
+			# E o limite inferior do blaster está abaixo do limite superior do personagem
+			li		t3, BLASTER_H.ALTURA
+			add		t3, t1, t3
+			blt		t3, t2, BLASTER_V.ATUALIZA
+			
+			# Personagem perde 1 de vida
+			li		t1, -1
+			fcvt.s.w	ft0, t1
+			fadd.s		fs4, fs4, ft0
 
 # Atualiza o ataque BLASTER (sans) na vertical			
 BLASTER_V.ATUALIZA:	fcvt.w.s	t1, ft5
@@ -371,6 +400,28 @@ BLASTER_V.ATUALIZA:	fcvt.w.s	t1, ft5
 BLASTER_V.RENDER:	fcvt.s.w	ft7, t1
 			li		a7, BLASTER_V.ALTURA
 			jal 		RENDER
+			
+			# A partir da animação 60 (começou o raio branco)
+			fcvt.w.s	t1, ft7
+			li		t2, 60
+			blt		t1, t2, ALUCARD.ATUALIZA
+			
+			# Se o limite esquerdo do blaster está a esquerda do limite direito da hitbox do personagem
+			fcvt.w.s	t1, fs9
+			li		t2, ALUCARD.HITBOX_OFFSET.X
+			add		t2, s6, t2
+			addi		t3, t2, 20				# direita do alucard
+			bgt		t1, t3, ALUCARD.ATUALIZA
+			
+			# E o limite direito do blaster está a direita do limite esquerdo do personagem
+			li		t3, BLASTER_V.LARGURA
+			add		t3, t1, t3
+			blt		t3, t2, ALUCARD.ATUALIZA
+			
+			# Personagem perde 1 de vida
+			li		t1, -1
+			fcvt.s.w	ft0, t1
+			fadd.s		fs4, fs4, ft0
 
 # Atualiza a posição da personagem
 ALUCARD.ATUALIZA:	jal 		FISICA
@@ -694,10 +745,11 @@ LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
-			li 		t2, 33
+			li 		t2, 17
 			blt 		t1, t2,LS.RENDER			# Se tiver chegado na ultima animação, para de socar
 			
 			fcvt.s.w	fa1, zero
+			j		FACA.ATUALIZA
 				
 LS.RENDER:		addi 		t3, t1, 1				# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
@@ -712,7 +764,44 @@ LS.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)					# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
-			j		ALUCARD.RENDER
+			
+			# Se o sans estiver desligado, n testa colisão de dano
+			fcvt.w.s	t0, fa0
+			beqz		t0, ALUCARD.RENDER
+			
+			fcvt.w.s	t1, fs10				# Y do inimigo
+			fcvt.w.s	t2, fs11				# X do inimigo
+			
+			addi		t3, a2, 41				# Limite inferior da Hitbox da espada
+			blt		t3, t1, ALUCARD.RENDER
+			
+			addi		t1, t1, 71				# Limite inferior da Hitbox do inimigo
+			addi		t3, a2, 17				# Limite superior da Hitbox da espada
+			bgt		t3, t1, ALUCARD.RENDER
+			
+			addi		t3, a1, 64
+			li		t4, 26					
+			fcvt.w.s	t0, fa4
+			mul		t4, t4, t0
+			add		t3, t3, t4				# Limite direito da hitbox da espada
+			blt		t3, t2, ALUCARD.RENDER
+			
+			addi		t2, t2, 62				# Limite direito da hitbox do inimigo
+			addi		t3, a1, 29				
+			li		t4, 29
+			mul		t4, t4, t0
+			add		t3, t3, t4				# Limite esquerdo da hitbox da espada
+			bgt		t3, t2, ALUCARD.RENDER
+			
+			li		t1, -1
+			fcvt.s.w	ft0, t1
+			fadd.s		fs0, fs0, ft0
+			
+			# Se o hp do SANS chegou em 0, volta ao mapa normal
+			fcvt.w.s	t0, fs0
+			bgtz		t0, ALUCARD.RENDER
+			
+			j		TELA_BF.PARA.TELA_4
 			
 # LF	
 ALUCARD.FACA:		# checa colisão abaixo
@@ -767,11 +856,11 @@ LF.SENTIDO.DIREITA:
 ALUCARD.RENDER:		jal		RENDER						# Renderiza o personagem na tela
 
 # Renderiza a faca arremessada, se houver
-FACA.RENDER:		fcvt.w.s	t1, fa5
+FACA.ATUALIZA:		fcvt.w.s	t1, fa5
 			beqz		t1, OBJETO.RENDER
 			
 			fcvt.w.s	t1, fa4	
-			bltz		t1, FACA.RENDER.ESQUERDA
+			bltz		t1, FACA.ESQUERDA
 			
 			fcvt.w.s	t1, fs6
 			
@@ -792,9 +881,9 @@ FACA.RENDER:		fcvt.w.s	t1, fa5
 			
 			la		t0, faca.descritor
 			lw		a0, (t0)
-			j		FACA.RENDERIZA
+			j		FACA.RENDER
 			
-FACA.RENDER.ESQUERDA:	fcvt.w.s	t1, fs6
+FACA.ESQUERDA:		fcvt.w.s	t1, fs6
 			
 			addi		t2, t1, 30					
 			blez		t2, FACA.PARA
@@ -820,7 +909,7 @@ FACA.RENDER.ESQUERDA:	fcvt.w.s	t1, fs6
 			la		t0, faca.descritor
 			lw		a0, 4(t0)
 
-FACA.RENDERIZA:		fcvt.w.s	a2, fs7
+FACA.RENDER:		fcvt.w.s	a2, fs7
 			li		a3, OBJETO.IMAGEM.LARGURA
 			frame_address(a5)
 			li		a7, OBJETO.ALTURA
