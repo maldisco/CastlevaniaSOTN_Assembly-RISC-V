@@ -45,13 +45,31 @@
 			la		t0, faca.descritor
 			sw		a0, (t0)
 			
-			# Carrega arquivos de sprite da segunda faca
+			# Carrega arquivo de sprite da segunda faca
 			la		a0, faca2
 			li		a1, 0
 			li		a2, 0
 			li		a7, 1024
 			ecall
 			sw		a0, 4(t0)
+			
+			# Carrega arquivo de sprite do blaster horizontal
+			la		a0, blaster_h
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			la		t0, blaster_h.descritor
+			sw		a0, (t0)
+			
+			# Carrega arquivo de sprite do blaster vertical
+			la		a0, blaster_v
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			la		t0, blaster_v.descritor
+			sw		a0, (t0)
 			
 			la		t0, TELA.DESCRITORES
 			# Carrega o arquivo da primeira tela do jogo
@@ -166,6 +184,8 @@
 			# FS5 = Salto (Movido para fs2 sempre que pular)(Constante)           #
 			# FS6 = Posição X da faca					      #
 			# FS7 = Posição Y da faca					      #
+			# FS8 = Posição Y do BlasterH					      #
+			# FS9 = Posição X do BlasterV					      #
 			# ------------------------------------------------------------------- # 
 			# FA0 = Sinal de controle SANS					      #
 			# FA1 = Sinal de controle corte Alucard				      #
@@ -178,6 +198,11 @@
 			# ------------------------------------------------------------------- #
 			# FT11 = Contador de animação Alucard				      #
 			# FT10 = Contador de animação HUD				      #
+			# FT9 = Contador de animação SANS				      #
+			# FT8 = Contador de animação BlasterH				      #
+			# FT7 = Contador de animação BlasterV				      #
+			# FT6 = Sinal de controle BlasterH				      #
+			# FT5 = Sinal de controle BlasterV				      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -206,22 +231,146 @@ MAPA.RENDER:		mv		a0, s9
 # Atualiza a animação do SANS (se ele existir)
 SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle SANS
 			beqz		t0, ALUCARD.ATUALIZA
-			mv		a0, s1
+			
+			la		t0, sans.acao
+			lb		t4, (t0)
+			bgtz		t4, SANS.DESCE
+			beqz		t4, SANS.SOBE
+
+SANS.PARADO:		mv		a0, s1
 			li		a1, SANS.X
 			li		a2, SANS.Y
 			li		a3, SANS.IMAGEM.LARGURA
 			li		a4, SANS.LARGURA
 			frame_address(a5)
-			li		a6, 0
+			la		t0,sans.parado.offsets
+			fcvt.w.s	t1, ft9
+			li		t2, 4
+			div		t3, t1, t2
+			mul		t2, t2, t3
+			add		t0, t0, t2
+			lw		a6, (t0)
+			addi		t1, t1, 1
+			li		t2, 76
+			blt		t1, t2, SANS.RENDER
+			
+			li		t1, 0
+			la		t0, sans.acao
+			addi		t4,t4,1
+			sb		t4, (t0)
+			j		SANS.RENDER
+
+SANS.SOBE:		mv		a0, s1
+			li		a1, SANS.X
+			li		a2, SANS.Y
+			li		a3, SANS.IMAGEM.LARGURA
+			li		a4, SANS.LARGURA
+			frame_address(a5)
+			la		t0, sans.sobe.offsets
+			fcvt.w.s	t1, ft9
+			li		t2, 4
+			mul		t2, t2, t1
+			add		t0, t0, t2
+			lw		a6, (t0)
+			addi		t1, t1, 1
+			li		t2, 19
+			blt		t1, t2, SANS.RENDER
+			
+			li		t1, 1
+			fcvt.s.w	ft5, t1				# Ativa o blaster vertical
+			fcvt.s.w	fs9, s6				# Posição X do blaster = X do personagem
+			li		t1, 0
+			la		t0, sans.acao
+			addi		t4,t4,1
+			sb		t4, (t0)
+			j		SANS.RENDER
+			
+SANS.DESCE:		mv		a0, s1
+			li		a1, SANS.X
+			li		a2, SANS.Y
+			li		a3, SANS.IMAGEM.LARGURA
+			li		a4, SANS.LARGURA
+			frame_address(a5)
+			la		t0, sans.desce.offsets
+			fcvt.w.s	t1, ft9
+			li		t2, 4
+			mul		t2, t2, t1
+			add		t0, t0, t2
+			lw		a6, (t0)
+			addi		t1, t1, 1
+			li		t2, 19
+			blt		t1, t2, SANS.RENDER
+			
+			li		t1, 1
+			fcvt.s.w	ft6, t1				# Ativa o blaster horizontal
+			fcvt.s.w	fs8, s5				# Posição Y do blaster = Y do personagem
+			li		t1, 0
+			la		t0, sans.acao
+			li		t4, -1
+			sb		t4, (t0)
+			j		SANS.RENDER
+			
+SANS.RENDER:		fcvt.s.w	ft9, t1
 			li		a7, SANS.ALTURA
 			jal		RENDER
+
+# Atualiza o ataque BLASTER (sans) na horizontal
+BLASTER_H.ATUALIZA:	fcvt.w.s	t1, ft6
+			beqz		t1, ALUCARD.ATUALIZA
 			
-			li		t1, ALUCARD.HITBOX_OFFSET.X
-			li		t2, 20
-			add		t1, t1, s6
-			add		t1, t1, t2
+			la		t0, blaster_h.descritor
+			lw		a0, (t0)
+			li		a1, BLASTER_H.X
+			fcvt.w.s	a2, fs8
+			li		a3, BLASTER_H.IMAGEM.LARGURA
+			li		a4, BLASTER_H.LARGURA
+			frame_address(a5)
+			la		t0, blaster_h.offsets
+			fcvt.w.s	t1, ft8
+			li		t2, 4
+			div		t3, t1, t2
+			mul		t2, t2, t3
+			add		t0, t0, t2
+			lw		a6, (t0)
+			addi		t1, t1, 1
+			li		t2, 76
+			blt		t1, t2, BLASTER_H.RENDER
 			
-			li		t2, ALUCARD.HITBOX_OFFSET.Y
+			li		t1, 0
+			fcvt.s.w	ft6, t1
+			
+BLASTER_H.RENDER:	fcvt.s.w	ft8, t1
+			li		a7, BLASTER_H.ALTURA
+			jal 		RENDER
+
+# Atualiza o ataque BLASTER (sans) na vertical			
+BLASTER_V.ATUALIZA:	fcvt.w.s	t1, ft5
+			beqz		t1, ALUCARD.ATUALIZA
+			
+			la		t0, blaster_v.descritor
+			lw		a0, (t0)
+			fcvt.w.s	a1, fs9
+			li		a2, BLASTER_V.Y
+			li		a3, BLASTER_V.IMAGEM.LARGURA
+			li		a4, BLASTER_V.LARGURA
+			frame_address(a5)
+			la		t0, blaster_v.offsets
+			fcvt.w.s	t1, ft7
+			li		t2, 4
+			div		t3, t1, t2
+			mul		t2, t2, t3
+			add		t0, t0, t2
+			lw		a6, (t0)
+			addi		t1, t1, 1
+			li		t2, 76
+			blt		t1, t2, BLASTER_V.RENDER
+			
+			li		t1, 0
+			fcvt.s.w	ft5, t1
+			
+BLASTER_V.RENDER:	fcvt.s.w	ft7, t1
+			li		a7, BLASTER_V.ALTURA
+			jal 		RENDER
 
 # Atualiza a posição da personagem
 ALUCARD.ATUALIZA:	jal 		FISICA

@@ -28,14 +28,31 @@ objeto.descritor:		.word 0
 .eqv OBJETO.ALTURA		8
 
 sans:				.string "sprites/SANS.bin"
-blaster_h:			.string "sprites/blaster_h.bin"
-blaster_v:			.string "sprites/blaster_v.bin"
+sans.acao:			.byte 0
+sans.parado.offsets:		.word 45552,45552,45552,45552,45614,45614,45614,45614,45676,45676,45676,45676,45738,45738,45738,45738,45800,45800,45800,45800
+sans.sobe.offsets:		.word 22776,22776,22776,22776,22838,22838,22838,22838,22900,22900,22900,22900,22962,22962,22962,22962,23024,23024,23024,23024
+sans.desce.offsets:		.word 0,0,0,0,62,62,62,62,124,124,124,186,186,186,186,248,248,248,248
 .eqv SANS.LARGURA		62	
 .eqv SANS.ALTURA		71
 .eqv SANS.IMAGEM.LARGURA	312
 .eqv SANS.X			129
 .eqv SANS.Y			54
 
+blaster_h:			.string "sprites/blaster_h.bin"
+blaster_h.offsets:		.word 0,0,0,0,16640,16640,16640,16640,33280,33280,33280,33280,49920,49920,49920,49920,66560,66560,66560,66560
+blaster_h.descritor:		.word 0
+.eqv BLASTER_H.ALTURA		51
+.eqv BLASTER_H.LARGURA		320
+.eqv BLASTER_H.IMAGEM.LARGURA	320
+.eqv BLASTER_H.X		0
+
+blaster_v:			.string "sprites/blaster_v.bin"
+blaster_v.offsets:		.word 0,0,0,0,23,23,23,23,45,45,45,45,68,68,68,68
+blaster_v.descritor:		.word 0
+.eqv BLASTER_V.ALTURA		239
+.eqv BLASTER_V.LARGURA		23
+.eqv BLASTER_V.IMAGEM.LARGURA	92
+.eqv BLASTER_V.Y		0
 
 TELA.DESCRITORES:		.word 	0,0,0,0,0,0,0,0,0,0,0
 tela1:				.string "mapa/tela_1.bin"
