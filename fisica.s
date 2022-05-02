@@ -112,6 +112,85 @@ FISICA.HIT.STAGGER_DIREITA:
 			
 			j		COLISAO.VERDADEIRO
 			
+# Checa colisão com inimigo
+COLISAO.INIMIGO:	# Se o sans estiver ligado
+			fcvt.w.s	t0, fa0
+			li		t1, 1
+			beq		t0, t1, COLISAO.INIMIGO.SANS
+			
+			# Se o canhão estiver ligado
+			li		t1, 2
+			beq		t0, t1, COLISAO.INIMIGO.CANHAO
+			
+COLISAO.RET:		ret
+			
+COLISAO.INIMIGO.CANHAO:	fcvt.w.s	t1, fs10				# Y do canhao
+			fcvt.w.s	t2, fs11				# X do canhao
+			
+			addi		t3, a2, 41				# Limite inferior da Hitbox da espada
+			blt		t3, t1, COLISAO.RET
+			
+			addi		t1, t1, 54				# Limite inferior da Hitbox do inimigo
+			addi		t3, a2, 17				# Limite superior da Hitbox da espada
+			bgt		t3, t1, COLISAO.RET
+			
+			addi		t3, a1, 64
+			li		t4, 26					
+			fcvt.w.s	t0, fa4
+			mul		t4, t4, t0
+			add		t3, t3, t4				# Limite direito da hitbox da espada
+			blt		t3, t2, COLISAO.RET
+			
+			addi		t2, t2, 80				# Limite direito da hitbox do inimigo
+			addi		t3, a1, 29				
+			li		t4, 29
+			mul		t4, t4, t0
+			add		t3, t3, t4				# Limite esquerdo da hitbox da espada
+			bgt		t3, t2, COLISAO.RET
+			
+			fcvt.s.w	fa0, zero				# Desliga o sinal do canhão
+			la		t0, TELA.DESCRITORES			
+			lw		s9, 36(t0)				# Carrega a segunda versão da tela (aberta)
+			la		t0, mapa_hitbox
+			la		t1, tela_10_aberta_hitboxes
+			sw		t1, (t0)
+			ret
+
+			
+COLISAO.INIMIGO.SANS:	fcvt.w.s	t1, fs10				# Y do inimigo
+			fcvt.w.s	t2, fs11				# X do inimigo
+			
+			addi		t3, a2, 41				# Limite inferior da Hitbox da espada
+			blt		t3, t1, COLISAO.RET
+			
+			addi		t1, t1, 71				# Limite inferior da Hitbox do inimigo
+			addi		t3, a2, 17				# Limite superior da Hitbox da espada
+			bgt		t3, t1, COLISAO.RET
+			
+			addi		t3, a1, 64
+			li		t4, 26					
+			fcvt.w.s	t0, fa4
+			mul		t4, t4, t0
+			add		t3, t3, t4				# Limite direito da hitbox da espada
+			blt		t3, t2, COLISAO.RET
+			
+			addi		t2, t2, 62				# Limite direito da hitbox do inimigo
+			addi		t3, a1, 29				
+			li		t4, 29
+			mul		t4, t4, t0
+			add		t3, t3, t4				# Limite esquerdo da hitbox da espada
+			bgt		t3, t2, COLISAO.RET
+			
+			li		t1, -1
+			fcvt.s.w	ft0, t1
+			fadd.s		fs0, fs0, ft0
+			
+			# Se o hp do SANS chegou em 0, volta ao mapa normal
+			fcvt.w.s	t0, fs0
+			bgtz		t0, COLISAO.RET
+			
+			j		TELA_BF.PARA.TELA_4
+
 
 # Checa colisão à direita do personagem
 # Param  a1 = Posição X do personagem relativa ao mapa
@@ -134,7 +213,6 @@ COLISAO.DIREITA:	addi		t1, a1, 2
 			add		t2, t2, t3			# t2 = Posição do personagem no mapa de hitboxes			
 			
 			li 		t5, ALUCARD.HITBOX.ALTURA	# Quantidade de pixels a serem testados
-			#addi 		t5, t5, -5			# Sobe um pouco pra não testar no pé
 			
 			li 		t6, 0				# Contador de pixels testados
 			

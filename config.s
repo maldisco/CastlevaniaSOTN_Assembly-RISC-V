@@ -54,7 +54,10 @@ blaster_v.descritor:		.word 0
 .eqv BLASTER_V.IMAGEM.LARGURA	92
 .eqv BLASTER_V.Y		0
 
-TELA.DESCRITORES:		.word 	0,0,0,0,0,0,0,0,0,0,0
+msg.descritor:			.word 0
+msg:				.string "sprites/msg.bin"
+
+TELA.DESCRITORES:		.word 	0,0,0,0,0,0,0,0,0,0,0,0,0,0
 tela1:				.string "mapa/tela_1.bin"
 tela2:				.string "mapa/tela_2.bin"
 tela3:				.string "mapa/tela_3.bin"
@@ -63,6 +66,8 @@ tela5:				.string "mapa/tela_5.bin"
 tela6:				.string "mapa/tela_6.bin"
 tela7:				.string "mapa/tela_7.bin"
 tela10:				.string "mapa/tela_10.bin"
+tela10a:			.string "mapa/tela_10_aberta.bin"
+tela11f:			.string "mapa/tela_11_frente.bin"
 tela11:				.string "mapa/tela_11.bin"
 telabf:				.string "mapa/tela_bf.bin"
 mapa.imagem.largura:		.half 1628
@@ -82,6 +87,7 @@ mapa_hitbox:			.word 0		# Ponteiro para o mapa de hitboxes da tela atual
 .include "mapa/tela_7_hitboxes.s"
 .include "mapa/tela_8_hitboxes.s"
 .include "mapa/tela_10_hitboxes.s"
+.include "mapa/tela_10_aberta_hitboxes.s"
 .include "mapa/tela_11_hitboxes.s"
 .include "mapa/tela_bf_hitboxes.s"
 
@@ -167,6 +173,15 @@ mapa_hitbox:			.word 0		# Ponteiro para o mapa de hitboxes da tela atual
 .eqv T10.MAX.Y			15
 .eqv T10.X_INI			0
 .eqv T10.Y_INI			0
+
+# Tela BF
+.eqv T11.LARGURA		320
+.eqv T11.MIN.X			0
+.eqv T11.MAX.X			0
+.eqv T11.MIN.Y			0
+.eqv T11.MAX.Y			0
+.eqv T11.X_INI			0
+.eqv T11.Y_INI			0
 
 # Tela BF
 .eqv TBF.LARGURA		320

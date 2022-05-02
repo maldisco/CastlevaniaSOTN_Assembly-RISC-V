@@ -144,6 +144,39 @@
 			ecall		
 			sw		a0, 32(t0)
 			
+			# Carrega o arquivo da segunda versão da tela do jogo
+			la		a0, tela10a
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 36(t0)
+			
+			# Carrega o arquivo da decima primeira tela do jogo
+			la		a0, tela11
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 40(t0)
+			
+			# Carrega o arquivo da parte da frente da descima primeira tela do jogo
+			la		a0, tela11f
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			sw		a0, 44(t0)
+			
+			# Carrega o arquivo de mensagens
+			la		a0, msg
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			la		t0, msg.descritor
+			sw		a0, (t0)
+			
 			li		s0, 0				# Frame atual
 			
 			li		t0, 99
@@ -190,7 +223,7 @@
 			# FS10 = Posição Y do inimigo					      #
 			# FS11 = Posição X do inimigo					      #
 			# ------------------------------------------------------------------- # 
-			# FA0 = Sinal de controle SANS					      #
+			# FA0 = Sinal de controle SANS/inimigo				      #
 			# FA1 = Sinal de controle corte Alucard				      #
 			# FA2 = Sinal de controle pulo Alucard				      #
 			# FA3 = Sinal de controle faca Alucard			     	      #
@@ -206,6 +239,8 @@
 			# FT7 = Contador de animação BlasterV				      #
 			# FT6 = Sinal de controle BlasterH				      #
 			# FT5 = Sinal de controle BlasterV				      #
+			# FT4 = Sinal de controle Mensagem				      #
+			# FT3 = Sinal de controle Mapa frente				      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -215,8 +250,8 @@ LOOP_JOGO:		csrr 		t0, 3073
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
 			xori 		s0, s0, 1				# Troca a frame para o usuário não ver as atualizações
-			jal		OST.TOCA
-			jal		OST.TOCA_2
+			#jal		OST.TOCA
+			#jal		OST.TOCA_2
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
@@ -232,8 +267,9 @@ MAPA.RENDER:		mv		a0, s9
 			jal		RENDER
 			
 # Atualiza a animação do SANS (se ele existir)
-SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle SANS
-			beqz		t0, ALUCARD.ATUALIZA
+SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle inimigo
+			li		t1, 1					# 1 = SANS
+			bne		t0, t1, ALUCARD.ATUALIZA
 			
 			la		t0, sans.acao
 			lb		t4, (t0)
@@ -343,8 +379,9 @@ BLASTER_H.ATUALIZA:	fcvt.w.s	t1, ft6
 			li		t2, 76
 			blt		t1, t2, BLASTER_H.RENDER
 			
-			li		t1, 0
-			fcvt.s.w	ft6, t1
+			fcvt.s.w	ft6, zero
+			fcvt.s.w	ft8, zero
+			j 		BLASTER_V.ATUALIZA
 			
 BLASTER_H.RENDER:	fcvt.s.w	ft8, t1
 			li		a7, BLASTER_H.ALTURA
@@ -391,11 +428,12 @@ BLASTER_V.ATUALIZA:	fcvt.w.s	t1, ft5
 			add		t0, t0, t2
 			lw		a6, (t0)
 			addi		t1, t1, 1
-			li		t2, 76
+			li		t2, 64
 			blt		t1, t2, BLASTER_V.RENDER
-			
-			li		t1, 0
-			fcvt.s.w	ft5, t1
+		
+			fcvt.s.w	ft5, zero
+			fcvt.s.w	ft7, zero
+			j		ALUCARD.ATUALIZA
 			
 BLASTER_V.RENDER:	fcvt.s.w	ft7, t1
 			li		a7, BLASTER_V.ALTURA
@@ -765,43 +803,8 @@ LS.SENTIDO.DIREITA:
 			lw 		a6, (t2)					# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
 			
-			# Se o sans estiver desligado, n testa colisão de dano
-			fcvt.w.s	t0, fa0
-			beqz		t0, ALUCARD.RENDER
-			
-			fcvt.w.s	t1, fs10				# Y do inimigo
-			fcvt.w.s	t2, fs11				# X do inimigo
-			
-			addi		t3, a2, 41				# Limite inferior da Hitbox da espada
-			blt		t3, t1, ALUCARD.RENDER
-			
-			addi		t1, t1, 71				# Limite inferior da Hitbox do inimigo
-			addi		t3, a2, 17				# Limite superior da Hitbox da espada
-			bgt		t3, t1, ALUCARD.RENDER
-			
-			addi		t3, a1, 64
-			li		t4, 26					
-			fcvt.w.s	t0, fa4
-			mul		t4, t4, t0
-			add		t3, t3, t4				# Limite direito da hitbox da espada
-			blt		t3, t2, ALUCARD.RENDER
-			
-			addi		t2, t2, 62				# Limite direito da hitbox do inimigo
-			addi		t3, a1, 29				
-			li		t4, 29
-			mul		t4, t4, t0
-			add		t3, t3, t4				# Limite esquerdo da hitbox da espada
-			bgt		t3, t2, ALUCARD.RENDER
-			
-			li		t1, -1
-			fcvt.s.w	ft0, t1
-			fadd.s		fs0, fs0, ft0
-			
-			# Se o hp do SANS chegou em 0, volta ao mapa normal
-			fcvt.w.s	t0, fs0
-			bgtz		t0, ALUCARD.RENDER
-			
-			j		TELA_BF.PARA.TELA_4
+			jal		COLISAO.INIMIGO
+			j		ALUCARD.RENDER
 			
 # LF	
 ALUCARD.FACA:		# checa colisão abaixo
@@ -922,19 +925,19 @@ FACA.PARA:		fcvt.s.w	fa5, zero					# Desliga o sinal de renderização da faca
 
 # Renderiza um objeto na tela (se tiver)
 OBJETO.RENDER:		fcvt.w.s	t1, fa7
-			beqz		t1, HUD.RENDER					# Se não tiver objeto na tela, pula
+			beqz		t1, MAPA_FRENTE.RENDER					# Se não tiver objeto na tela, pula
 			
 			la		t0, objeto.x
 			lhu		t1, (t0)
 			addi		t2, t1, 30
 			
-			blt		t2, s4, HUD.RENDER				# Se o objeto estiver à esquerda da camera, pula
+			blt		t2, s4, MAPA_FRENTE.RENDER			# Se o objeto estiver à esquerda da camera, pula
 			
 			la		t0, objeto.y
 			lhu		t2, (t0)
 			
 			addi		t3, s3, 240
-			bgt		t2, t3, HUD.RENDER				# Se o objeto estiver abaixo da camera, pula
+			bgt		t2, t3, MAPA_FRENTE.RENDER			# Se o objeto estiver abaixo da camera, pula
 			
 			sub		t1, t1, s4					# Posição X do objeto na tela
 			sub		t2, t2, s3					# Posição Y do objeto na tela
@@ -961,13 +964,15 @@ OBJETO.LOOP:		mul		t4, t3, t2
 			lw		t5, (t4)
 			li		t6, 26180
 			add		t5, t5, t6
-			sw		t5, (t4)
+			sw		t5, (t4)					
 			
 			addi		t2, t2, 1
 			blt		t2, t1, OBJETO.LOOP
 			
 			jal		OST.OBJETO
-			j		HUD.RENDER
+			li		t0, 3
+			fcvt.s.w	ft4, t0						# Codigo da mensagem na tela
+			j		MAPA_FRENTE.RENDER
 			
 OBJETO.NAO_PEGOU:	li		a1, -1
 			mul		a1, a1, t1	
@@ -990,7 +995,22 @@ OBJETO.NAO_PEGOU:	li		a1, -1
 			frame_address(a5)
 			li		a7, OBJETO.ALTURA
 			jal 		RENDER
+
+# Renderiza o mapa
+MAPA_FRENTE.RENDER:	fcvt.w.s	t0, ft3
+			beqz		t0, HUD.RENDER
 			
+			la		t0, TELA.DESCRITORES
+			lw		a0, 44(t0)
+			li		a1, 0		
+			li 		a2, 0
+			li		a3, 320
+			li 		a4, MAPA.LARGURA		
+			frame_address(a5)
+			li		a6, 0
+			li 		a7, MAPA.ALTURA
+			jal		RENDER
+
 # Renderiza os elementos da HUD 		
 HUD.RENDER:		# Barra de status
 			mv		a0, s8
@@ -1052,7 +1072,35 @@ HUD.NAO_RESETA:		fcvt.s.w	ft10, t1
 			li		a7, NUMEROS.ALTURA
 			jal		RENDER
 			
+# Renderiza mensagem na tela (level up, got an item...)
+MSG.RENDER:		fcvt.w.s	t1, ft4
+			beqz		t1, MOSTRA_FRAME
+			
+			la		t0, msg.descritor
+			lw		a0, (t0)
+			li		a1, 115	
+			li 		a2, 110
+			li		a3, 100
+			li 		a4, 98		
+			frame_address(a5)
+			addi		t1, t1, -1
+			li		t2, 20
+			mul		t2, t2, t1
+			li		t3, 100
+			mul		a6, t3, t2
+			li 		a7, 20
+			jal		RENDER
+			
 			li 		t0,FRAME_SELECT
+			sw 		s0,(t0)						# Atualiza a tela forçadamente
+			
+			li		a0, 500
+			li		a7, 32
+			ecall
+			
+			fcvt.s.w	ft4, zero
+
+MOSTRA_FRAME:		li 		t0,FRAME_SELECT
 			sw 		s0,(t0)						# Atualiza a tela para o usuário ver as atualizações
 			
 			csrr		s11, 3073					# Guarda o horário da atualização de frame			

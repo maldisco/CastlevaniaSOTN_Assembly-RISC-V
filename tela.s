@@ -1,7 +1,7 @@
 # Troca para a tela que o personagem passou
-# a0 = cor label da tela alvo
+# a0 = codigo da tela alvo
 TELA.TROCA:		li		t0, -1
-			beq		a0, t0, TELA_1.PARA.TELA_2	# se a cor for 12, muda da tela 1 para tela 2
+			beq		a0, t0, TELA_1.PARA.TELA_2	
 			
 			li		t0, -2
 			beq		a0, t0, TELA_2.PARA.TELA_1
@@ -14,6 +14,9 @@ TELA.TROCA:		li		t0, -1
 			
 			li		t0, -7
 			beq		a0, t0, TELA_2.PARA.TELA_10
+			
+			li		t0, -6
+			beq		a0, t0, TELA_2.PARA.TELA_11
 			
 			li		t0, -5
 			beq 		a0, t0, TELA_3.PARA.TELA_BF
@@ -51,7 +54,9 @@ TELA.TROCA:		li		t0, -1
 			li		t0, -13
 			beq		a0, t0, TELA_10.PARA.TELA_2
 			
-
+			li		t0, -11
+			beq		a0, t0, TELA_11.PARA.TELA_2	
+			
 # Configurações para mudar da tela 1 para 2
 TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			
@@ -104,8 +109,7 @@ TELA_2.PARA.TELA_3:	jal		CONFIG.TELA_3
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 2 para 10
-TELA_2.PARA.TELA_10:	
-			jal		CONFIG.TELA_10
+TELA_2.PARA.TELA_10:	jal		CONFIG.TELA_10
 			
 			li		s4, 0
 			li 		s3, 0
@@ -116,10 +120,28 @@ TELA_2.PARA.TELA_10:
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			li		t1, 1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1
+			li		t1, 2	
+			fcvt.s.w	fa0, t1			
 	
 			tail		LOOP_JOGO
 
+# Configurações ao mudar da tela 2 para tela 11
+TELA_2.PARA.TELA_11:	jal		CONFIG.TELA_11
+			
+			li		s4, 0
+			li 		s3, 0
+			li		s6, 40
+			li		s5, 95
+			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
+			fcvt.s.w	fa2, zero			
+			fcvt.s.w 	fs2, zero
+			li		t1, 1
+			fcvt.s.w	fa4, t1
+			fcvt.s.w	ft3, t1
+			
+			tail		LOOP_JOGO
 
 # Configurações para mudar da tela 3 para 2
 TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
@@ -138,8 +160,7 @@ TELA_3.PARA.TELA_2:	jal 		CONFIG.TELA_2
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 3 para 4
-TELA_BF.PARA.TELA_4:	
-			jal		CONFIG.TELA_4
+TELA_BF.PARA.TELA_4:	jal		CONFIG.TELA_4
 			
 			li		s4, T4.X_INI
 			li 		s3, T4.Y_INI
@@ -184,8 +205,7 @@ TELA_3.PARA.TELA_BF:	jal		CONFIG.TELA_BF
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 3 para 5
-TELA_3.PARA.TELA_5_CIMA:	
-			jal		CONFIG.TELA_5
+TELA_3.PARA.TELA_5_CIMA:jal		CONFIG.TELA_5
 			
 			li		s4, 191
 			li 		s3, 0
@@ -235,8 +255,7 @@ TELA_5.PARA.TELA_3_BAIXO:
 			tail		LOOP_JOGO
 
 # Configurações para mudar da tela 5 para 3
-TELA_5.PARA.TELA_3_CIMA:	
-			jal		CONFIG.TELA_3
+TELA_5.PARA.TELA_3_CIMA:jal		CONFIG.TELA_3
 			
 			li		s4, 0
 			li 		s3, 236
@@ -268,8 +287,7 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 6 para 5
-TELA_6.PARA.TELA_5:	
-			jal		CONFIG.TELA_5
+TELA_6.PARA.TELA_5:	jal		CONFIG.TELA_5
 			
 			li		s4, 0
 			li 		s3, 0
@@ -285,8 +303,7 @@ TELA_6.PARA.TELA_5:
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 4 para 7
-TELA_4.PARA.TELA_7:	
-			jal		CONFIG.TELA_7
+TELA_4.PARA.TELA_7:	jal		CONFIG.TELA_7
 			
 			li		s4, 0
 			li 		s3, 528
@@ -303,8 +320,7 @@ TELA_4.PARA.TELA_7:
 			
 
 # Configurações ao mudar da tela 7 para 4
-TELA_7.PARA.TELA_4:	
-			jal		CONFIG.TELA_4
+TELA_7.PARA.TELA_4:	jal		CONFIG.TELA_4
 			
 			li		s4, 704
 			li		s3, 222
@@ -320,8 +336,7 @@ TELA_7.PARA.TELA_4:
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 7 para 10
-TELA_7.PARA.TELA_10:	
-			jal		CONFIG.TELA_10
+TELA_7.PARA.TELA_10:	jal		CONFIG.TELA_10
 			
 			li		s4, 0
 			li 		s3, 0
@@ -332,13 +347,14 @@ TELA_7.PARA.TELA_10:
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			li		t1, -1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1	
+			li		t1, 2
+			fcvt.s.w	fa0, t1			
 	
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 10 para 7
-TELA_10.PARA.TELA_7:	
-			jal		CONFIG.TELA_7
+TELA_10.PARA.TELA_7:	jal		CONFIG.TELA_7
 			
 			li		s4, 0
 			li 		s3, 528
@@ -349,13 +365,13 @@ TELA_10.PARA.TELA_7:
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			li		t1, -1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1	
+			fcvt.s.w	fa0, zero			
 	
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 10 para 2
-TELA_10.PARA.TELA_2:	
-			jal		CONFIG.TELA_2
+TELA_10.PARA.TELA_2:	jal		CONFIG.TELA_2
 			
 			li		s4, 447
 			li 		s3, 0
@@ -366,7 +382,25 @@ TELA_10.PARA.TELA_2:
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			li		t1, -1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1	
+			fcvt.s.w	fa0, zero			
+	
+			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 11 para 2
+TELA_11.PARA.TELA_2:	jal		CONFIG.TELA_2
+			
+			li		s4, 447
+			li 		s3, 257
+			li		s6, 205
+			li		s5, 95
+			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
+			fcvt.s.w	fa2, zero			
+			fcvt.s.w 	fs2, zero
+			li		t1, -1
+			fcvt.s.w	fa4, t1
+			fcvt.s.w	ft3, zero				
 	
 			tail		LOOP_JOGO
 
@@ -640,7 +674,6 @@ CONFIG.TELA_7:		la		t0, TELA.DESCRITORES
 CONFIG.TELA_10:		la		t0, TELA.DESCRITORES
 			lw		s9, 28(t0)
 			
-			
 			la		t1, mapa.imagem.largura
 			li 		t2, T10.LARGURA
 			sh 		t2, 0(t1)
@@ -667,6 +700,45 @@ CONFIG.TELA_10:		la		t0, TELA.DESCRITORES
 			
 			la 		t0, mapa_hitbox
 			la 		t1, tela_10_hitboxes
+			sw		t1, 0(t0)
+			
+			li		t0, 128
+			li		t1, 106
+			fcvt.s.w	fs10, t1
+			fcvt.s.w	fs11, t0
+			
+			ret
+
+# Constantes para a tela 11
+CONFIG.TELA_11:		la		t0, TELA.DESCRITORES
+			lw		s9, 40(t0)
+			
+			la		t1, mapa.imagem.largura
+			li 		t2, T11.LARGURA
+			sh 		t2, 0(t1)
+		
+			la		t1, mapa.hitbox.largura 
+			li 		t2, T11.LARGURA
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.max.x
+			li 		t2, T11.MAX.X
+			sh		t2, 0(t1)
+	
+			la 		t1, mapa.min.x
+			li		t2, T11.MIN.X
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.max.y
+			li		t2, T11.MAX.Y
+			sh		t2, 0(t1)
+			
+			la 		t1, mapa.min.y
+			li		t2, T11.MIN.Y
+			sh		t2, 0(t1)
+			
+			la 		t0, mapa_hitbox
+			la 		t1, tela_11_hitboxes
 			sw		t1, 0(t0)
 			
 			ret
