@@ -526,7 +526,8 @@ TELA_11.PARA.TELA_2:	jal		CONFIG.TELA_2
 			fcvt.s.w 	fs2, zero
 			li		t1, -1
 			fcvt.s.w	fa4, t1
-			fcvt.s.w	ft3, zero				
+			fcvt.s.w	ft3, zero	
+			fcvt.s.w	fa7, zero			
 	
 			tail		LOOP_JOGO
 
