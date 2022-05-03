@@ -215,7 +215,7 @@
 			flw		fs1, (t0)			# Aceleração da gravidade (constante)
 			
 			jal		OST.SETUP
-			jal 		config_tela_1	
+			jal 		config_newgame	
 			
 			# # # # # # # # # # # # # # # # GLOBAIS # # # # # # # # # # # # # # # #
 			# S11 = Tempo da ultima atualizacao de tela                           #

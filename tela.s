@@ -1,6 +1,11 @@
 # Troca para a tela que o personagem passou
 # a0 = codigo da tela alvo
-TELA.TROCA:		li		t0, -1
+TELA.TROCA:		li 		t0,FRAME_SELECT
+			sw 		s0,(t0)						# Atualiza a tela para o usuário ver as atualizações
+			
+			csrr		s11, 3073					# Guarda o horário da atualização de frame
+
+			li		t0, -1
 			beq		a0, t0, TELA_1.PARA.TELA_2	
 			
 			li		t0, -2
@@ -226,6 +231,36 @@ TELA_3.PARA.TELA_BF:	jal		CONFIG.TELA_BF
 			
 			jal		OST.SETUP_MEGALO
 			
+			mv		a0, s9
+			li		a1, 0		
+			li 		a2, 0
+			la		t1, mapa.imagem.largura
+			lhu		a3, 0(t1)
+			li 		a4, MAPA.LARGURA		
+			frame_address(a5)
+			offset_mapa(a6)
+			li 		a7, MAPA.ALTURA
+			jal		RENDER
+			
+			# Renderiza o SANS dormindo
+			la		a0, sanzz
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+
+			li		a1, SANS.X		
+			li 		a2, SANS.Y
+			li		a3, 64
+			li 		a4, SANS.LARGURA		
+			frame_address(a5)
+			li		a6, 0
+			li 		a7, SANS.ALTURA
+			jal		RENDER
+			
+			# Dialogo pré-boss
+			jal		DIALOGO_2.START
+			
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 3 para 5
@@ -449,7 +484,7 @@ TELA_11.PARA.TELA_2:	jal		CONFIG.TELA_2
 
 
 # Configuracoes ao iniciar o jogo
-config_tela_1:		jal		CONFIG.TELA_1
+config_newgame:		jal		CONFIG.TELA_1
 	
 			li		s4, T1.X_INI			# s4 = Posição X do mapa
 			li 		s3, T1.Y_INI			# s3 = Posição Y do mapa
@@ -465,6 +500,17 @@ config_tela_1:		jal		CONFIG.TELA_1
 			lw		t1, (t0)
 			la		t0, objeto.descritor
 			sw		t1, (t0)
+			
+			mv		a0, s9
+			li		a1, 0		
+			li 		a2, 0
+			la		t1, mapa.imagem.largura
+			lhu		a3, 0(t1)
+			li 		a4, MAPA.LARGURA		
+			frame_address(a5)
+			offset_mapa(a6)
+			li 		a7, MAPA.ALTURA
+			jal		RENDER
 			
 			# Dialogo inicial do jogo
 			jal		DIALOGO_1.START
