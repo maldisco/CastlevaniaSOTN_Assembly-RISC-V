@@ -12,7 +12,7 @@ DIALOGO_1.START:	# Guarda o endereço de retorno
 			
 			li		a6, 0			# Offset na imagem do dialogo
 			li		t2, 4			# Numero de caixas de dialogo
-			li		t3, 0			# Contador de frames
+			li		t6, 0			# Contador de frames
 			li		t4, 0			# Offset na tela
 			
 D1.LOOP:		li		a1, 20			# X na VGA
@@ -36,9 +36,9 @@ D1.POLL_LOOP:		li		t0, MMIO_set
 			
 			
 			
-			addi		t3, t3, 1
+			addi		t6, t6, 1
 			addi		t4, t4, 280
-			blt		t3, t2, D1.LOOP		# Se ainda não terminou o diálogo, volta pro loop
+			blt		t6, t2, D1.LOOP		# Se ainda não terminou o diálogo, volta pro loop
 			
 			lw		ra, (sp)
 			addi		sp, sp, 4

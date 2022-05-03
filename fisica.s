@@ -181,15 +181,9 @@ COLISAO.INIMIGO.SANS:	fcvt.w.s	t1, fs10				# Y do inimigo
 			add		t3, t3, t4				# Limite esquerdo da hitbox da espada
 			bgt		t3, t2, COLISAO.RET
 			
-			li		t1, -1
-			fcvt.s.w	ft0, t1
-			fadd.s		fs0, fs0, ft0
+			fsub.s		fs0, fs0, ft2				# ft2 = dano do personagem
 			
-			# Se o hp do SANS chegou em 0, volta ao mapa normal
-			fcvt.w.s	t0, fs0
-			bgtz		t0, COLISAO.RET
-			
-			j		TELA_BF.PARA.TELA_4
+			ret
 
 
 # Checa colisão à direita do personagem

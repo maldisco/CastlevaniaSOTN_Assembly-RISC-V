@@ -53,6 +53,24 @@
 			ecall
 			sw		a0, 4(t0)
 			
+			# Carrega arquivo de sprite do coração
+			la		a0, coracao
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			la		t0, coracao.descritor
+			sw		a0, (t0)
+			
+			# Carrega arquivo de sprite da comidinha
+			la		a0, comida
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+			la		t0, comida.descritor
+			sw		a0, (t0)
+			
 			# Carrega arquivo de sprite do blaster horizontal
 			la		a0, blaster_h
 			li		a1, 0
@@ -179,11 +197,14 @@
 			
 			li		s0, 0				# Frame atual
 			
-			li		t0, 99
+			li		t0, 10
 			fcvt.s.w	fs4, t0				# HP do personagem
 			
 			li		t0, 1
 			fcvt.s.w	fa4, t0
+			
+			li		t0, 1
+			fcvt.s.w	ft2, t0				# Dano do personagem
 			
 			la		t0, SALTO			# Aceleração inicial do salto
 			flw		fs5, (t0)			
@@ -241,6 +262,7 @@
 			# FT5 = Sinal de controle BlasterV				      #
 			# FT4 = Sinal de controle Mensagem				      #
 			# FT3 = Sinal de controle Mapa frente				      #
+			# FT2 = Dano do personagem					      #
 			# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 							
 
@@ -271,26 +293,29 @@ SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle inimigo
 			li		t1, 1					# 1 = SANS
 			bne		t0, t1, ALUCARD.ATUALIZA
 			
+			fcvt.w.s	t0, fs0
+			blez		t0, SANS.FERIDO
+			
 			la		t0, sans.acao
 			lb		t4, (t0)
 			bgtz		t4, SANS.DESCE
 			beqz		t4, SANS.SOBE
 
-SANS.PARADO:		mv		a0, s1
-			li		a1, SANS.X
-			li		a2, SANS.Y
+SANS.PARADO:		mv		a0, s1					# Geração dos parametros (a0-a7) para renderizar o SANS
+			fcvt.w.s	a1, fs11				# Checar render.s para melhor entendimento
+			fcvt.w.s	a2, fs10
 			li		a3, SANS.IMAGEM.LARGURA
 			li		a4, SANS.LARGURA
 			frame_address(a5)
-			la		t0,sans.parado.offsets
+			la		t0,sans.parado.offsets			# Cada estágio da animação é um offset diferente na sprite
 			fcvt.w.s	t1, ft9
 			li		t2, 4
 			div		t3, t1, t2
 			mul		t2, t2, t3
 			add		t0, t0, t2
 			lw		a6, (t0)
-			addi		t1, t1, 1
-			li		t2, 76
+			addi		t1, t1, 1		
+			li		t2, 76					# 76 = último estágio de animação
 			blt		t1, t2, SANS.RENDER
 			
 			li		t1, 0
@@ -316,10 +341,10 @@ SANS.SOBE:		mv		a0, s1
 			blt		t1, t2, SANS.RENDER
 			
 			li		t1, 1
-			fcvt.s.w	ft5, t1				# Ativa o blaster vertical
+			fcvt.s.w	ft5, t1					# Ativa o blaster vertical
 			li		t1, ALUCARD.HITBOX_OFFSET.X
 			add		t1,s6,t1
-			fcvt.s.w	fs9,t1				# Posição X do blaster = X do personagem + offset
+			fcvt.s.w	fs9,t1					# Posição X do blaster = X do personagem + hitbox offset
 			li		t1, 0
 			la		t0, sans.acao
 			addi		t4,t4,1
@@ -343,15 +368,35 @@ SANS.DESCE:		mv		a0, s1
 			blt		t1, t2, SANS.RENDER
 			
 			li		t1, 1
-			fcvt.s.w	ft6, t1				# Ativa o blaster horizontal
+			fcvt.s.w	ft6, t1					# Ativa o blaster horizontal
 			li		t1, ALUCARD.HITBOX_OFFSET.Y
 			add		t1, s5, t1
-			fcvt.s.w	fs8, t1				# Posição Y do blaster = Y do personagem + offset
+			fcvt.s.w	fs8, t1					# Posição Y do blaster = Y do personagem + hitbox offset
 			li		t1, 0
 			la		t0, sans.acao
 			li		t4, -1
 			sb		t4, (t0)
 			j		SANS.RENDER
+			
+SANS.FERIDO:		mv		a0, s1
+			li		a1, SANS.X
+			li		a2, SANS.Y
+			li		a3, SANS.IMAGEM.LARGURA
+			li		a4, SANS.LARGURA
+			frame_address(a5)
+			la		t0, sans.ferido.offsets
+			fcvt.w.s	t1, ft9
+			li		t2, 4
+			li		t3, 8
+			div		t3, t1, t3
+			mul		t2, t2, t3			
+			add		t0, t0, t2
+			lw		a6, (t0)
+			addi		t1, t1, 1
+			li		t2, 152
+			blt		t1, t2, SANS.RENDER
+			
+			j		TELA_BF.PARA.TELA_4
 			
 SANS.RENDER:		fcvt.s.w	ft9, t1
 			li		a7, SANS.ALTURA
@@ -944,34 +989,15 @@ OBJETO.RENDER:		fcvt.w.s	t1, fa7
 			
 			addi		t4, s5, 64					# Posição Y do pé do personagem na tela
 			addi		t5, s6, 38					# Posição X da esquerda do personagem na tela
+			addi		t6, s6, 58
 			
 			addi		t3, t1, 22
-			blt		t3, t5, OBJETO.NAO_PEGOU
+			bgt		t5, t3, OBJETO.NAO_PEGOU
+			blt		t6, t1, OBJETO.NAO_PEGOU
 			bgt		t2, t4, OBJETO.NAO_PEGOU	
 			
-			fcvt.s.w	fa7, zero		
-			li		t1, 1
-			fcvt.s.w	fa6, t1	
-			
-			la		t0, hud.offsets
-			li		t1, 28
-			li		t2, 0
-			li		t3, 4
-			
-# Adiciona o objeto à HUD
-OBJETO.LOOP:		mul		t4, t3, t2
-			add		t4, t4, t0
-			lw		t5, (t4)
-			li		t6, 26180
-			add		t5, t5, t6
-			sw		t5, (t4)					
-			
-			addi		t2, t2, 1
-			blt		t2, t1, OBJETO.LOOP
-			
+			jal		OBJETO.ACOES
 			jal		OST.OBJETO
-			li		t0, 3
-			fcvt.s.w	ft4, t0						# Codigo da mensagem na tela
 			j		MAPA_FRENTE.RENDER
 			
 OBJETO.NAO_PEGOU:	li		a1, -1
@@ -1076,8 +1102,8 @@ HUD.NAO_RESETA:		fcvt.s.w	ft10, t1
 MSG.RENDER:		fcvt.w.s	t1, ft4
 			beqz		t1, MOSTRA_FRAME
 			
-			la		t0, msg.descritor
-			lw		a0, (t0)
+			la		t0, msg.descritor				# Geração dos valores para renderizar a mensagem
+			lw		a0, (t0)					# Checar render.s para entender os parametros
 			li		a1, 115	
 			li 		a2, 110
 			li		a3, 100

@@ -3,6 +3,12 @@
 .eqv MMIO_set			0xff200000
 .eqv MMIO_add			0xff200004
 
+coracao:			.string "sprites/coracao.bin"
+coracao.pego:			.byte 0
+coracao.descritor:		.word 0
+comida:				.string "sprites/comida.bin"
+comida.pego:			.byte 0
+comida.descritor:		.word 0
 faca:				.string "sprites/faca.bin"
 faca2:				.string "sprites/faca2.bin"
 faca.descritor:			.word 0, 0
@@ -23,7 +29,7 @@ dialogo1:			.string "dialogos/dialogo1.bin"
 objeto.x:			.half 56
 objeto.y:			.half 151
 objeto.descritor:		.word 0
-.eqv OBJETO.IMAGEM.LARGURA	30
+.eqv OBJETO.IMAGEM.LARGURA	32
 .eqv OBJETO.LARGURA		30
 .eqv OBJETO.ALTURA		8
 
@@ -32,6 +38,7 @@ sans.acao:			.byte 0
 sans.parado.offsets:		.word 45552,45552,45552,45552,45614,45614,45614,45614,45676,45676,45676,45676,45738,45738,45738,45738,45800,45800,45800,45800
 sans.sobe.offsets:		.word 22776,22776,22776,22776,22838,22838,22838,22838,22900,22900,22900,22900,22962,22962,22962,22962,23024,23024,23024,23024
 sans.desce.offsets:		.word 0,0,0,0,62,62,62,62,124,124,124,186,186,186,186,248,248,248,248
+sans.ferido.offsets:		.word 68328,68328,68328,68328,68390,68390,68390,68390,68452,68452,68452,68452,68514,68514,68514,68514,68576,68576,68576,68576
 .eqv SANS.LARGURA		62	
 .eqv SANS.ALTURA		71
 .eqv SANS.IMAGEM.LARGURA	312

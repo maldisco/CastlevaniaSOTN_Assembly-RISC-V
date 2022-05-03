@@ -73,6 +73,7 @@ TELA_1.PARA.TELA_2:	jal 		CONFIG.TELA_2			# Padrões
 			fcvt.s.w 	fs2, t1	
 			li		t1, -1
 			fcvt.s.w	fa4, t1	
+			fcvt.s.w	fa7, zero
 			
 			tail		LOOP_JOGO			
 
@@ -88,7 +89,11 @@ TELA_2.PARA.TELA_1:	jal		CONFIG.TELA_1
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			li		t1, 1
-			fcvt.s.w	fa4, t1	
+			fcvt.s.w	fa4, t1
+			fcvt.w.s	t1, fa6
+			xori		t1, t1, 1
+			fcvt.s.w	fa7, t1	
+			
 			
 			tail		LOOP_JOGO
 
@@ -122,7 +127,8 @@ TELA_2.PARA.TELA_10:	jal		CONFIG.TELA_10
 			li		t1, 1
 			fcvt.s.w	fa4, t1
 			li		t1, 2	
-			fcvt.s.w	fa0, t1			
+			fcvt.s.w	fa0, t1	
+			fcvt.s.w	fa7, zero		
 	
 			tail		LOOP_JOGO
 
@@ -131,8 +137,8 @@ TELA_2.PARA.TELA_11:	jal		CONFIG.TELA_11
 			
 			li		s4, 0
 			li 		s3, 0
-			li		s6, 40
-			li		s5, 95
+			li		s6, 20
+			li		s5, 109
 			fcvt.s.w	fs3, zero
 			fcvt.s.w	fa1, zero
 			fcvt.s.w	fa2, zero			
@@ -140,6 +146,24 @@ TELA_2.PARA.TELA_11:	jal		CONFIG.TELA_11
 			li		t1, 1
 			fcvt.s.w	fa4, t1
 			fcvt.s.w	ft3, t1
+			
+			# Define se haverá um objeto na sala
+			la		t0, comida.pego
+			lb		t1, (t0)
+			xori		t1, t1, 1
+			li		t2, 3
+			mul		t1, t1, t2
+			fcvt.s.w	fa7, t1
+			la		t0, objeto.x
+			li		t1, 142
+			sb		t1, (t0)
+			la		t0, objeto.y
+			li		t1, 161
+			sb		t1, (t0)
+			la		t0, comida.descritor
+			lw		t1, (t0)
+			la		t0, objeto.descritor
+			sw		t1, (t0)
 			
 			tail		LOOP_JOGO
 
@@ -284,6 +308,24 @@ TELA_5.PARA.TELA_6:	jal		CONFIG.TELA_6
 			li		t1, -1
 			fcvt.s.w	fa4, t1	
 			
+			# Define se haverá um objeto na sala
+			la		t0, coracao.pego
+			lb		t1, (t0)
+			xori		t1, t1, 1
+			li		t2, 2
+			mul		t1, t1, t2
+			fcvt.s.w	fa7, t1
+			la		t0, objeto.x
+			li		t1, 176
+			sb		t1, (t0)
+			la		t0, objeto.y
+			li		t1, 171
+			sb		t1, (t0)
+			la		t0, coracao.descritor
+			lw		t1, (t0)
+			la		t0, objeto.descritor
+			sw		t1, (t0)
+			
 			tail		LOOP_JOGO
 
 # Configurações ao mudar da tela 6 para 5
@@ -298,7 +340,8 @@ TELA_6.PARA.TELA_5:	jal		CONFIG.TELA_5
 			fcvt.s.w	fa2, zero			
 			fcvt.s.w 	fs2, zero
 			li		t1, 1
-			fcvt.s.w	fa4, t1				
+			fcvt.s.w	fa4, t1	
+			fcvt.s.w	fa7, zero			
 	
 			tail		LOOP_JOGO
 
@@ -424,7 +467,7 @@ config_tela_1:		jal		CONFIG.TELA_1
 			sw		t1, (t0)
 			
 			# Dialogo inicial do jogo
-			# jal		DIALOGO_1.START
+			jal		DIALOGO_1.START
 									
  			tail 		LOOP_JOGO
  
