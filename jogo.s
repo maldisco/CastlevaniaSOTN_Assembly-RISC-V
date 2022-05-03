@@ -203,7 +203,7 @@
 			li		t0, 1
 			fcvt.s.w	fa4, t0
 			
-			li		t0, 1
+			li		t0, 20
 			fcvt.s.w	ft2, t0				# Dano do personagem
 			
 			la		t0, SALTO			# Aceleração inicial do salto
@@ -272,8 +272,8 @@ LOOP_JOGO:		csrr 		t0, 3073
 			bltu 		t0, t1, LOOP_JOGO			# Se ainda não tiverem passado 16 Milissegundos, não começa
 			
 			xori 		s0, s0, 1				# Troca a frame para o usuário não ver as atualizações
-			#jal		OST.TOCA
-			#jal		OST.TOCA_2
+			jal		OST.TOCA
+			jal		OST.TOCA_2
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
@@ -325,8 +325,8 @@ SANS.PARADO:		mv		a0, s1					# Geração dos parametros (a0-a7) para renderizar o 
 			j		SANS.RENDER
 
 SANS.SOBE:		mv		a0, s1
-			li		a1, SANS.X
-			li		a2, SANS.Y
+			fcvt.w.s	a1, fs11				
+			fcvt.w.s	a2, fs10
 			li		a3, SANS.IMAGEM.LARGURA
 			li		a4, SANS.LARGURA
 			frame_address(a5)
@@ -352,8 +352,8 @@ SANS.SOBE:		mv		a0, s1
 			j		SANS.RENDER
 			
 SANS.DESCE:		mv		a0, s1
-			li		a1, SANS.X
-			li		a2, SANS.Y
+			fcvt.w.s	a1, fs11				
+			fcvt.w.s	a2, fs10
 			li		a3, SANS.IMAGEM.LARGURA
 			li		a4, SANS.LARGURA
 			frame_address(a5)
@@ -961,8 +961,34 @@ FACA.RENDER:		fcvt.w.s	a2, fs7
 			li		a3, OBJETO.IMAGEM.LARGURA
 			frame_address(a5)
 			li		a7, OBJETO.ALTURA
-			jal 		RENDER
+						
+			# Se o sans estiver ligado
+			fcvt.w.s	t0, fa0
+			li		t1, 1
+			bne		t0, t1, FACA.RENDER.START
 			
+			fcvt.w.s	t1, fs10				# Y do inimigo
+			fcvt.w.s	t2, fs11				# X do inimigo
+			
+			addi		t3, a2, 9				# Limite inferior da Hitbox da faca
+			blt		t3, t1, FACA.RENDER.START
+			
+			addi		t1, t1, 71				# Limite inferior da Hitbox do inimigo
+			addi		t3, a2, 0				# Limite superior da Hitbox da faca
+			bgt		t3, t1, FACA.RENDER.START
+			
+			addi		t3, a1, 30				# Limite direito da hitbox da faca
+			blt		t3, t2, FACA.RENDER.START
+			
+			addi		t2, t2, 62				# Limite direito da hitbox do inimigo
+			addi		t3, a1, 0				# Limite esquerdo da hitbox da faca
+			bgt		t3, t2, FACA.RENDER.START
+			
+			fsub.s		fs0, fs0, ft2				# ft2 = dano do personagem
+			fcvt.s.w	fa5, zero				# para de renderizar a faca
+			jal		SANS.TELEPORTA				# fisica.s
+			
+FACA.RENDER.START:	jal 		RENDER
 			j		OBJETO.RENDER
 
 FACA.PARA:		fcvt.s.w	fa5, zero					# Desliga o sinal de renderização da faca

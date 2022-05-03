@@ -183,7 +183,66 @@ COLISAO.INIMIGO.SANS:	fcvt.w.s	t1, fs10				# Y do inimigo
 			
 			fsub.s		fs0, fs0, ft2				# ft2 = dano do personagem
 			
+			# Teleporta o SANS
+SANS.TELEPORTA:		mv		t6, a0
+			mv		t5, a1
+			mv		t4, a7
+			
+			li		a1, 4
+			li		a7, 42
+			ecall
+			
+			li		t1, 0
+			beq		a0, t1, SANS.TELEPORTA.1
+			
+			li		t1, 1
+			beq		a0, t1, SANS.TELEPORTA.2
+			
+			li		t1, 2
+			beq		a0, t1, SANS.TELEPORTA.3
+			
+			li		t1, 3
+			beq		a0, t1, SANS.TELEPORTA.4
+			
+			li		t1, 4
+			beq		a0, t1, SANS.TELEPORTA.5
+
+SANS.TELEPORTA.RET:	mv		a0, t6
+			mv		a1, t5
+			mv		a7, t4
 			ret
+
+
+SANS.TELEPORTA.1:	li		t0, 27
+			fcvt.s.w	fs11, t0
+			li		t0, 18
+			fcvt.s.w	fs10, t0
+			j		SANS.TELEPORTA.RET
+
+SANS.TELEPORTA.2:	li		t0, 129
+			fcvt.s.w	fs11, t0
+			li		t0, 71
+			fcvt.s.w	fs10, t0
+			j		SANS.TELEPORTA.RET
+			
+SANS.TELEPORTA.3:	li		t0, 232
+			fcvt.s.w	fs11, t0
+			li		t0, 18
+			fcvt.s.w	fs10, t0
+			j		SANS.TELEPORTA.RET
+
+SANS.TELEPORTA.4:	li		t0, 46
+			fcvt.s.w	fs11, t0
+			li		t0, 112
+			fcvt.s.w	fs10, t0
+			j		SANS.TELEPORTA.RET
+			
+SANS.TELEPORTA.5:	li		t0, 209
+			fcvt.s.w	fs11, t0
+			li		t0, 112
+			fcvt.s.w	fs10, t0
+			j		SANS.TELEPORTA.RET
+			
 
 
 # Checa colisão à direita do personagem

@@ -36,9 +36,9 @@ OBJETO.ACOES.COMIDA:	fcvt.s.w	fa7, zero				# Desliga a renderização de objeto
 			li		t1, 2
 			fcvt.s.w	ft4, t1					# Código da mensagem na tela
 			
-			li		t1, 1
+			li		t1, 2
 			fcvt.s.w	ft0, t1
-			fadd.s		ft2, ft2, ft0				# Aumenta o dano do personagem
+			fmul.s		ft2, ft2, ft0				# Dobra o dano do personagem
 			
 			ret
 			

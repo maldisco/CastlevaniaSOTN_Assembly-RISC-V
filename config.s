@@ -43,7 +43,7 @@ sans.ferido.offsets:		.word 68328,68328,68328,68328,68390,68390,68390,68390,6845
 .eqv SANS.ALTURA		71
 .eqv SANS.IMAGEM.LARGURA	312
 .eqv SANS.X			129
-.eqv SANS.Y			54
+.eqv SANS.Y			71
 
 blaster_h:			.string "sprites/blaster_h.bin"
 blaster_h.offsets:		.word 0,0,0,0,16640,16640,16640,16640,33280,33280,33280,33280,49920,49920,49920,49920,66560,66560,66560,66560
