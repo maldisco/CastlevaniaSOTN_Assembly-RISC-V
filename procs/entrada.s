@@ -41,7 +41,10 @@ PARA:			fcvt.w.s	t1, fa2
 # - sentido = 1 (direita)
 # - Se o personagem estiver parado
 # - - Reseta animação para 0
-DIREITA:		fcvt.w.s	t1, fs3			# Fs3 = move X
+DIREITA:		fcvt.w.s	t1, fa1
+			bnez 		t1, ENTRADA.RET
+			
+			fcvt.w.s	t1, fs3			# Fs3 = move X
 			bgtz 		t1, DIREITA.TURN
 			
 			fcvt.s.w	ft11, zero
@@ -57,7 +60,10 @@ DIREITA.TURN:		li 		t1, 16
 # - sentido = -1 (esquerda)
 # - Se o personagem estiver parado
 # - - Reseta animação para 0
-ESQUERDA:		fcvt.w.s	t1, fs3	
+ESQUERDA:		fcvt.w.s	t1, fa1
+			bnez 		t1, ENTRADA.RET
+			
+			fcvt.w.s	t1, fs3	
 			bltz 		t1, ESQUERDA.TURN
 						
 			fcvt.s.w	ft11, zero

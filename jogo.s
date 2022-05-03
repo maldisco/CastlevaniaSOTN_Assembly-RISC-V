@@ -1,8 +1,7 @@
 .data
-.include "config.s"
-.include "alucard.s"
-.include "inimigos.s"
-.include "macros.s"
+.include "config/config.s"
+.include "config/alucard.s"
+.include "config/macros.s"
 .text
 			# Carrega arquivo de sprites do personagem principal 
 			la 		a0, alucard
@@ -525,21 +524,21 @@ ALUCARD.ATUALIZA:	jal 		FISICA
 			bltz 		t1, ALUCARD.CORRENDO.ESQUERDA			
 			
 # LP
-ALUCARD.PARADO:		bnez 		a4, LP.COLIDIU.BAIXO		# Checa se colidiu com o chão
+ALUCARD.PARADO:		bnez 		a4, AP.COLIDIU.BAIXO		# Checa se colidiu com o chão
 			
 						
-LP.MOVE.MAPA:		add 		t2, s3, s2			# desce 2 pixels
+AP.MOVE.MAPA:		add 		t2, s3, s2			# desce 2 pixels
 			la 		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt 		t2, t3, LP.MOVE.CHAR		# Se passar do Limite inferior do mapa, move o personagem ao invés do mapa
+			bgt 		t2, t3, AP.MOVE.CHAR		# Se passar do Limite inferior do mapa, move o personagem ao invés do mapa
 			
 			mv		s3, t2				# Se não, move mapa
-			j 		LP.COLIDIU.BAIXO
+			j 		AP.COLIDIU.BAIXO
 
-LP.MOVE.CHAR:		# Movimenta o personagem em Y
+AP.MOVE.CHAR:		# Movimenta o personagem em Y
 			add 		s5, s5, s2
 					
-LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
+AP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10				# Descritor
 			mv		a1, s6				# X na tela
 			mv		a2, s5				# Y na tela
@@ -548,22 +547,22 @@ LP.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			frame_address(a5)				# Endereço da frame
 			fcvt.w.s	t1, ft11			# ft11 =  Contador de animação Alucard
 			li 		t2, 48
-			blt 		t1, t2,LP.NAORESETA
+			blt 		t1, t2,AP.NAORESETA
 			
 			li		t1, 0
 			
-LP.NAORESETA:
+AP.NAORESETA:
 			addi 		t3, t1, 1			# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.parado.direita.offsets
 			fcvt.w.s	t3, fa4				
-			bgtz 		t3, LP.SENTIDO.DIREITA
+			bgtz 		t3, AP.SENTIDO.DIREITA
 			
 			la 		t2 alucard.parado.esquerda.offsets
 			
-LP.SENTIDO.DIREITA:	add 		t2, t2, t1
+AP.SENTIDO.DIREITA:	add 		t2, t2, t1
 			lw 		a6, (t2)			# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
 			j 		ALUCARD.RENDER
@@ -572,79 +571,79 @@ ALUCARD.PULANDO:		# Atualiza a posição Y
 			fcvt.s.w 	ft0, zero
 			flt.s		t1, fs2, ft0			# t1 = 1 if ft1 < ft0 else 0
 					
-			bnez		t1, LPU.SUBINDO
+			bnez		t1, APU.SUBINDO
 			
-LPU.DESCENDO:		# Checa se já caiu no chão
-			beqz 		a4, LPU.MOVE_Y
+APU.DESCENDO:		# Checa se já caiu no chão
+			beqz 		a4, APU.MOVE_Y
 			
 			fcvt.s.w	fa2, zero 			# Zera o sinal de controle de pulo
-			j 		LPU.ATUALIZA_X	
+			j 		APU.ATUALIZA_X	
 				
-LPU.SUBINDO:		# Checa se bateu no teto
-			beqz 		a3, LPU.MOVE_Y
+APU.SUBINDO:		# Checa se bateu no teto
+			beqz 		a3, APU.MOVE_Y
 	
-			j 		LPU.ATUALIZA_X	
+			j 		APU.ATUALIZA_X	
 				
-LPU.MOVE_Y:		# Movimenta o mapa em Y
+APU.MOVE_Y:		# Movimenta o mapa em Y
 			add 		t2, s3, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
+			bgt		t2, t3, APU.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
 			
 			la		t0, mapa.min.y
 			lhu		t3, 0(t0)
-			blt		t2, t3, LPU.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa
+			blt		t2, t3, APU.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa
 							
 			li 		t4, 130
-			bgt		s5, t4, LPU.MOVE_Y.CHAR		# Se o personagem está acima da metade da tela, move o personagem ao invés do mapa
+			bgt		s5, t4, APU.MOVE_Y.CHAR		# Se o personagem está acima da metade da tela, move o personagem ao invés do mapa
 												
 			mv		s3, t2				# Se não, move mapa
-			j		LPU.ATUALIZA_X
+			j		APU.ATUALIZA_X
 					
-LPU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+APU.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2	
 															
-LPU.ATUALIZA_X:		# Atualiza a posição X
+APU.ATUALIZA_X:		# Atualiza a posição X
 			fcvt.w.s	t1, fs3				
-			beqz 		t1, LPU.PARADO
-			bgtz 		t1, LPU.DIREITA
+			beqz 		t1, APU.PARADO
+			bgtz 		t1, APU.DIREITA
 
-LPU.ESQUERDA:		# Testa colisão a esquerda			
-			bnez 		a2, LPU.PARADO	
+APU.ESQUERDA:		# Testa colisão a esquerda			
+			bnez 		a2, APU.PARADO	
 			 
 			addi 		t2, s4, -2
 			la		t0, mapa.min.x
 			lhu 		t3, 0(t0)
-			blt		t2, t3, LPU.ESQUERDA.MOVE.CHAR	
+			blt		t2, t3, APU.ESQUERDA.MOVE.CHAR	
 			
 			li		t5, 120
-			bgt 		s6, t5, LPU.ESQUERDA.MOVE.CHAR		
+			bgt 		s6, t5, APU.ESQUERDA.MOVE.CHAR		
 						
-LPU.ESQUERDA.MOVE.MAPA:	# Movimenta o mapa em X			
+APU.ESQUERDA.MOVE.MAPA:	# Movimenta o mapa em X			
 			mv 		s4, t2
-			j 		LPU.PARADO
+			j 		APU.PARADO
 			
-LPU.ESQUERDA.MOVE.CHAR:	addi 		s6, s6, -2
-			j 		LPU.PARADO
+APU.ESQUERDA.MOVE.CHAR:	addi 		s6, s6, -2
+			j 		APU.PARADO
 			
-LPU.DIREITA:		# Calcula colisão
-			bnez 		a1, LPU.PARADO				# Se bateu em algo, não move
+APU.DIREITA:		# Calcula colisão
+			bnez 		a1, APU.PARADO				# Se bateu em algo, não move
 								
 			addi 		t2, s4, 2
 			la		t0, mapa.max.x
 			lhu		t3, 0(t0)
-			bgt 		t2, t3, LPU.DIREITA.MOVE.CHAR
+			bgt 		t2, t3, APU.DIREITA.MOVE.CHAR
 			
 			li		t5, 120
-			blt		s6, t5, LPU.DIREITA.MOVE.CHAR
+			blt		s6, t5, APU.DIREITA.MOVE.CHAR
 				
-LPU.DIREITA.MOVE.MAPA:	# Movimenta o mapa em X			
+APU.DIREITA.MOVE.MAPA:	# Movimenta o mapa em X			
 			mv 		s4, t2
-			j 		LPU.PARADO
+			j 		APU.PARADO
 			
-LPU.DIREITA.MOVE.CHAR:	addi 		s6, s6, 2
+APU.DIREITA.MOVE.CHAR:	addi 		s6, s6, 2
 						
-LPU.PARADO:	# Gera os valores para renderizar
+APU.PARADO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
 			mv		a1, s6					# X na tela
 			mv		a2, s5				    	# Y na tela 
@@ -653,22 +652,22 @@ LPU.PARADO:	# Gera os valores para renderizar
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
 			li 		t2, 88
-			blt 		t1, t2,LPU.NAO_RESETA			# Se tiver chegado na ultima animação, reseta
+			blt 		t1, t2,APU.NAO_RESETA			# Se tiver chegado na ultima animação, reseta
 			
 			li 		t1, 0
 			
-LPU.NAO_RESETA:
+APU.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.pulando.direita.offsets
 			fcvt.w.s	t3, fa4	
-			bgtz 		t3, LPU.SENTIDO.DIREITA
+			bgtz 		t3, APU.SENTIDO.DIREITA
 			
 			la 		t2 alucard.pulando.esquerda.offsets
 			
-LPU.SENTIDO.DIREITA:
+APU.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)				# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
@@ -676,39 +675,39 @@ LPU.SENTIDO.DIREITA:
 
 # LCD			
 ALUCARD.CORRENDO.DIREITA:	# Calcula colisão
-			bnez 		a1, LCD.COLIDIU
+			bnez 		a1, ACD.COLIDIU
 								
-LCD.MOVE.MAPA:		# Se tiver chegado no final do mapa OU o personagem está à esquerda do centro da tela, move o personagem
+ACD.MOVE.MAPA:		# Se tiver chegado no final do mapa OU o personagem está à esquerda do centro da tela, move o personagem
 			# Se não, move a tela/mapa
 			addi 		t2, s4, 2
 			la		t0, mapa.max.x
 			lhu		t3, (t0)
-			bgt		t2, t3 LCD.MOVE.CHAR
+			bgt		t2, t3 ACD.MOVE.CHAR
 			
 			li		t5, 120
-			blt 		s6, t5, LCD.MOVE.CHAR
+			blt 		s6, t5, ACD.MOVE.CHAR
 			
 			mv 		s4, t2
-			j 		LCD.COLIDIU
+			j 		ACD.COLIDIU
 			
-LCD.MOVE.CHAR:		addi 		s6, s6, 2
+ACD.MOVE.CHAR:		addi 		s6, s6, 2
 			
-LCD.COLIDIU:		bnez 		a4, LCD.COLIDIU.BAIXO		
+ACD.COLIDIU:		bnez 		a4, ACD.COLIDIU.BAIXO		
 		
-LCD.MOVE_Y.MAPA:
+ACD.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			add 		t2, s3, s2				# desce velocidadeY pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt 		t2, t3, LCD.MOVE_Y.CHAR			# Se chegou ao limite inferior do mapa, move o personagem ao invés do mapa
+			bgt 		t2, t3, ACD.MOVE_Y.CHAR			# Se chegou ao limite inferior do mapa, move o personagem ao invés do mapa
 			
 			mv		s3, t2					# Se não, move o mapa
-			j 		LCD.COLIDIU.BAIXO
+			j 		ACD.COLIDIU.BAIXO
 
-LCD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+ACD.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2
 			
-LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
+ACD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			li		t0, -1
 			fcvt.s.w	ft0, t0
 			fadd.s		fs3, fs3, ft0
@@ -720,13 +719,13 @@ LCD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
-			li 		t2, 62
+			li 		t2, 93
 			
-			blt 		t1, t2,LCD.NAO_RESETA
+			blt 		t1, t2,ACD.NAO_RESETA
 			
-			li 		t1, 32
+			li 		t1, 48
 			
-LCD.NAO_RESETA:
+ACD.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
 			li 		t2, 4
@@ -738,40 +737,40 @@ LCD.NAO_RESETA:
 			j 		ALUCARD.RENDER
 # LCE	
 ALUCARD.CORRENDO.ESQUERDA:# checa colisão
-			bnez 		a2, LCE.COLIDIU 
+			bnez 		a2, ACE.COLIDIU 
 
-ALUCARD.MOVE.MAPA:	# Se tiver chegado no inicio do mapa OU o personagem está à direita do centro da tela, move o personagem
+ACE.MOVE.MAPA:	# Se tiver chegado no inicio do mapa OU o personagem está à direita do centro da tela, move o personagem
 			# Se não, move a tela/mapa		 					 		
 			addi 		t2, s4, -2
 			la		t0, mapa.min.x
 			lhu		t3, 0(t0)
-			blt		t2, t3, LCE.MOVE.CHAR
+			blt		t2, t3, ACE.MOVE.CHAR
 			
 			li		t5, 120
-			bgt		s6, t5, LCE.MOVE.CHAR			
+			bgt		s6, t5, ACE.MOVE.CHAR			
 		
 			mv 		s4, t2
-			j 		LCE.COLIDIU
+			j 		ACE.COLIDIU
 			
-LCE.MOVE.CHAR:		addi 		s6, s6, -2
+ACE.MOVE.CHAR:		addi 		s6, s6, -2
 			
-LCE.COLIDIU:		# Checa colisão baixo 
-			bnez 		a4, LCE.COLIDIU.BAIXO
+ACE.COLIDIU:		# Checa colisão baixo 
+			bnez 		a4, ACE.COLIDIU.BAIXO
 
-LCE.MOVE_Y.MAPA:
+ACE.MOVE_Y.MAPA:
 			# Movimenta o mapa em Y
 			add 		t2, s3, s2			# desce 2 pixels
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt 		t2, t3, LCE.MOVE_Y.CHAR		# Se tiver chegado no limite inferior do mapa, move o personagem ao invés do mapa
+			bgt 		t2, t3, ACE.MOVE_Y.CHAR		# Se tiver chegado no limite inferior do mapa, move o personagem ao invés do mapa
 			
 			mv		s3, t2
-			j 		LCE.COLIDIU.BAIXO
+			j 		ACE.COLIDIU.BAIXO
 
-LCE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
+ACE.MOVE_Y.CHAR:	# Movimenta o personagem em Y
 			add 		s5, s5, s2
 			
-LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
+ACE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			li		t0, 1
 			fcvt.s.w	ft0, t0
 			fadd.s		fs3, fs3, ft0
@@ -783,12 +782,12 @@ LCE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
-			li 		t2, 62
-			blt 		t1, t2,LCE.NAO_RESETA			# Se tiver chegado na última animação, recicla
+			li 		t2, 93
+			blt 		t1, t2,ACE.NAO_RESETA			# Se tiver chegado na última animação, recicla
 			
-			li 		t1, 32
+			li 		t1, 48
 			
-LCE.NAO_RESETA:
+ACE.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
 			li 		t2, 4
@@ -801,26 +800,26 @@ LCE.NAO_RESETA:
 
 # LS	
 ALUCARD.SOCANDO:	# checa colisão abaixo
-			bnez		a4, LS.COLIDIU.BAIXO	
-			bnez		a3, LS.COLIDIU.BAIXO	
+			bnez		a4, AS.COLIDIU.BAIXO	
+			bnez		a3, AS.COLIDIU.BAIXO	
 	
-LS.MOVE_Y:		# Movimenta o mapa em Y
+AS.MOVE_Y:		# Movimenta o mapa em Y
 			add 		t2, s3, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt		t2, t3, LS.MOVE_Y.CHAR			# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
+			bgt		t2, t3, AS.MOVE_Y.CHAR			# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
 			
 			la		t0, mapa.min.y
 			lhu		t3, 0(t0)
-			blt		t2, t3, LS.MOVE_Y.CHAR			# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
+			blt		t2, t3, AS.MOVE_Y.CHAR			# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
 												
 			mv		s3, t2					# Se não, move mapa
-			j		LS.COLIDIU.BAIXO
+			j		AS.COLIDIU.BAIXO
 					
-LS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
+AS.MOVE_Y.CHAR:		# Movimenta o personagem em Y
 			add 		s5, s5, s2	
 			
-LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
+AS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10					# Descritor
 			mv		a1, s6					# X na tela
 			mv		a2, s5					# Y na tela
@@ -829,21 +828,21 @@ LS.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
 			li 		t2, 17
-			blt 		t1, t2,LS.RENDER			# Se tiver chegado na ultima animação, para de socar
+			blt 		t1, t2,AS.RENDER			# Se tiver chegado na ultima animação, para de socar
 			
 			fcvt.s.w	fa1, zero
 			j		FACA.ATUALIZA
 				
-LS.RENDER:		addi 		t3, t1, 1				# Avança um movimento na animação
+AS.RENDER:		addi 		t3, t1, 1				# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.socando.direita.offsets
 			fcvt.w.s	t3, fa4	
-			bgtz 		t3, LS.SENTIDO.DIREITA
+			bgtz 		t3, AS.SENTIDO.DIREITA
 			
 			la 		t2, alucard.socando.esquerda.offsets			
-LS.SENTIDO.DIREITA:
+AS.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)					# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
@@ -853,27 +852,27 @@ LS.SENTIDO.DIREITA:
 			
 # LF	
 ALUCARD.FACA:		# checa colisão abaixo
-			bnez		a4, LF.COLIDIU.BAIXO	
+			bnez		a4, AF.COLIDIU.BAIXO	
 			
-			bnez		a3, LF.COLIDIU.BAIXO	
+			bnez		a3, AF.COLIDIU.BAIXO	
 	
-LF.MOVE_Y:		# Movimenta o mapa em Y
+AF.MOVE_Y:		# Movimenta o mapa em Y
 			add 		t2, s3, s2
 			la		t0, mapa.max.y
 			lhu		t3, 0(t0)
-			bgt		t2, t3, LF.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
+			bgt		t2, t3, AF.MOVE_Y.CHAR		# Se passar do limite inferior do mapa, move o personagem ao invés do mapa
 			
 			la		t0, mapa.min.y
 			lhu		t3, 0(t0)
-			blt		t2, t3, LF.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
+			blt		t2, t3, AF.MOVE_Y.CHAR		# Se passar do limite superior do mapa, move o personagem ao invés do mapa	
 												
 			mv		s3, t2			# Se não, move mapa
-			j		LF.COLIDIU.BAIXO
+			j		AF.COLIDIU.BAIXO
 					
-LF.MOVE_Y.CHAR:		# Movimenta o personagem em Y
+AF.MOVE_Y.CHAR:		# Movimenta o personagem em Y
 			add 		s5, s5, s2	
 			
-LF.COLIDIU.BAIXO:	# Gera os valores para renderizar
+AF.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			mv 		a0, s10						# Descritor
 			mv		a1, s6						# X na tela
 			mv		a2, s5						# Y na tela
@@ -882,20 +881,20 @@ LF.COLIDIU.BAIXO:	# Gera os valores para renderizar
 			frame_address(a5)						# Endereço da frame
 			fcvt.w.s	t1, ft11					# ft11 =  Contador de animação Alucard
 			li 		t2, 7
-			blt 		t1, t2,LF.RENDER				# Se tiver chegado na ultima animação, para de socar
+			blt 		t1, t2,AF.RENDER				# Se tiver chegado na ultima animação, para de socar
 			
 			fcvt.s.w	fa3, zero
 				
-LF.RENDER:		addi 		t3, t1, 1					# Avança um movimento na animação
+AF.RENDER:		addi 		t3, t1, 1					# Avança um movimento na animação
 			fcvt.s.w	ft11, t3
 			li 		t2, 4
 			mul 		t1, t1, t2
 			la 		t2, alucard.faca.direita.offsets
 			fcvt.w.s	t3, fa4	
-			bgtz 		t3, LF.SENTIDO.DIREITA
+			bgtz 		t3, AF.SENTIDO.DIREITA
 			
 			la 		t2, alucard.faca.esquerda.offsets			
-LF.SENTIDO.DIREITA:
+AF.SENTIDO.DIREITA:
 			add 		t2, t2, t1
 			lw 		a6, (t2)					# Offset na imagem
 			li 		a7, ALUCARD.ALTURA
@@ -1130,8 +1129,8 @@ MSG.RENDER:		fcvt.w.s	t1, ft4
 			
 			la		t0, msg.descritor				# Geração dos valores para renderizar a mensagem
 			lw		a0, (t0)					# Checar render.s para entender os parametros
-			li		a1, 115	
-			li 		a2, 110
+			mv		a1, s6
+			mv 		a2, s5
 			li		a3, 100
 			li 		a4, 98		
 			frame_address(a5)
@@ -1160,10 +1159,10 @@ MOSTRA_FRAME:		li 		t0,FRAME_SELECT
 			j 		LOOP_JOGO					# Retorna ao loop principal
 
 
-.include "entrada.s"
-.include "tela.s"
-.include "fisica.s"
-.include "render.s"
-.include "ost.s"
-.include "dialogos.s"
-.include "common.s"
+.include "procs/entrada.s"
+.include "procs/tela.s"
+.include "procs/fisica.s"
+.include "procs/render.s"
+.include "procs/ost.s"
+.include "procs/dialogos.s"
+.include "procs/common.s"

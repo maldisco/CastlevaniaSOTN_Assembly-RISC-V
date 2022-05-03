@@ -87,18 +87,18 @@ mapa.max.x:			.half 1308
 mapa.min.x:			.half 0
 mapa_hitbox:			.word 0		# Ponteiro para o mapa de hitboxes da tela atual
 
-.include "mapa/tela_1_hitboxes.s"
-.include "mapa/tela_2_hitboxes.s"
-.include "mapa/tela_3_hitboxes.s"
-.include "mapa/tela_4_hitboxes.s"
-.include "mapa/tela_5_hitboxes.s"
-.include "mapa/tela_6_hitboxes.s"
-.include "mapa/tela_7_hitboxes.s"
-.include "mapa/tela_8_hitboxes.s"
-.include "mapa/tela_10_hitboxes.s"
-.include "mapa/tela_10_aberta_hitboxes.s"
-.include "mapa/tela_11_hitboxes.s"
-.include "mapa/tela_bf_hitboxes.s"
+.include "../mapa/tela_1_hitboxes.s"
+.include "../mapa/tela_2_hitboxes.s"
+.include "../mapa/tela_3_hitboxes.s"
+.include "../mapa/tela_4_hitboxes.s"
+.include "../mapa/tela_5_hitboxes.s"
+.include "../mapa/tela_6_hitboxes.s"
+.include "../mapa/tela_7_hitboxes.s"
+.include "../mapa/tela_8_hitboxes.s"
+.include "../mapa/tela_10_hitboxes.s"
+.include "../mapa/tela_10_aberta_hitboxes.s"
+.include "../mapa/tela_11_hitboxes.s"
+.include "../mapa/tela_bf_hitboxes.s"
 
 .eqv MAPA.LARGURA		320
 .eqv MAPA.ALTURA		239
