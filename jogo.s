@@ -719,11 +719,11 @@ ACD.COLIDIU.BAIXO:	# Decrementa uma movimentação a direita
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
-			li 		t2, 93
+			li 		t2, 62
 			
 			blt 		t1, t2,ACD.NAO_RESETA
 			
-			li 		t1, 48
+			li 		t1, 32
 			
 ACD.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação
@@ -782,10 +782,10 @@ ACE.COLIDIU.BAIXO:	# Decrementa uma movimentação a esquerda
 			li 		a4, ALUCARD.LARGURA			# Largura da sprite
 			frame_address(a5)					# Endereço da frame
 			fcvt.w.s	t1, ft11				# ft11 =  Contador de animação Alucard
-			li 		t2, 93
+			li 		t2, 62
 			blt 		t1, t2,ACE.NAO_RESETA			# Se tiver chegado na última animação, recicla
 			
-			li 		t1, 48
+			li 		t1, 32
 			
 ACE.NAO_RESETA:
 			addi 		t3, t1, 1				# Avança um movimento na animação

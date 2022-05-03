@@ -53,6 +53,15 @@ TELA.TROCA:		li 		t0,FRAME_SELECT
 			li		t0, -17
 			beq		a0, t0, TELA_7.PARA.TELA_10
 			
+			li		t0, -19
+			beq		a0, t0, TELA_7.PARA.TELA_8
+			
+			li		t0, -20
+			beq		a0, t0, FIM_DE_JOGO
+			
+			li		t0, -21
+			beq		a0, t0, TELA_8.PARA.TELA_7
+			
 			li 		t0, -12
 			beq		a0, t0, TELA_10.PARA.TELA_7
 			
@@ -222,7 +231,7 @@ TELA_3.PARA.TELA_BF:	jal		CONFIG.TELA_BF
 			fcvt.s.w	fa0, t1
 			li		t1, 1
 			fcvt.s.w	fa4, t1	
-			li		t0, 500
+			li		t0, 100
 			fcvt.s.w	fs0, t0
 			li		t0, SANS.X
 			fcvt.s.w	fs11, t0
@@ -431,6 +440,45 @@ TELA_7.PARA.TELA_10:	jal		CONFIG.TELA_10
 	
 			tail		LOOP_JOGO
 
+# Configurações ao mudar da tela 7 para tela 8
+TELA_7.PARA.TELA_8:	jal		CONFIG.TELA_11
+			
+			li		s4, 0
+			li 		s3, 0
+			li		s6, 20
+			li		s5, 109
+			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
+			fcvt.s.w	fa2, zero			
+			fcvt.s.w 	fs2, zero
+			li		t1, 1
+			fcvt.s.w	fa4, t1
+			fcvt.s.w	ft3, t1
+			
+			la 		t0, mapa_hitbox
+			la 		t1, tela_8_hitboxes
+			sw		t1, 0(t0)
+			
+			tail		LOOP_JOGO
+
+# Configurações ao mudar da tela 8 para tela 7
+TELA_8.PARA.TELA_7:	jal		CONFIG.TELA_7
+			
+			li		s4, 0
+			li 		s3, 528
+			li		s6, 220
+			li		s5, 75
+			fcvt.s.w	fs3, zero
+			fcvt.s.w	fa1, zero
+			fcvt.s.w	fa2, zero			
+			fcvt.s.w 	fs2, zero
+			li		t1, -1
+			fcvt.s.w	fa4, t1	
+			fcvt.s.w	fa0, zero
+			fcvt.s.w	ft3, zero			
+	
+			tail		LOOP_JOGO
+
 # Configurações ao mudar da tela 10 para 7
 TELA_10.PARA.TELA_7:	jal		CONFIG.TELA_7
 			
@@ -482,6 +530,10 @@ TELA_11.PARA.TELA_2:	jal		CONFIG.TELA_2
 	
 			tail		LOOP_JOGO
 
+# Fim do jogo (só fecha)
+FIM_DE_JOGO:		li		a7, 10
+			ecall
+			
 
 # Configuracoes ao iniciar o jogo
 config_newgame:		jal		CONFIG.TELA_1
