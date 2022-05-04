@@ -123,5 +123,6 @@ GO.LOOP:		li		a1, 0			# X na VGA
 			
 			blt		t6, t2, GO.LOOP		# Se ainda não terminou o game over, volta pro loop
 			
-			j		CASTLEVANIA
+			li		a7, 10
+			ecall
 			
