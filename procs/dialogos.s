@@ -83,3 +83,45 @@ D2.POLL_LOOP:		li		t0, MMIO_set
 			lw		ra, (sp)
 			addi		sp, sp, 4
 			ret
+
+# Morte
+GAME_OVER:		li 		t0,FRAME_SELECT
+			sw 		s0,(t0)
+
+			# Carrega o arquivo de game over
+			la		a0, morte
+			li		a1, 0
+			li		a2, 0
+			li		a7, 1024
+			ecall
+
+			li		a6, 0			# Offset na imagem do dialogo
+			li		t2, 5			# Numero de caixas de dialogo
+			li		t6, 0			# Contador de frames
+			li		t4, 0			# Offset na tela
+			
+GO.LOOP:		li		a1, 0			# X na VGA
+			li 		a2, 0			# Y na VGA
+			li		a3, 1600		# Largura da imagem
+			li 		a4, 320	
+			li 		a7, 239
+			mv		a6, t4		
+			frame_address(a5)
+			jal		RENDER		
+			
+			
+			addi		t6, t6, 1
+			addi		t4, t4, 320
+			
+			mv		t0, a0
+			
+			li		a0, 1000
+			li		a7, 32
+			ecall
+			
+			mv		a0, t0
+			
+			blt		t6, t2, GO.LOOP		# Se ainda não terminou o game over, volta pro loop
+			
+			j		CASTLEVANIA
+			

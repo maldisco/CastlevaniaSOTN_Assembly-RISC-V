@@ -14,28 +14,23 @@ ENTRADA:		li		s11, MMIO_set
 			li 		t1, 'w'
 			beq 		t0, t1, PULA		# checa se a tecla 'W' foi apertada
 			
-			li		t1, 's'
-			beq 		t0, t1, PARA		# checa se a tecla 'S' foi apertada
-			
 			li 		t1, 'z'
 			beq 		t0, t1, SOCA
 			
 			li		t1, 'x'
 			beq		t0, t1, ARREMESSA
-		
-ENTRADA.RET:		ret
-		
-# Se a tecla 'S' foi apertada
-# - Se pulando > 0
-# - - nada
-# - Senão
-# - - moveX = 0
-PARA:			fcvt.w.s	t1, fa2
-			bnez 		t1, ENTRADA.RET	
-			fcvt.s.w	fs3, zero		# Fs3 = move X
+			
+			li		t1, 'p'
+			beq		t0, t1, CURA
+									
+ENTRADA.RET:		ret		
+	
+# --- CHEAT ----
+# Enche a vida
+CURA:			li		t1, 99
+			fcvt.s.w	fs4, t1
 			ret
-		
-		
+	
 # Se a tecla D foi apertada,
 # - moveX = 14 (armazena 14 atualizações de movimentação a direita)
 # - sentido = 1 (direita)

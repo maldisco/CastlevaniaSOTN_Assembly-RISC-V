@@ -26,6 +26,7 @@ numeros:			.string "sprites/numeros.bin"
 
 dialogo1:			.string "dialogos/dialogo1.bin"
 dialogo2:			.string "dialogos/dialogo2.bin"
+morte:				.string "sprites/morte.bin"
 
 objeto.x:			.half 56
 objeto.y:			.half 151

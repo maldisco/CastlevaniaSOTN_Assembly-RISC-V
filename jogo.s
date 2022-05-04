@@ -3,7 +3,8 @@
 .include "config/alucard.s"
 .include "config/macros.s"
 .text
-			# Carrega arquivo de sprites do personagem principal 
+
+CASTLEVANIA:		# Carrega arquivo de sprites do personagem principal 
 			la 		a0, alucard
 			li 		a1, 0
 			li 		a2, 0
@@ -202,7 +203,7 @@
 			li		t0, 1
 			fcvt.s.w	fa4, t0
 			
-			li		t0, 20
+			li		t0, 10
 			fcvt.s.w	ft2, t0				# Dano do personagem
 			
 			la		t0, SALTO			# Aceleração inicial do salto
@@ -1063,8 +1064,13 @@ MAPA_FRENTE.RENDER:	fcvt.w.s	t0, ft3
 			jal		RENDER
 
 # Renderiza os elementos da HUD 		
-HUD.RENDER:		# Barra de status
-			mv		a0, s8
+HUD.RENDER:		fcvt.w.s	t0, fs4
+			bgtz		t0, HUD.RENDER.START
+			
+			j		GAME_OVER
+					
+			# Barra de status
+HUD.RENDER.START:	mv		a0, s8
 			li		a1, 0		
 			li 		a2, 0
 			li		a3, HUD.IMAGEM.LARGURA

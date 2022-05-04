@@ -231,7 +231,7 @@ TELA_3.PARA.TELA_BF:	jal		CONFIG.TELA_BF
 			fcvt.s.w	fa0, t1
 			li		t1, 1
 			fcvt.s.w	fa4, t1	
-			li		t0, 100
+			li		t0, 500
 			fcvt.s.w	fs0, t0
 			li		t0, SANS.X
 			fcvt.s.w	fs11, t0
@@ -465,7 +465,7 @@ TELA_7.PARA.TELA_8:	jal		CONFIG.TELA_11
 TELA_8.PARA.TELA_7:	jal		CONFIG.TELA_7
 			
 			li		s4, 0
-			li 		s3, 528
+			li 		s3, 258
 			li		s6, 220
 			li		s5, 75
 			fcvt.s.w	fs3, zero
