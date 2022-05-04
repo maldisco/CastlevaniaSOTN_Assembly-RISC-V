@@ -154,7 +154,7 @@ CASTLEVANIA:		# Carrega arquivo de sprites do personagem principal
 			ecall
 			sw		a0, 28(t0)
 			
-			# Carrega o arquivo da tela de bossfight
+			# Carrega o arquivo da tela de luta de chefe
 			la		a0, telabf
 			li		a1, 0
 			li		a2, 0
@@ -178,7 +178,7 @@ CASTLEVANIA:		# Carrega arquivo de sprites do personagem principal
 			ecall
 			sw		a0, 40(t0)
 			
-			# Carrega o arquivo da parte da frente da descima primeira tela do jogo
+			# Carrega o arquivo da parte da frente da decima primeira tela do jogo
 			la		a0, tela11f
 			li		a1, 0
 			li		a2, 0
@@ -201,12 +201,12 @@ CASTLEVANIA:		# Carrega arquivo de sprites do personagem principal
 			fcvt.s.w	fs4, t0				# HP do personagem
 			
 			li		t0, 1
-			fcvt.s.w	fa4, t0
+			fcvt.s.w	fa4, t0				# Sentido do personagem (direita/esquerda)
 			
 			li		t0, 10
 			fcvt.s.w	ft2, t0				# Dano do personagem
 			
-			la		t0, SALTO			# Aceleração inicial do salto
+			la		t0, SALTO			# Aceleração inicial do salto ( Constante)
 			flw		fs5, (t0)			
 			
 			csrr 		s11, 3073			# Guarda tempo atual em s11 (usado para controle de FPS)
@@ -277,16 +277,16 @@ LOOP_JOGO:		csrr 		t0, 3073
 			jal 		ENTRADA					# Trata a entrada do usuário no teclado
 			
 # Renderiza o mapa
-MAPA.RENDER:		mv		a0, s9
-			li		a1, 0		
-			li 		a2, 0
-			la		t1, mapa.imagem.largura
-			lhu		a3, 0(t1)
-			li 		a4, MAPA.LARGURA		
-			frame_address(a5)
-			offset_mapa(a6)
-			li 		a7, MAPA.ALTURA
-			jal		RENDER
+MAPA.RENDER:		mv		a0, s9					# Descritor do arquivo
+			li		a1, 0					# X na tela
+			li 		a2, 0					# Y na tela
+			la		t1, mapa.imagem.largura			# Largura do arquivo
+			lhu		a3, 0(t1)			
+			li 		a4, MAPA.LARGURA			# Largura do mapa
+			frame_address(a5)					# Endereço da frame atual
+			offset_mapa(a6)						# Offset no arquivo
+			li 		a7, MAPA.ALTURA				# Altura do mapa
+			jal		RENDER					# render.s
 			
 # Atualiza a animação do SANS (se ele existir)
 SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle inimigo
@@ -294,7 +294,7 @@ SANS.ATUALIZA:		fcvt.w.s	t0, fa0					# fa0 = Sinal de controle inimigo
 			bne		t0, t1, ALUCARD.ATUALIZA
 			
 			fcvt.w.s	t0, fs0
-			blez		t0, SANS.FERIDO
+			blez		t0, SANS.FERIDO				# Se o hp do sans chegou a 0, pula para animação de derrota
 			
 			la		t0, sans.acao
 			lb		t4, (t0)
@@ -324,7 +324,7 @@ SANS.PARADO:		mv		a0, s1					# Geração dos parametros (a0-a7) para renderizar o 
 			sb		t4, (t0)
 			j		SANS.RENDER
 
-SANS.SOBE:		mv		a0, s1
+SANS.SOBE:		mv		a0, s1					# Geração dos valores para renderização
 			fcvt.w.s	a1, fs11				
 			fcvt.w.s	a2, fs10
 			li		a3, SANS.IMAGEM.LARGURA
@@ -351,7 +351,7 @@ SANS.SOBE:		mv		a0, s1
 			sb		t4, (t0)
 			j		SANS.RENDER
 			
-SANS.DESCE:		mv		a0, s1
+SANS.DESCE:		mv		a0, s1					# Geração dos valores para renderização
 			fcvt.w.s	a1, fs11				
 			fcvt.w.s	a2, fs10
 			li		a3, SANS.IMAGEM.LARGURA
@@ -378,7 +378,7 @@ SANS.DESCE:		mv		a0, s1
 			sb		t4, (t0)
 			j		SANS.RENDER
 			
-SANS.FERIDO:		mv		a0, s1
+SANS.FERIDO:		mv		a0, s1					# Geração dos valores para renderização
 			li		a1, SANS.X
 			li		a2, SANS.Y
 			li		a3, SANS.IMAGEM.LARGURA
@@ -396,7 +396,7 @@ SANS.FERIDO:		mv		a0, s1
 			li		t2, 152
 			blt		t1, t2, SANS.RENDER
 			
-			j		TELA_BF.PARA.TELA_4
+			j		TELA_BF.PARA.TELA_4			# Volta para o mapa normal
 			
 SANS.RENDER:		fcvt.s.w	ft9, t1
 			li		a7, SANS.ALTURA
@@ -406,7 +406,7 @@ SANS.RENDER:		fcvt.s.w	ft9, t1
 BLASTER_H.ATUALIZA:	fcvt.w.s	t1, ft6
 			beqz		t1, ALUCARD.ATUALIZA
 			
-			la		t0, blaster_h.descritor
+			la		t0, blaster_h.descritor			# Geração ds valores para renderização
 			lw		a0, (t0)
 			li		a1, BLASTER_H.X
 			fcvt.w.s	a2, fs8
@@ -426,7 +426,7 @@ BLASTER_H.ATUALIZA:	fcvt.w.s	t1, ft6
 			
 			fcvt.s.w	ft6, zero
 			fcvt.s.w	ft8, zero
-			j 		BLASTER_V.ATUALIZA
+			j 		BLASTER_V.ATUALIZA			# Na ultima animação, desliga o ataque
 			
 BLASTER_H.RENDER:	fcvt.s.w	ft8, t1
 			li		a7, BLASTER_H.ALTURA
@@ -434,14 +434,14 @@ BLASTER_H.RENDER:	fcvt.s.w	ft8, t1
 			
 			# A partir da animação 60 (começou o raio branco)
 			fcvt.w.s	t1, ft8
-			li		t2, 60
+			li		t2, 60					
 			blt		t1, t2, BLASTER_V.ATUALIZA
 			
 			# Se o limite superior do blaster está acima do limite inferior da hitbox do personagem
 			fcvt.w.s	t1, fs8
 			li		t2, ALUCARD.HITBOX_OFFSET.Y
 			add		t2, s5, t2
-			addi		t3, t2, 47				# Pé do alucard
+			addi		t3, t2, 47				# Limite inferior da hitbox do alucard
 			bgt		t1, t3, BLASTER_V.ATUALIZA
 			
 			# E o limite inferior do blaster está abaixo do limite superior do personagem
@@ -458,7 +458,7 @@ BLASTER_H.RENDER:	fcvt.s.w	ft8, t1
 BLASTER_V.ATUALIZA:	fcvt.w.s	t1, ft5
 			beqz		t1, ALUCARD.ATUALIZA
 			
-			la		t0, blaster_v.descritor
+			la		t0, blaster_v.descritor			# Geração dos valores para renderização
 			lw		a0, (t0)
 			fcvt.w.s	a1, fs9
 			li		a2, BLASTER_V.Y
@@ -478,7 +478,7 @@ BLASTER_V.ATUALIZA:	fcvt.w.s	t1, ft5
 		
 			fcvt.s.w	ft5, zero
 			fcvt.s.w	ft7, zero
-			j		ALUCARD.ATUALIZA
+			j		ALUCARD.ATUALIZA			# Na última animação, desliga o ataque
 			
 BLASTER_V.RENDER:	fcvt.s.w	ft7, t1
 			li		a7, BLASTER_V.ALTURA
@@ -493,7 +493,7 @@ BLASTER_V.RENDER:	fcvt.s.w	ft7, t1
 			fcvt.w.s	t1, fs9
 			li		t2, ALUCARD.HITBOX_OFFSET.X
 			add		t2, s6, t2
-			addi		t3, t2, 20				# direita do alucard
+			addi		t3, t2, 20				# Limite direito da hitbox do alucard
 			bgt		t1, t3, ALUCARD.ATUALIZA
 			
 			# E o limite direito do blaster está a direita do limite esquerdo do personagem
@@ -1022,14 +1022,14 @@ OBJETO.RENDER:		fcvt.w.s	t1, fa7
 			blt		t6, t1, OBJETO.NAO_PEGOU
 			bgt		t2, t4, OBJETO.NAO_PEGOU	
 			
-			jal		OBJETO.ACOES
-			jal		OST.OBJETO
-			j		MAPA_FRENTE.RENDER
+			jal		OBJETO.ACOES					# Se pegou o objeto, faz as ações do objeto alvo
+			jal		OST.OBJETO					# Toca o efeito sonoro 
+			j		MAPA_FRENTE.RENDER				
 			
 OBJETO.NAO_PEGOU:	li		a1, -1
 			mul		a1, a1, t1	
 			li		a2, 0
-			jal 		MAX
+			jal 		MAX						
 			mv		a6, a0
 			
 			li		a4, 30
@@ -1040,7 +1040,7 @@ OBJETO.NAO_PEGOU:	li		a1, -1
 			jal		MAX
 			mv		a1, a0
 			
-			la		t0, objeto.descritor
+			la		t0, objeto.descritor				# Geração de valores para renderização
 			lw		a0, (t0)
 			mv		a2, t2
 			li		a3, OBJETO.IMAGEM.LARGURA
@@ -1049,10 +1049,11 @@ OBJETO.NAO_PEGOU:	li		a1, -1
 			jal 		RENDER
 
 # Renderiza o mapa
-MAPA_FRENTE.RENDER:	fcvt.w.s	t0, ft3
+MAPA_FRENTE.RENDER:	# Impressão (se tiver) da parte da tela que fica à frente do personagem 
+			fcvt.w.s	t0, ft3
 			beqz		t0, HUD.RENDER
 			
-			la		t0, TELA.DESCRITORES
+			la		t0, TELA.DESCRITORES				# Geração dos valores para renderização			
 			lw		a0, 44(t0)
 			li		a1, 0		
 			li 		a2, 0
@@ -1065,7 +1066,7 @@ MAPA_FRENTE.RENDER:	fcvt.w.s	t0, ft3
 
 # Renderiza os elementos da HUD 		
 HUD.RENDER:		fcvt.w.s	t0, fs4
-			bgtz		t0, HUD.RENDER.START
+			bgtz		t0, HUD.RENDER.START			# Se o hp do personagem estiver em 0, game over
 			
 			j		GAME_OVER
 					

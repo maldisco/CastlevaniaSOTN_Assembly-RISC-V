@@ -38,7 +38,7 @@ OST.SETUP_MEGALO:	la 		t0, MEGALOVANIA1				# Carrega o endereço da musica
 # Toca uma nota	
 OST.TOCA:		la 		a0, OST_STATUS				# Endereçom do estado
 			li 		a2, 0					# Instrumento (Piano)
-			li 		a3, 30					# Volume
+			li 		a3, 70					# Volume
 			
 			lw		t0, 0(a0)				# Carrega para t0 o tempo da próxima nota
 			beqz 		t0, OST.TOCA.NOTA			# Se for = 0, toca a nota
@@ -75,7 +75,7 @@ OST.RET:		ret							# Retorna ao loop principal
 # Toca uma segunda nota	
 OST.TOCA_2:		la 		a0, OST_STATUS_2			# Endereçom do estado
 			li 		a2, 0					# Instrumento (Piano)
-			li 		a3, 30					# Volume
+			li 		a3, 70					# Volume
 			
 			lw		t0, 0(a0)				# Carrega para t0 o tempo da próxima nota
 			beqz 		t0, OST.TOCA.NOTA_2			# Se for = 0, toca a nota
