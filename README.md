@@ -5,8 +5,8 @@ Castlevania: Symphony of the Night é um jogo de ação-aventura 2D desenvolvido
 Este projeto foi desenvolvido como trabalho final na disciplina Organização e arquitetura de computadores pela Universidade de Brasília.
 
 ## Como jogar
-1) Abra o terminal na pasta onde se encontra o arquivo jogo.s e execute o comando './fpgrars jogo.s'
-2) Arraste o arquivo jogo.s para o arquivo fpgrars
+Opção 1) Abra o terminal na pasta onde se encontra o arquivo jogo.s e execute o comando './fpgrars jogo.s'
+Opção 2) Arraste o arquivo jogo.s para o arquivo fpgrars
 
 ## Comandos
 - 'W' -> Pular
