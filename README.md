@@ -6,6 +6,7 @@ Este projeto foi desenvolvido como trabalho final na disciplina Organização e 
 
 ## Como jogar
 Opção 1) Abra o terminal na pasta onde se encontra o arquivo jogo.s e execute o comando './fpgrars jogo.s'
+
 Opção 2) Arraste o arquivo jogo.s para o arquivo fpgrars
 
 ## Comandos
